@@ -1,131 +1,105 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { getConfig } from '@edx/frontend-platform';
-
-// Local Components
-import DesktopUserMenuToggleSlot
-  from '../plugin-slots/DesktopUserMenuToggleSlot';
-import { Menu, MenuTrigger, MenuContent } from '../Menu';
-import LogoSlot from '../plugin-slots/LogoSlot';
-import DesktopLoggedOutItemsSlot from '../plugin-slots/DesktopLoggedOutItemsSlot';
-import { desktopLoggedOutItemsDataShape } from './DesktopLoggedOutItems';
+import { initLucideIcons } from '../utils/iconUtils';
 import DesktopMainMenuSlot from '../plugin-slots/DesktopMainMenuSlot';
-import { desktopHeaderMainOrSecondaryMenuDataShape } from './DesktopHeaderMainOrSecondaryMenu';
 import DesktopSecondaryMenuSlot from '../plugin-slots/DesktopSecondaryMenuSlot';
-import DesktopUserMenuSlot from '../plugin-slots/DesktopUserMenuSlot';
-import { desktopUserMenuDataShape } from './DesktopHeaderUserMenu';
-
-// i18n
+import DesktopLoggedOutItemsSlot from '../plugin-slots/DesktopLoggedOutItemsSlot';
+import LogoSlot from '../plugin-slots/LogoSlot';
+import Sidebar from './Sidebar';
 import messages from '../Header.messages';
-
-// Assets
+import './Sidebar.css';
 
 const DesktopHeader = ({
-  mainMenu,
-  secondaryMenu,
-  userMenu,
-  loggedOutItems,
-  logo,
-  logoAltText,
-  logoDestination,
-  avatar,
-  username,
-  loggedIn,
+mainMenu,
+secondaryMenu,
+userMenu,
+loggedOutItems,
+logo,
+logoAltText,
+logoDestination,
+loggedIn,
 }) => {
-  const intl = useIntl();
+const intl = useIntl();
+const logoProps = { src: logo, alt: logoAltText, href: logoDestination };
 
-  const renderMainMenu = () => <DesktopMainMenuSlot menu={mainMenu} />;
+const [sidebarOpen, setSidebarOpen] = useState(false);
+const [darkMode, setDarkMode] = useState(false);
 
-  const renderSecondaryMenu = () => <DesktopSecondaryMenuSlot menu={secondaryMenu} />;
+useEffect(() => {
+initLucideIcons();
+}, [darkMode, sidebarOpen]);
 
-  const renderUserMenu = () => (
-    <Menu transitionClassName="menu-dropdown" transitionTimeout={250}>
-      <MenuTrigger
-        tag="button"
-        aria-label={intl.formatMessage(messages['header.label.account.menu.for'], { username })}
-        className="btn btn-outline-primary d-inline-flex align-items-center pl-2 pr-3"
+return (
+<> <Sidebar
+     isCollapsed={!sidebarOpen}
+     darkMode={darkMode}
+     loggedIn={loggedIn}
+     userMenu={userMenu}
+   /> <header className="main-header">
+<button
+className="header-toggle-btn"
+onClick={() => setSidebarOpen(!sidebarOpen)}
+aria-label="Toggle sidebar"
+> <i data-lucide="menu"></i> </button>
+
+```
+    <div className="header-center">
+      <a href={logoDestination} className="logo-link">
+        <LogoSlot {...logoProps} />
+      </a>
+      <h1 className="page-title">
+        {intl.formatMessage(messages['header.links.courses'])}
+      </h1>
+    </div>
+
+    <div className="header-right">
+      <nav className="main-nav">
+        <DesktopMainMenuSlot menu={mainMenu} />
+      </nav>
+
+      {loggedIn ? (
+        <DesktopSecondaryMenuSlot menu={secondaryMenu} />
+      ) : (
+        <DesktopLoggedOutItemsSlot items={loggedOutItems} />
+      )}
+
+      <button
+        className="dark-mode-toggle"
+        onClick={() => setDarkMode(!darkMode)}
+        title="Toggle dark mode"
+        aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
       >
-        <DesktopUserMenuToggleSlot avatar={avatar} label={username} />
-      </MenuTrigger>
-      <MenuContent className="mb-0 dropdown-menu show dropdown-menu-right pin-right shadow py-2">
-        <DesktopUserMenuSlot menu={userMenu} />
-      </MenuContent>
-    </Menu>
-  );
+        <i data-lucide={darkMode ? 'sun' : 'moon'}></i>
+      </button>
+    </div>
+  </header>
+</>
 
-  const renderLoggedOutItems = () => <DesktopLoggedOutItemsSlot items={loggedOutItems} />;
 
-  const logoProps = { src: logo, alt: logoAltText, href: logoDestination };
-  const logoClasses = getConfig().AUTHN_MINIMAL_HEADER ? 'mw-100' : null;
-
-  return (
-    <header className="site-header-desktop">
-      <a className="nav-skip sr-only sr-only-focusable" href="#main">{intl.formatMessage(messages['header.label.skip.nav'])}</a>
-      <div className={`container-fluid ${logoClasses}`}>
-        <div className="nav-container position-relative d-flex align-items-center">
-          <LogoSlot {...logoProps} />
-          <nav
-            aria-label={intl.formatMessage(messages['header.label.main.nav'])}
-            className="nav main-nav"
-          >
-            {renderMainMenu()}
-          </nav>
-          <nav
-            aria-label={intl.formatMessage(messages['header.label.secondary.nav'])}
-            className="nav secondary-menu-container align-items-center ml-auto"
-          >
-            {loggedIn
-              ? (
-                <>
-                  {renderSecondaryMenu()}
-                  {renderUserMenu()}
-                </>
-              ) : renderLoggedOutItems()}
-          </nav>
-        </div>
-      </div>
-    </header>
-  );
-};
-
-export const desktopHeaderDataShape = {
-  mainMenu: desktopHeaderMainOrSecondaryMenuDataShape,
-  secondaryMenu: desktopHeaderMainOrSecondaryMenuDataShape,
-  userMenu: desktopUserMenuDataShape,
-  loggedOutItems: desktopLoggedOutItemsDataShape,
-  logo: PropTypes.string,
-  logoAltText: PropTypes.string,
-  logoDestination: PropTypes.string,
-  avatar: PropTypes.string,
-  username: PropTypes.string,
-  loggedIn: PropTypes.bool,
+);
 };
 
 DesktopHeader.propTypes = {
-  mainMenu: desktopHeaderDataShape.mainMenu,
-  secondaryMenu: desktopHeaderDataShape.secondaryMenu,
-  userMenu: desktopHeaderDataShape.userMenu,
-  loggedOutItems: desktopHeaderDataShape.loggedOutItems,
-  logo: desktopHeaderDataShape.logo,
-  logoAltText: desktopHeaderDataShape.logoAltText,
-  logoDestination: desktopHeaderDataShape.logoDestination,
-  avatar: desktopHeaderDataShape.avatar,
-  username: desktopHeaderDataShape.username,
-  loggedIn: desktopHeaderDataShape.loggedIn,
+mainMenu: PropTypes.array,
+secondaryMenu: PropTypes.array,
+userMenu: PropTypes.array,
+loggedOutItems: PropTypes.array,
+logo: PropTypes.string,
+logoAltText: PropTypes.string,
+logoDestination: PropTypes.string,
+loggedIn: PropTypes.bool,
 };
 
 DesktopHeader.defaultProps = {
-  mainMenu: [],
-  secondaryMenu: [],
-  userMenu: [],
-  loggedOutItems: [],
-  logo: null,
-  logoAltText: null,
-  logoDestination: null,
-  avatar: null,
-  username: null,
-  loggedIn: false,
+mainMenu: [],
+secondaryMenu: [],
+userMenu: [],
+loggedOutItems: [],
+logo: null,
+logoAltText: null,
+logoDestination: null,
+loggedIn: false,
 };
 
 export default DesktopHeader;

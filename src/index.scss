@@ -1,122 +1,59 @@
-
-$spacer: 1rem;
-$blue: #007db8;
-$white: #fff;
-$component-active-bg: #0A3055FF !default;
-$component-active-color: $white !default;
-$rounded-pill: 50rem !default;
-
-@import './Menu/menu.scss';
-@import './studio-header/StudioHeader.scss';
-
-
-:root {
-  --header-height: 3.5rem;
-  --light-bg: var(--pgn-color-white, #fff);
-  --text-primary: var(--pgn-color-text, #1a1a1a);
-  --border-color: var(--pgn-color-border, #e5e7eb);
-}
-
-[data-theme='dark'] {
-  --light-bg: var(--pgn-color-bg-inverse, #1e1e1e);
-  --text-primary: var(--pgn-color-text-inverse, #f5f5f5);
-  --border-color: #333;
-}
-
 .main-header {
-  height: var(--header-height);
-  background-color: var(--light-bg);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  padding: 0 30px;
-  gap: 20px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.header-logo {
-  height: 36px;
-  cursor: pointer;
+    height: var(--header-height);
+    background-color: var(--light-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 900;
 }
 
 .header-toggle-btn,
 .dark-mode-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-  transition: all 0.2s ease;
-  border-radius: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
 }
 
 .header-toggle-btn:hover,
 .dark-mode-toggle:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="dark"] .header-toggle-btn:hover,
 [data-theme="dark"] .dark-mode-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .header-toggle-btn i,
 .dark-mode-toggle i {
-  width: 24px;
-  height: 24px;
+    width: 24px;
+    height: 24px;
 }
 
-.header-nav {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  gap: 1rem;
-
-  a {
-    text-decoration: none;
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
     color: var(--text-primary);
-    font-weight: 500;
-    position: relative;
-
-    &:hover::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 100%;
-      height: 2px;
-      background: currentColor;
-    }
-  }
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-left: auto;
-
-  a {
-    text-decoration: none;
-    color: var(--text-primary);
-  }
-}
-
-.user-name {
-  font-weight: 600;
+    margin: 0;
+    flex: 1;
 }
 
 @media (max-width: 768px) {
-  .main-header {
-    padding: 0 15px;
-  }
-
-  .header-nav {
-    display: none; // hide menu for mobile if needed
-  }
+    .main-header {
+        padding: 0 15px;
+    }
+    
+    .page-title {
+        font-size: 20px;
+    }
 }
