@@ -216,3 +216,4 @@ Header.propTypes = {
   toggleSidebar: PropTypes.func
 };
 export default Header;
+//# sourceMappingURL=Header.js.map

@@ -19,3 +19,4 @@ DesktopLoggedOutItems.propTypes = {
   items: desktopLoggedOutItemsDataShape
 };
 export default DesktopLoggedOutItems;
+//# sourceMappingURL=DesktopLoggedOutItems.js.map

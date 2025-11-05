@@ -49,3 +49,4 @@ export var CaretIcon = function CaretIcon(props) {
     transform: "translate(8.000000, 7.000000) rotate(-45.000000) translate(-8.000000, -7.000000) "
   }));
 };
+//# sourceMappingURL=Icons.js.map

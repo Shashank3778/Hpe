@@ -154,3 +154,4 @@ MobileHeader.defaultProps = {
   stickyOnMobile: true
 };
 export default MobileHeader;
+//# sourceMappingURL=MobileHeader.js.map

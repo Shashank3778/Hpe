@@ -13,3 +13,4 @@ var MobileHeaderSlot = function MobileHeaderSlot(_ref) {
 };
 MobileHeaderSlot.propTypes = mobileHeaderDataShape;
 export default MobileHeaderSlot;
+//# sourceMappingURL=index.js.map

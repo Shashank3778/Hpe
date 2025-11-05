@@ -17,3 +17,4 @@ MobileLoggedOutItemsSlot.propTypes = {
   items: mobileHeaderLoggedOutItemsDataShape
 };
 export default MobileLoggedOutItemsSlot;
+//# sourceMappingURL=index.js.map

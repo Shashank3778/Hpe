@@ -22,3 +22,4 @@ StudioHeaderSearchButtonSlot.propTypes = {
   searchButtonAction: PropTypes.func
 };
 export default StudioHeaderSearchButtonSlot;
+//# sourceMappingURL=index.js.map

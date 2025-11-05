@@ -17,3 +17,4 @@ DesktopMainMenuSlot.propTypes = {
   menu: desktopHeaderMainOrSecondaryMenuDataShape
 };
 export default DesktopMainMenuSlot;
+//# sourceMappingURL=index.js.map

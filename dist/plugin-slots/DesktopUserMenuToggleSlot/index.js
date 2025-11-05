@@ -16,3 +16,4 @@ var DesktopUserMenuToggleSlot = function DesktopUserMenuToggleSlot(_ref) {
 };
 DesktopUserMenuToggleSlot.propTypes = DesktopUserMenuTogglePropTypes;
 export default DesktopUserMenuToggleSlot;
+//# sourceMappingURL=index.js.map

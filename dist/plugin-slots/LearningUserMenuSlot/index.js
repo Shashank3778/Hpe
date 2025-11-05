@@ -15,3 +15,4 @@ var LearningUserMenuSlot = function LearningUserMenuSlot(_ref) {
 };
 LearningUserMenuSlot.propTypes = learningHeaderUserMenuDataShape;
 export default LearningUserMenuSlot;
+//# sourceMappingURL=index.js.map

@@ -15,3 +15,4 @@ var LearningLoggedOutItemsSlot = function LearningLoggedOutItemsSlot(_ref) {
 };
 LearningLoggedOutItemsSlot.propTypes = learningHeaderLoggedOutItemsDataShape;
 export default LearningLoggedOutItemsSlot;
+//# sourceMappingURL=index.js.map

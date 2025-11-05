@@ -22,3 +22,4 @@ export var DesktopUserMenuTogglePropTypes = {
 };
 DesktopUserMenuToggle.propTypes = DesktopUserMenuTogglePropTypes;
 export default DesktopUserMenuToggle;
+//# sourceMappingURL=DesktopUserMenuToggle.js.map

@@ -29,3 +29,4 @@ var CourseInfoSlot = function CourseInfoSlot(_ref) {
 };
 CourseInfoSlot.propTypes = courseInfoDataShape;
 export default CourseInfoSlot;
+//# sourceMappingURL=index.js.map

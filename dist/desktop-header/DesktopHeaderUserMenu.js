@@ -46,3 +46,4 @@ DesktopHeaderUserMenu.propTypes = {
   menu: desktopUserMenuDataShape
 };
 export default DesktopHeaderUserMenu;
+//# sourceMappingURL=DesktopHeaderUserMenu.js.map
