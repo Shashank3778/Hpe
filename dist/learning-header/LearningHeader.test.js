@@ -2,23 +2,33 @@ function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present,
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-var executeThunk = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(thunk, dispatch, getState) {
+import React from 'react';
+import { authenticatedUser, initializeMockApp, render, screen } from '../setupTest';
+import { LearningHeader as Header } from '../index';
+describe('Header', function () {
+  beforeAll(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
     return _regenerator().w(function (_context) {
       while (1) switch (_context.n) {
         case 0:
           _context.n = 1;
-          return thunk(dispatch, getState);
+          return initializeMockApp();
         case 1:
-          _context.n = 2;
-          return new Promise(setImmediate);
-        case 2:
           return _context.a(2);
       }
     }, _callee);
-  }));
-  return function executeThunk(_x, _x2, _x3) {
-    return _ref.apply(this, arguments);
-  };
-}();
-export default executeThunk;
+  })));
+  it('displays user button', function () {
+    render(/*#__PURE__*/React.createElement(Header, null));
+    expect(screen.getByText(authenticatedUser.username)).toBeInTheDocument();
+  });
+  it('displays course data', function () {
+    var courseData = {
+      courseOrg: 'course-org',
+      courseNumber: 'course-number',
+      courseTitle: 'course-title'
+    };
+    render(/*#__PURE__*/React.createElement(Header, courseData));
+    expect(screen.getByText("".concat(courseData.courseOrg, " ").concat(courseData.courseNumber))).toBeInTheDocument();
+    expect(screen.getByText(courseData.courseTitle)).toBeInTheDocument();
+  });
+});

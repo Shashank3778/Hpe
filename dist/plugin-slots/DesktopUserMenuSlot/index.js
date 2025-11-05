@@ -17,4 +17,3 @@ DesktopUserMenuSlot.propTypes = {
   menu: desktopUserMenuDataShape
 };
 export default DesktopUserMenuSlot;
-//# sourceMappingURL=index.js.map

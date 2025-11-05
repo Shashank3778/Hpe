@@ -40,4 +40,3 @@ Avatar.defaultProps = {
   className: null
 };
 export default Avatar;
-//# sourceMappingURL=Avatar.js.map

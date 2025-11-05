@@ -13,4 +13,3 @@ var DesktopHeaderSlot = function DesktopHeaderSlot(_ref) {
 };
 DesktopHeaderSlot.propTypes = desktopHeaderDataShape;
 export default DesktopHeaderSlot;
-//# sourceMappingURL=index.js.map

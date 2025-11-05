@@ -21,4 +21,3 @@ export var courseInfoDataShape = {
 };
 LearningHeaderCourseInfo.propTypes = courseInfoDataShape;
 export default LearningHeaderCourseInfo;
-//# sourceMappingURL=LearningHeaderCourseInfo.js.map

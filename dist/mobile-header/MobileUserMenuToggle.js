@@ -16,4 +16,3 @@ export var MobileUserMenuTogglePropTypes = {
 };
 MobileUserMenuToggle.propTypes = MobileUserMenuTogglePropTypes;
 export default MobileUserMenuToggle;
-//# sourceMappingURL=MobileUserMenuToggle.js.map

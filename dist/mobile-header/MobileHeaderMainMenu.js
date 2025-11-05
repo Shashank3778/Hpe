@@ -43,4 +43,3 @@ MobileHeaderMainMenu.propTypes = {
   menu: mobileHeaderMainMenuDataShape
 };
 export default MobileHeaderMainMenu;
-//# sourceMappingURL=MobileHeaderMainMenu.js.map

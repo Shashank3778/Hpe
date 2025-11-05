@@ -92,4 +92,3 @@ Sidebar.defaultProps = {
   userMenu: []
 };
 export default Sidebar;
-//# sourceMappingURL=Sidebar.js.map

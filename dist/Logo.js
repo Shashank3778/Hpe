@@ -25,4 +25,3 @@ export var logoDataShape = {
 };
 Logo.propTypes = logoDataShape;
 export default Logo;
-//# sourceMappingURL=Logo.js.map

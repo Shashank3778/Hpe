@@ -24,4 +24,3 @@ MobileLoggedOutItems.propTypes = {
   menu: mobileHeaderLoggedOutItemsDataShape
 };
 export default MobileLoggedOutItems;
-//# sourceMappingURL=MobileLoggedOutItems.js.map

@@ -17,4 +17,3 @@ MobileUserMenuSlot.propTypes = {
   menu: mobileHeaderUserMenuDataShape
 };
 export default MobileUserMenuSlot;
-//# sourceMappingURL=index.js.map

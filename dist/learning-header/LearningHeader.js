@@ -56,4 +56,3 @@ LearningHeader.defaultProps = {
   showUserDropdown: true
 };
 export default LearningHeader;
-//# sourceMappingURL=LearningHeader.js.map

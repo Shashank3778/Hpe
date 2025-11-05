@@ -24,4 +24,3 @@ var LogoSlot = function LogoSlot(_ref) {
 };
 LogoSlot.propTypes = logoDataShape;
 export default LogoSlot;
-//# sourceMappingURL=index.js.map

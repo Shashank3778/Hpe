@@ -19,4 +19,3 @@ var AnonymousUserMenu = function AnonymousUserMenu() {
   });
 };
 export default AnonymousUserMenu;
-//# sourceMappingURL=AnonymousUserMenu.js.map

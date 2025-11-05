@@ -50,4 +50,3 @@ AuthenticatedUserDropdown.propTypes = {
   username: PropTypes.string.isRequired
 };
 export default AuthenticatedUserDropdown;
-//# sourceMappingURL=AuthenticatedUserDropdown.js.map

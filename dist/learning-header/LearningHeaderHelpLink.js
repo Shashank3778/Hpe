@@ -10,4 +10,3 @@ var LearningHeaderHelpLink = function LearningHeaderHelpLink() {
   }, intl.formatMessage(messages.help));
 };
 export default LearningHeaderHelpLink;
-//# sourceMappingURL=LearningHeaderHelpLink.js.map

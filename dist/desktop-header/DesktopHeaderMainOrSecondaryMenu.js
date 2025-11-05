@@ -48,4 +48,3 @@ DesktopHeaderMainOrSecondaryMenu.propTypes = {
   menu: desktopHeaderMainOrSecondaryMenuDataShape
 };
 export default DesktopHeaderMainOrSecondaryMenu;
-//# sourceMappingURL=DesktopHeaderMainOrSecondaryMenu.js.map

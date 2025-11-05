@@ -105,4 +105,3 @@ DesktopHeader.defaultProps = {
   loggedIn: false
 };
 export default DesktopHeader;
-//# sourceMappingURL=DesktopHeader.js.map

@@ -17,4 +17,3 @@ DesktopLoggedOutItemsSlot.propTypes = {
   items: desktopLoggedOutItemsDataShape
 };
 export default DesktopLoggedOutItemsSlot;
-//# sourceMappingURL=index.js.map

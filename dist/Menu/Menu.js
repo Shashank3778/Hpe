@@ -318,4 +318,3 @@ Menu.defaultProps = {
   transitionClassName: 'menu-content'
 };
 export { Menu, MenuTrigger, MenuContent };
-//# sourceMappingURL=Menu.js.map
