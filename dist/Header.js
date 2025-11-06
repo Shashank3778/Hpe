@@ -1,56 +1,223 @@
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
-import React, { useState, useEffect, useContext } from 'react';
-import { getConfig, AppContext } from '@edx/frontend-platform/react';
-import DesktopHeader from './desktop-header/DesktopHeader';
-import Sidebar from './Sidebar';
-
-/**
- * Wrapper Header component
- * Combines header + sidebar + dark mode logic.
- */
-var Header = function Header() {
+import React, { useContext, useState, useEffect } from 'react';
+import { useIntl } from '@edx/frontend-platform/i18n';
+import { AppContext } from '@edx/frontend-platform/react';
+import { APP_CONFIG_INITIALIZED, ensureConfig, mergeConfig, getConfig, subscribe } from '@edx/frontend-platform';
+import PropTypes from 'prop-types';
+import CustomHeader from './CustomHeader';
+import CustomSidebar from './CustomSidebar';
+import './Header.css';
+ensureConfig(['LMS_BASE_URL', 'LOGOUT_URL', 'LOGIN_URL', 'SITE_NAME', 'LOGO_URL', 'ORDER_HISTORY_URL', 'ACCOUNT_PROFILE_URL', 'ACCOUNT_SETTINGS_URL'], 'Header component');
+subscribe(APP_CONFIG_INITIALIZED, function () {
+  mergeConfig({
+    AUTHN_MINIMAL_HEADER: !!process.env.AUTHN_MINIMAL_HEADER
+  }, 'Header additional config');
+});
+var Header = function Header(_ref) {
+  var mainMenuItems = _ref.mainMenuItems,
+    secondaryMenuItems = _ref.secondaryMenuItems,
+    userMenuItems = _ref.userMenuItems;
   var _useContext = useContext(AppContext),
-    authenticatedUser = _useContext.authenticatedUser;
+    authenticatedUser = _useContext.authenticatedUser,
+    config = _useContext.config;
+  var intl = useIntl();
   var _useState = useState(false),
     _useState2 = _slicedToArray(_useState, 2),
-    sidebarOpen = _useState2[0],
-    setSidebarOpen = _useState2[1];
+    sidebarCollapsed = _useState2[0],
+    setSidebarCollapsed = _useState2[1];
   var _useState3 = useState(false),
     _useState4 = _slicedToArray(_useState3, 2),
     darkMode = _useState4[0],
     setDarkMode = _useState4[1];
-  var toggleSidebar = function toggleSidebar() {
-    setSidebarOpen(!sidebarOpen);
-  };
-  var toggleDarkMode = function toggleDarkMode() {
-    var newMode = !darkMode;
-    setDarkMode(newMode);
-    document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
-  };
-
-  // Shift body when sidebar opens
+  var _useState5 = useState('home'),
+    _useState6 = _slicedToArray(_useState5, 2),
+    currentPage = _useState6[0],
+    setCurrentPage = _useState6[1];
   useEffect(function () {
-    document.body.classList.toggle('sidebar-open', sidebarOpen);
-  }, [sidebarOpen]);
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DesktopHeader, {
-    title: "Home",
+    var savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  }, []);
+  var toggleDarkMode = function toggleDarkMode() {
+    var newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
+    if (newDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  };
+  var toggleSidebar = function toggleSidebar() {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+  var defaultMainMenu = [{
+    id: 'home',
+    icon: 'home',
+    label: intl.formatMessage({
+      id: 'header.links.home',
+      defaultMessage: 'Home'
+    }),
+    href: "".concat(config.LMS_BASE_URL, "/dashboard")
+  }, {
+    id: 'dashboard',
+    icon: 'layout-dashboard',
+    label: intl.formatMessage({
+      id: 'header.links.dashboard',
+      defaultMessage: 'My Dashboard'
+    }),
+    href: "".concat(config.LMS_BASE_URL, "/dashboard")
+  }, {
+    id: 'courses',
+    icon: 'book-open',
+    label: intl.formatMessage({
+      id: 'header.links.courses',
+      defaultMessage: 'Courses'
+    }),
+    href: "".concat(config.LMS_BASE_URL, "/courses")
+  }, {
+    id: 'programs',
+    icon: 'route',
+    label: intl.formatMessage({
+      id: 'header.links.programs',
+      defaultMessage: 'Programs'
+    }),
+    href: "".concat(config.LMS_BASE_URL, "/programs")
+  }];
+  var defaultUserMenu = authenticatedUser === null ? [] : [{
+    id: 'user-dashboard',
+    icon: 'gauge',
+    label: intl.formatMessage({
+      id: 'header.user.menu.dashboard',
+      defaultMessage: 'Dashboard'
+    }),
+    href: "".concat(config.LMS_BASE_URL, "/dashboard")
+  }, {
+    id: 'profile',
+    icon: 'user',
+    label: intl.formatMessage({
+      id: 'header.user.menu.profile',
+      defaultMessage: 'Profile'
+    }),
+    href: "".concat(config.ACCOUNT_PROFILE_URL, "/u/").concat(authenticatedUser.username)
+  }, {
+    id: 'account',
+    icon: 'settings',
+    label: intl.formatMessage({
+      id: 'header.user.menu.account.settings',
+      defaultMessage: 'Account'
+    }),
+    href: config.ACCOUNT_SETTINGS_URL
+  }].concat(_toConsumableArray(config.ORDER_HISTORY_URL ? [{
+    id: 'order-history',
+    icon: 'shopping-bag',
+    label: intl.formatMessage({
+      id: 'header.user.menu.order.history',
+      defaultMessage: 'Order History'
+    }),
+    href: config.ORDER_HISTORY_URL
+  }] : []), [{
+    id: 'signout',
+    icon: 'log-out',
+    label: intl.formatMessage({
+      id: 'header.user.menu.logout',
+      defaultMessage: 'Sign Out'
+    }),
+    href: config.LOGOUT_URL
+  }]);
+  var mainMenu = mainMenuItems || defaultMainMenu;
+  var userMenu = authenticatedUser === null ? [] : userMenuItems || defaultUserMenu;
+  var loggedOutItems = [{
+    id: 'login',
+    label: intl.formatMessage({
+      id: 'header.user.menu.login',
+      defaultMessage: 'Login'
+    }),
+    href: config.LOGIN_URL
+  }, {
+    id: 'register',
+    label: intl.formatMessage({
+      id: 'header.user.menu.register',
+      defaultMessage: 'Register'
+    }),
+    href: "".concat(config.LMS_BASE_URL, "/register")
+  }];
+  var getPageTitle = function getPageTitle() {
+    var path = window.location.pathname;
+    if (path.includes('dashboard')) return intl.formatMessage({
+      id: 'header.title.dashboard',
+      defaultMessage: 'Dashboard'
+    });
+    if (path.includes('courses')) return intl.formatMessage({
+      id: 'header.title.courses',
+      defaultMessage: 'Courses'
+    });
+    if (path.includes('programs')) return intl.formatMessage({
+      id: 'header.title.programs',
+      defaultMessage: 'Programs'
+    });
+    return config.SITE_NAME || intl.formatMessage({
+      id: 'header.title.default',
+      defaultMessage: 'Learning Platform'
+    });
+  };
+  if (getConfig().AUTHN_MINIMAL_HEADER) {
+    return null;
+  }
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(CustomSidebar, {
+    isCollapsed: sidebarCollapsed,
+    currentPage: currentPage,
+    setCurrentPage: setCurrentPage,
+    darkMode: darkMode,
+    mainMenu: mainMenu,
+    userMenu: userMenu,
+    loggedOutItems: loggedOutItems,
+    authenticatedUser: authenticatedUser,
+    config: config,
+    logoUrl: config.LOGO_URL,
+    siteName: config.SITE_NAME
+  }), /*#__PURE__*/React.createElement(CustomHeader, {
+    title: getPageTitle(),
     toggleSidebar: toggleSidebar,
     darkMode: darkMode,
-    toggleDarkMode: toggleDarkMode
-  }), /*#__PURE__*/React.createElement(Sidebar, {
-    isCollapsed: !sidebarOpen,
-    currentPage: "home",
-    setCurrentPage: function setCurrentPage() {},
-    userMenuOpen: false,
-    setUserMenuOpen: function setUserMenuOpen() {},
-    darkMode: darkMode,
-    authenticatedUser: authenticatedUser
+    toggleDarkMode: toggleDarkMode,
+    sidebarCollapsed: sidebarCollapsed
   }));
+};
+Header.defaultProps = {
+  mainMenuItems: null,
+  secondaryMenuItems: null,
+  userMenuItems: null
+};
+Header.propTypes = {
+  mainMenuItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    icon: PropTypes.string,
+    label: PropTypes.string,
+    href: PropTypes.string
+  })),
+  secondaryMenuItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    label: PropTypes.string,
+    href: PropTypes.string
+  })),
+  userMenuItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    icon: PropTypes.string,
+    label: PropTypes.string,
+    href: PropTypes.string
+  }))
 };
 export default Header;
 //# sourceMappingURL=Header.js.map
