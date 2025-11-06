@@ -1,0 +1,50 @@
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: width 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  overflow-x: hidden;
+  transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  display: block;
+}
+
+.sidebar.collapsed .logo-img {
+  width: 40px;
+  height: 40px;
+  max-width: 40px;
+}
+
+/* ... (keep the rest of your existing Sidebar.css styles) ... */
