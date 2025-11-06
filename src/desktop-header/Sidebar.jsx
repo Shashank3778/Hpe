@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { initLucideIcons } from '../../utils/iconUtils';
+import { getConfig } from '@edx/frontend-platform';
 import './Sidebar.css';
 
 const Sidebar = ({
@@ -23,19 +24,17 @@ const Sidebar = ({
     { id: 'dashboard', icon: 'layout-dashboard', label: 'My Dashboard' },
     { id: 'courses', icon: 'book-open', label: 'Courses' },
     { id: 'learning-paths', icon: 'route', label: 'Learning Paths' },
-    { id: 'ai-studio', icon: 'bot', label: 'AI Studio' }
+    { id: 'ai-studio', icon: 'bot', label: 'AI Studio' },
   ];
 
   useEffect(() => {
     initLucideIcons();
   }, [currentPage, userMenuOpen, isCollapsed, darkMode]);
 
-  // Handler for user menu clicks
   const handleUserMenuClick = (itemId) => {
     if (itemId === 'signout') {
-      console.log('Signing out...');
       alert('Signing out...');
-      // Implement actual logout logic here
+      // Implement logout logic here
     } else {
       setCurrentPage(itemId);
     }
@@ -45,7 +44,6 @@ const Sidebar = ({
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
         <div className="logo-container">
-          {/* Put your logo here */}
           <img
             className="logo-img"
             src={
@@ -61,7 +59,7 @@ const Sidebar = ({
       </div>
 
       <ul className="nav-menu">
-        {menuItems.map(item => (
+        {menuItems.map((item) => (
           <li key={item.id} className="nav-item">
             <a
               className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
@@ -83,21 +81,26 @@ const Sidebar = ({
           role="button"
           tabIndex={0}
         >
-          <div className="user-avatar" style={{ backgroundImage: avatar ? `url(${avatar})` : undefined }}>
-            {!avatar && defaultUserName.split(' ').map(n => n[0]).join('')}
+          <div
+            className="user-avatar"
+            style={{ backgroundImage: avatar ? `url(${avatar})` : undefined }}
+          >
+            {!avatar && defaultUserName.split(' ').map((n) => n[0]).join('')}
           </div>
           {!isCollapsed && (
             <div className="user-info">
               <div className="user-name">{defaultUserName}</div>
             </div>
           )}
-          {!isCollapsed && <i data-lucide={userMenuOpen ? 'chevron-up' : 'chevron-down'}></i>}
+          {!isCollapsed && (
+            <i data-lucide={userMenuOpen ? 'chevron-up' : 'chevron-down'}></i>
+          )}
         </div>
 
         {userMenuOpen && (
           <ul className="user-menu-items nav-menu">
-            {loggedIn && userMenu && userMenu.length > 0
-              ? userMenu.map(item => (
+            {loggedIn && userMenu && userMenu.length > 0 ? (
+              userMenu.map((item) => (
                 <li key={item.id} className="nav-item">
                   <a
                     className="nav-link"
@@ -110,13 +113,13 @@ const Sidebar = ({
                   </a>
                 </li>
               ))
-              : (
-                <li className="nav-item">
-                  <a className="nav-link" href={getConfig().LOGIN_URL}>
-                    Login
-                  </a>
-                </li>
-              )}
+            ) : (
+              <li className="nav-item">
+                <a className="nav-link" href={getConfig().LOGIN_URL}>
+                  Login
+                </a>
+              </li>
+            )}
           </ul>
         )}
       </div>

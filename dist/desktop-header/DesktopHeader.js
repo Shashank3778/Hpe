@@ -5,15 +5,16 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 // DesktopHeader.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getConfig } from '@edx/frontend-platform';
+import { initLucideIcons } from '../../utils/iconUtils';
 import DesktopMainMenuSlot from '../plugin-slots/DesktopMainMenuSlot';
 import DesktopSecondaryMenuSlot from '../plugin-slots/DesktopSecondaryMenuSlot';
-import Sidebar from './Sidebar'; // Make sure the path to Sidebar.jsx is correct
-import '../index.scss';
-import './Sidebar.css';
+import Sidebar from './Sidebar';
+import './Sidebar.css'; // keep your sidebar CSS
+
 import messages from '../Header.messages';
 var DesktopHeader = function DesktopHeader(_ref) {
   var mainMenu = _ref.mainMenu,
@@ -27,8 +28,6 @@ var DesktopHeader = function DesktopHeader(_ref) {
     username = _ref.username,
     loggedIn = _ref.loggedIn;
   var intl = useIntl();
-
-  // State for sidebar, current page, user menu, dark mode
   var _useState = useState(false),
     _useState2 = _slicedToArray(_useState, 2),
     isCollapsed = _useState2[0],
@@ -45,20 +44,19 @@ var DesktopHeader = function DesktopHeader(_ref) {
     _useState8 = _slicedToArray(_useState7, 2),
     darkMode = _useState8[0],
     setDarkMode = _useState8[1];
-
-  // Toggle sidebar collapse
+  useEffect(function () {
+    initLucideIcons();
+  }, [isCollapsed, darkMode]);
   var toggleSidebar = function toggleSidebar() {
-    return setIsCollapsed(!isCollapsed);
+    return setIsCollapsed(function (prev) {
+      return !prev;
+    });
   };
-
-  // Toggle dark mode
   var toggleDarkMode = function toggleDarkMode() {
     var next = !darkMode;
     setDarkMode(next);
     document.documentElement.classList.toggle('dark-mode', next);
   };
-
-  // Render main and secondary menus as before
   var renderMainMenu = function renderMainMenu() {
     return /*#__PURE__*/React.createElement(DesktopMainMenuSlot, {
       menu: mainMenu
@@ -70,7 +68,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
     });
   };
   var renderLoggedOutItems = function renderLoggedOutItems() {
-    return loggedOutItems && loggedOutItems.length > 0 ? /*#__PURE__*/React.createElement("nav", {
+    return (loggedOutItems === null || loggedOutItems === void 0 ? void 0 : loggedOutItems.length) > 0 ? /*#__PURE__*/React.createElement("nav", {
       "aria-label": intl.formatMessage(messages['header.label.secondary.nav']),
       className: "nav secondary-menu-container align-items-center ml-auto"
     }, loggedOutItems.map(function (item, idx) {
@@ -82,9 +80,43 @@ var DesktopHeader = function DesktopHeader(_ref) {
     })) : null;
   };
   var logoClasses = getConfig().AUTHN_MINIMAL_HEADER ? 'mw-100' : null;
+  var sidebarWidth = isCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)';
+
+  // ---- INLINE STYLES ----
+  var mainHeaderStyle = {
+    height: 'var(--header-height)',
+    backgroundColor: 'var(--light-bg)',
+    borderBottom: '1px solid var(--border-color)',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 30px',
+    gap: '20px',
+    position: 'sticky',
+    top: 0,
+    zIndex: 900
+  };
+  var toggleButtonStyle = {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'var(--text-primary)',
+    transition: 'all 0.2s ease'
+  };
+  var pageTitleStyle = {
+    fontSize: '24px',
+    fontWeight: 600,
+    color: 'var(--text-primary)',
+    margin: 0,
+    flex: 1
+  };
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      display: 'flex'
+      display: 'flex',
+      minHeight: '100vh'
     }
   }, /*#__PURE__*/React.createElement(Sidebar, {
     isCollapsed: isCollapsed,
@@ -101,47 +133,50 @@ var DesktopHeader = function DesktopHeader(_ref) {
     className: "site-header-desktop-container",
     style: {
       flex: 1,
-      marginLeft: isCollapsed ? '80px' : '240px'
+      marginLeft: "calc(".concat(sidebarWidth, ")"),
+      transition: 'margin-left 0.3s ease'
     }
   }, /*#__PURE__*/React.createElement("header", {
-    className: "site-header-desktop ".concat(darkMode ? 'dark' : '')
-  }, /*#__PURE__*/React.createElement("a", {
-    className: "nav-skip sr-only sr-only-focusable",
-    href: "#main"
-  }, intl.formatMessage(messages['header.label.skip.nav'])), /*#__PURE__*/React.createElement("div", {
-    className: "container-fluid ".concat(logoClasses)
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "nav-container position-relative d-flex align-items-center"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: logoDestination,
-    className: "logo-link"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: logo,
-    alt: logoAltText,
-    className: "header-logo"
-  })), /*#__PURE__*/React.createElement("nav", {
-    "aria-label": intl.formatMessage(messages['header.label.main.nav']),
-    className: "nav main-nav"
-  }, renderMainMenu()), /*#__PURE__*/React.createElement("nav", {
-    "aria-label": intl.formatMessage(messages['header.label.secondary.nav']),
-    className: "nav secondary-menu-container align-items-center ml-auto"
-  }, loggedIn ? renderSecondaryMenu() : renderLoggedOutItems()), /*#__PURE__*/React.createElement("button", {
+    style: mainHeaderStyle
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "header-toggle-btn",
+    style: toggleButtonStyle,
     onClick: toggleSidebar,
     "aria-label": isCollapsed ? 'Expand sidebar' : 'Collapse sidebar',
     title: isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": isCollapsed ? 'menu' : 'chevron-left'
+    "data-lucide": isCollapsed ? 'menu' : 'chevron-left',
+    style: {
+      width: 24,
+      height: 24
+    }
   })), /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "dark-mode-toggle",
+    style: toggleButtonStyle,
     onClick: toggleDarkMode,
     "aria-label": "Toggle dark mode",
     title: darkMode ? 'Switch to light mode' : 'Switch to dark mode'
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": darkMode ? 'sun' : 'moon'
-  })))))));
+    "data-lucide": darkMode ? 'sun' : 'moon',
+    style: {
+      width: 24,
+      height: 24
+    }
+  })), /*#__PURE__*/React.createElement("h1", {
+    style: pageTitleStyle
+  }, "Dashboard"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginLeft: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '16px'
+    }
+  }, loggedIn ? renderSecondaryMenu() : renderLoggedOutItems())), /*#__PURE__*/React.createElement("main", {
+    id: "main",
+    style: {
+      padding: '20px'
+    }
+  }, /*#__PURE__*/React.createElement("p", null, "Your main content goes here..."))));
 };
 DesktopHeader.propTypes = {
   mainMenu: PropTypes.array,

@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { initLucideIcons } from '../../utils/iconUtils';
+import { getConfig } from '@edx/frontend-platform';
 import './Sidebar.css';
 var Sidebar = function Sidebar(_ref) {
   var isCollapsed = _ref.isCollapsed,
@@ -39,13 +40,10 @@ var Sidebar = function Sidebar(_ref) {
   useEffect(function () {
     initLucideIcons();
   }, [currentPage, userMenuOpen, isCollapsed, darkMode]);
-
-  // Handler for user menu clicks
   var handleUserMenuClick = function handleUserMenuClick(itemId) {
     if (itemId === 'signout') {
-      console.log('Signing out...');
       alert('Signing out...');
-      // Implement actual logout logic here
+      // Implement logout logic here
     } else {
       setCurrentPage(itemId);
     }
