@@ -7,7 +7,7 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { getConfig } from '@edx/frontend-platform';
-import { initLucideIcons } from '../../utils/iconUtils';
+import { initLucideIcons } from './desktop-header/utils/iconUtils';
 import './Sidebar.css';
 
 /**

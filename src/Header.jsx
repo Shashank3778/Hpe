@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { getConfig, AppContext } from '@edx/frontend-platform/react';
-import DesktopHeader from './DesktopHeader';
+import DesktopHeader from './desktop-header/DesktopHeader';
 import Sidebar from './Sidebar';
-import './Header.css';
 
 /**
  * Wrapper Header component

@@ -6,9 +6,8 @@ function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" !=
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 import React, { useState, useEffect, useContext } from 'react';
 import { getConfig, AppContext } from '@edx/frontend-platform/react';
-import DesktopHeader from './DesktopHeader';
+import DesktopHeader from './desktop-header/DesktopHeader';
 import Sidebar from './Sidebar';
-import './Header.css';
 
 /**
  * Wrapper Header component

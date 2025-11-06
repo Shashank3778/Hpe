@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { initLucideIcons } from '../../utils/iconUtils';
+import { initLucideIcons } from './utils/iconUtils';
 import './DesktopHeader.css';
 
 /**
