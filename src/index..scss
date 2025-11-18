@@ -1,0 +1,121 @@
+/* HEADER */
+.main-header {
+  height: 60px;
+  background: var(--pgn-color-bg-primary);
+  color: var(--pgn-color-text-primary);
+  border-bottom: 1px solid var(--pgn-color-border);
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  transition: margin-left 0.3s ease;
+}
+
+.page-title {
+  flex: 1;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--pgn-color-text-primary);
+}
+
+.header-toggle-btn,
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--pgn-color-text-primary);
+}
+
+.header-toggle-btn:hover,
+.dark-mode-toggle:hover {
+  background: var(--pgn-color-bg-hover);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: var(--pgn-color-bg-primary);
+  color: var(--pgn-color-text-primary);
+  border-right: 1px solid var(--pgn-color-border);
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.sidebar-header {
+  padding: 20px;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+}
+
+/* MENU */
+.nav-menu {
+  list-style: none;
+  padding: 15px 0;
+}
+
+.nav-link {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--pgn-color-text-primary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  background: var(--pgn-color-bg-hover);
+  color: var(--pgn-color-text-active);
+}
+
+.nav-link.active {
+  background: var(--pgn-color-bg-active);
+  color: var(--pgn-color-active);
+  border-left-color: var(--pgn-color-active);
+}
+
+.sidebar.collapsed .nav-link span {
+  display: none;
+}
+
+/* USER MENU */
+.user-menu {
+  padding: 15px;
+  border-top: 1px solid var(--pgn-color-border);
+}
+
+.user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40spx;
+  border-radius: 50%;
+  background: var(--pgn-color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  color: var(--pgn-color-text-primary);
+}
