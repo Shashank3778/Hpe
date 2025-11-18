@@ -42,182 +42,94 @@ var Header = function Header(_ref) {
     _useState6 = _slicedToArray(_useState5, 2),
     currentPage = _useState6[0],
     setCurrentPage = _useState6[1];
+
+  // Load theme state
   useEffect(function () {
-    var savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDarkMode);
-    if (savedDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
+    var savedDark = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDark);
+    if (savedDark) {
+      document.body.classList.add('theme-dark');
+      document.body.classList.remove('theme-light');
+    } else {
+      document.body.classList.add('theme-light');
+      document.body.classList.remove('theme-dark');
     }
   }, []);
   var toggleDarkMode = function toggleDarkMode() {
-    var newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', String(newDarkMode));
-    if (newDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
+    var newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('darkMode', String(newMode));
+    if (newMode) {
+      document.body.classList.add('theme-dark');
+      document.body.classList.remove('theme-light');
     } else {
-      document.documentElement.removeAttribute('data-theme');
+      document.body.classList.add('theme-light');
+      document.body.classList.remove('theme-dark');
     }
   };
   var toggleSidebar = function toggleSidebar() {
-    setSidebarCollapsed(!sidebarCollapsed);
+    return setSidebarCollapsed(!sidebarCollapsed);
   };
   var defaultMainMenu = [{
     id: 'home',
     icon: 'home',
-    label: intl.formatMessage({
-      id: 'header.links.home',
-      defaultMessage: 'Home'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/dashboard")
-  }, {
-    id: 'dashboard',
-    icon: 'layout-dashboard',
-    label: intl.formatMessage({
-      id: 'header.links.dashboard',
-      defaultMessage: 'My Dashboard'
-    }),
+    label: 'Home',
     href: "".concat(config.LMS_BASE_URL, "/dashboard")
   }, {
     id: 'courses',
     icon: 'book-open',
-    label: intl.formatMessage({
-      id: 'header.links.courses',
-      defaultMessage: 'Courses'
-    }),
+    label: 'Courses',
     href: "".concat(config.LMS_BASE_URL, "/courses")
-  }, {
-    id: 'programs',
-    icon: 'route',
-    label: intl.formatMessage({
-      id: 'header.links.programs',
-      defaultMessage: 'Programs'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/programs")
   }];
   var defaultUserMenu = authenticatedUser === null ? [] : [{
-    id: 'user-dashboard',
-    icon: 'gauge',
-    label: intl.formatMessage({
-      id: 'header.user.menu.dashboard',
-      defaultMessage: 'Dashboard'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/dashboard")
-  }, {
     id: 'profile',
     icon: 'user',
-    label: intl.formatMessage({
-      id: 'header.user.menu.profile',
-      defaultMessage: 'Profile'
-    }),
+    label: 'Profile',
     href: "".concat(config.ACCOUNT_PROFILE_URL, "/u/").concat(authenticatedUser.username)
   }, {
     id: 'account',
     icon: 'settings',
-    label: intl.formatMessage({
-      id: 'header.user.menu.account.settings',
-      defaultMessage: 'Account'
-    }),
+    label: 'Account',
     href: config.ACCOUNT_SETTINGS_URL
   }].concat(_toConsumableArray(config.ORDER_HISTORY_URL ? [{
-    id: 'order-history',
+    id: 'orders',
     icon: 'shopping-bag',
-    label: intl.formatMessage({
-      id: 'header.user.menu.order.history',
-      defaultMessage: 'Order History'
-    }),
+    label: 'Orders',
     href: config.ORDER_HISTORY_URL
   }] : []), [{
-    id: 'signout',
+    id: 'logout',
     icon: 'log-out',
-    label: intl.formatMessage({
-      id: 'header.user.menu.logout',
-      defaultMessage: 'Sign Out'
-    }),
+    label: 'Logout',
     href: config.LOGOUT_URL
   }]);
-  var mainMenu = mainMenuItems || defaultMainMenu;
-  var userMenu = authenticatedUser === null ? [] : userMenuItems || defaultUserMenu;
-  var loggedOutItems = [{
-    id: 'login',
-    label: intl.formatMessage({
-      id: 'header.user.menu.login',
-      defaultMessage: 'Login'
-    }),
-    href: config.LOGIN_URL
-  }, {
-    id: 'register',
-    label: intl.formatMessage({
-      id: 'header.user.menu.register',
-      defaultMessage: 'Register'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/register")
-  }];
-  var getPageTitle = function getPageTitle() {
-    var path = window.location.pathname;
-    if (path.includes('dashboard')) return intl.formatMessage({
-      id: 'header.title.dashboard',
-      defaultMessage: 'Dashboard'
-    });
-    if (path.includes('courses')) return intl.formatMessage({
-      id: 'header.title.courses',
-      defaultMessage: 'Courses'
-    });
-    if (path.includes('programs')) return intl.formatMessage({
-      id: 'header.title.programs',
-      defaultMessage: 'Programs'
-    });
-    return config.SITE_NAME || intl.formatMessage({
-      id: 'header.title.default',
-      defaultMessage: 'Learning Platform'
-    });
-  };
-  if (getConfig().AUTHN_MINIMAL_HEADER) {
-    return null;
-  }
+  if (getConfig().AUTHN_MINIMAL_HEADER) return null;
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(CustomSidebar, {
     isCollapsed: sidebarCollapsed,
     currentPage: currentPage,
     setCurrentPage: setCurrentPage,
     darkMode: darkMode,
-    mainMenu: mainMenu,
-    userMenu: userMenu,
-    loggedOutItems: loggedOutItems,
+    mainMenu: mainMenuItems || defaultMainMenu,
+    userMenu: userMenuItems || defaultUserMenu,
+    loggedOutItems: [{
+      id: 'login',
+      label: 'Login',
+      href: config.LOGIN_URL
+    }, {
+      id: 'register',
+      label: 'Register',
+      href: "".concat(config.LMS_BASE_URL, "/register")
+    }],
     authenticatedUser: authenticatedUser,
     config: config,
     logoUrl: config.LOGO_URL,
     siteName: config.SITE_NAME
   }), /*#__PURE__*/React.createElement(CustomHeader, {
-    title: getPageTitle(),
+    title: "Dashboard",
     toggleSidebar: toggleSidebar,
     darkMode: darkMode,
     toggleDarkMode: toggleDarkMode,
     sidebarCollapsed: sidebarCollapsed
   }));
-};
-Header.defaultProps = {
-  mainMenuItems: null,
-  secondaryMenuItems: null,
-  userMenuItems: null
-};
-Header.propTypes = {
-  mainMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    icon: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string
-  })),
-  secondaryMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string
-  })),
-  userMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    icon: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string
-  }))
 };
 export default Header;
 //# sourceMappingURL=Header.js.map

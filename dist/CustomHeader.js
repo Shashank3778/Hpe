@@ -13,34 +13,21 @@ var CustomHeader = function CustomHeader(_ref) {
   return /*#__PURE__*/React.createElement("header", {
     className: "main-header",
     style: {
-      marginLeft: sidebarCollapsed ? '60px' : '240px',
-      transition: 'margin-left 0.3s ease'
+      marginLeft: sidebarCollapsed ? '60px' : '240px'
     }
   }, /*#__PURE__*/React.createElement("button", {
     className: "header-toggle-btn",
-    onClick: toggleSidebar,
-    "aria-label": "Toggle sidebar",
-    "data-testid": "button-toggle-sidebar"
+    onClick: toggleSidebar
   }, /*#__PURE__*/React.createElement("i", {
     "data-lucide": "menu"
   })), /*#__PURE__*/React.createElement("h1", {
     className: "page-title"
   }, title), /*#__PURE__*/React.createElement("button", {
     className: "dark-mode-toggle",
-    onClick: toggleDarkMode,
-    title: "Toggle dark mode",
-    "aria-label": darkMode ? "Switch to light mode" : "Switch to dark mode",
-    "data-testid": "button-toggle-darkmode"
+    onClick: toggleDarkMode
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": darkMode ? "sun" : "moon"
+    "data-lucide": darkMode ? 'sun' : 'moon'
   })));
-};
-CustomHeader.propTypes = {
-  title: PropTypes.string.isRequired,
-  toggleSidebar: PropTypes.func.isRequired,
-  darkMode: PropTypes.bool.isRequired,
-  toggleDarkMode: PropTypes.func.isRequired,
-  sidebarCollapsed: PropTypes.bool.isRequired
 };
 export default CustomHeader;
 //# sourceMappingURL=CustomHeader.js.map
