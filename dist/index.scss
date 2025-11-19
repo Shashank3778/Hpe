@@ -13,7 +13,8 @@ $rounded-pill: 50rem  !default;
 ====================================== */
 :root {
   --header-height: 60px;
-  --sidebar-width: 280px;
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 60px;
 
   /* Light mode colors */
   --light-bg: #ffffff;
@@ -57,6 +58,7 @@ $rounded-pill: 50rem  !default;
   position: sticky;
   top: 0;
   z-index: 900;
+  transition: margin-left 0.3s ease;
 }
 
 .header-toggle-btn,
@@ -90,7 +92,7 @@ $rounded-pill: 50rem  !default;
 }
 
 .page-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
@@ -98,26 +100,7 @@ $rounded-pill: 50rem  !default;
 }
 
 /* ======================================
-   SIDEBAR OVERLAY
-====================================== */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* ======================================
-   SIDEBAR STYLES
+   SIDEBAR STYLES (DESKTOP - ALWAYS VISIBLE)
 ====================================== */
 .sidebar {
   width: var(--sidebar-width);
@@ -129,14 +112,12 @@ $rounded-pill: 50rem  !default;
   position: fixed;
   left: 0;
   top: 0;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  overflow-x: hidden;
-  overflow-y: auto;
+  transition: width 0.3s ease;
   z-index: 1000;
+  overflow-x: hidden;
 
-  &.open {
-    transform: translateX(0);
+  &.collapsed {
+    width: var(--sidebar-collapsed-width);
   }
 }
 
@@ -148,8 +129,8 @@ $rounded-pill: 50rem  !default;
 
 .logo-container {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 
   a {
     display: block;
@@ -164,19 +145,21 @@ $rounded-pill: 50rem  !default;
   display: block;
 }
 
+.sidebar.collapsed .logo-img {
+  width: 40px;
+  height: 40px;
+  max-width: 40px;
+}
+
 /* ======================================
    NAVIGATION MENU
 ====================================== */
-.sidebar-nav {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px 0;
-}
-
 .nav-menu {
   list-style: none;
+  padding: 20px 0;
+  flex: 1;
+  overflow-y: auto;
   margin: 0;
-  padding: 0;
 }
 
 .nav-item {
@@ -184,60 +167,37 @@ $rounded-pill: 50rem  !default;
 }
 
 .nav-link {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 20px;
-  text-decoration: none !important;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  transition: all 0.2s ease;
   cursor: pointer;
   border-left: 3px solid transparent;
-  transition: all 0.2s;
-  color: var(--sidebar-text) !important;
-  background: transparent;
 
   i {
     width: 20px;
     height: 20px;
     flex-shrink: 0;
-    stroke: var(--sidebar-text);
   }
 
   span {
-    color: var(--sidebar-text) !important;
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
-    display: inline-block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
   }
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    color: var(--sidebar-text-hover) !important;
-
-    span {
-      color: var(--sidebar-text-hover) !important;
-    }
-
-    i {
-      stroke: var(--sidebar-text-hover);
-    }
+    background-color: rgba(0, 0, 0, 0.03);
+    color: var(--sidebar-text-hover);
   }
 
   &.active {
-    color: var(--primary-color) !important;
-    font-weight: 600;
-    background-color: rgba(95, 106, 255, 0.1);
+    color: var(--primary-color);
+    background-color: rgba(95, 106, 255, 0.08);
     border-left-color: var(--primary-color);
-
-    span {
-      color: var(--primary-color) !important;
-    }
-
-    i {
-      stroke: var(--primary-color);
-    }
   }
 }
 
@@ -245,12 +205,21 @@ $rounded-pill: 50rem  !default;
   background-color: rgba(255, 255, 255, 0.05);
 }
 
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 14px 10px;
+
+  span {
+    display: none;
+  }
+}
+
 /* ======================================
    USER MENU
 ====================================== */
 .user-menu {
-  padding: 15px;
   border-top: 1px solid var(--border-color);
+  padding: 15px;
   margin-top: auto;
   flex-shrink: 0;
 }
@@ -262,10 +231,10 @@ $rounded-pill: 50rem  !default;
   padding: 10px;
   cursor: pointer;
   border-radius: 6px;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.03);
   }
 
   i {
@@ -273,8 +242,6 @@ $rounded-pill: 50rem  !default;
     height: 16px;
     color: var(--text-secondary);
     flex-shrink: 0;
-    stroke: var(--text-secondary);
-    transition: transform 0.2s;
   }
 }
 
@@ -288,12 +255,12 @@ $rounded-pill: 50rem  !default;
   border-radius: 50%;
   background-color: var(--primary-color);
   color: white;
-  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
   flex-shrink: 0;
-  font-size: 16px;
   overflow: hidden;
 
   img {
@@ -309,12 +276,19 @@ $rounded-pill: 50rem  !default;
 }
 
 .user-name {
-  color: var(--sidebar-text);
   font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.sidebar.collapsed {
+  .user-info,
+  .user-menu-header i {
+    display: none;
+  }
 }
 
 .user-menu-items {
@@ -322,8 +296,6 @@ $rounded-pill: 50rem  !default;
 
   .nav-link {
     padding: 10px 15px;
-    border-radius: 4px;
-    border-left: none !important;
     font-size: 13px;
   }
 }
@@ -348,20 +320,24 @@ $rounded-pill: 50rem  !default;
 }
 
 /* ======================================
-   RESPONSIVE
+   RESPONSIVE - MOBILE
 ====================================== */
 @media (max-width: 768px) {
   .main-header {
     padding: 0 15px;
+    margin-left: 0 !important;
   }
 
   .page-title {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .sidebar {
-    width: 100%;
-    max-width: 300px;
+    transform: translateX(-100%);
+    
+    &:not(.collapsed) {
+      transform: translateX(0);
+    }
   }
 }
 

@@ -27,14 +27,15 @@ const DesktopHeader = ({
   loggedIn,
 }) => {
   const intl = useIntl();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [currentPage, setCurrentPage] = useState('home');
 
   // Initialize icons when component mounts and when state changes
   useEffect(() => {
     initLucideIcons();
-  }, [sidebarOpen, userMenuOpen, darkMode]);
+  }, [sidebarCollapsed, userMenuOpen, darkMode, currentPage]);
 
   // Load dark mode preference from localStorage
   useEffect(() => {
@@ -53,9 +54,9 @@ const DesktopHeader = ({
     document.documentElement.setAttribute('data-theme', newDarkMode ? 'dark' : 'light');
   };
 
-  // Toggle sidebar
+  // Toggle sidebar collapse
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   // Get page title from URL
@@ -70,45 +71,63 @@ const DesktopHeader = ({
     return getConfig().SITE_NAME || 'Learning Platform';
   };
 
+  // Map menu items to include icons
+  const getIconForMenuItem = (item, index) => {
+    const iconMap = {
+      'dashboard': 'layout-dashboard',
+      'courses': 'book-open',
+      'programs': 'route',
+      'home': 'home',
+    };
+    
+    // Try to match by href
+    const href = item.href || '';
+    if (href.includes('dashboard')) return 'layout-dashboard';
+    if (href.includes('courses')) return 'book-open';
+    if (href.includes('programs') || href.includes('learning')) return 'route';
+    
+    // Default icons based on position
+    const defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route', 'bot'];
+    return defaultIcons[index] || 'circle';
+  };
+
+  // Map user menu items to include icons
+  const getIconForUserMenuItem = (item) => {
+    const href = item.href || '';
+    const content = (item.content || '').toLowerCase();
+    
+    if (href.includes('dashboard') || content.includes('dashboard')) return 'gauge';
+    if (href.includes('profile') || content.includes('profile')) return 'user';
+    if (href.includes('account') || href.includes('settings') || content.includes('account')) return 'settings';
+    if (href.includes('order') || content.includes('order')) return 'shopping-bag';
+    if (href.includes('logout') || content.includes('logout') || content.includes('sign out')) return 'log-out';
+    
+    return 'circle';
+  };
+
+  // Determine which logo to show
+  const getLogoSrc = () => {
+    if (sidebarCollapsed) {
+      return logo || 'https://page.gensparksite.com/v1/base64_upload/54d382973dd8c88b434a48567fa6c866';
+    }
+    // Use appropriate logo based on dark mode
+    return logo || (darkMode 
+      ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd'
+      : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
+  };
+
   return (
     <>
-      {/* Main Header */}
-      <header className="main-header">
-        <button 
-          className="header-toggle-btn" 
-          onClick={toggleSidebar}
-          aria-label="Toggle sidebar"
-        >
-          <i data-lucide="menu"></i>
-        </button>
-        <h1 className="page-title">{getPageTitle()}</h1>
-        <button 
-          className="dark-mode-toggle" 
-          onClick={toggleDarkMode} 
-          title="Toggle dark mode"
-          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          <i data-lucide={darkMode ? "sun" : "moon"}></i>
-        </button>
-      </header>
-
-      {/* Sidebar Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="sidebar-overlay" 
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+      {/* Sidebar - Always visible on desktop */}
+      <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
         {/* Sidebar Header */}
         <div className="sidebar-header">
           <div className="logo-container">
             <a href={logoDestination}>
               <img 
                 className="logo-img"
-                src={logo} 
+                key={`${sidebarCollapsed}-${darkMode}`}
+                src={getLogoSrc()} 
                 alt={logoAltText} 
               />
             </a>
@@ -116,50 +135,56 @@ const DesktopHeader = ({
         </div>
         
         {/* Main Menu Navigation */}
-        <nav className="sidebar-nav">
-          <ul className="nav-menu">
-            {mainMenu && mainMenu.length > 0 ? (
-              mainMenu.map((item, index) => (
-                <li key={index} className="nav-item">
-                  <a 
-                    href={item.href} 
-                    className="nav-link"
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <i data-lucide="circle"></i>
-                    <span>{item.content}</span>
-                  </a>
-                </li>
-              ))
-            ) : (
-              <li className="nav-item">
-                <a href={`${getConfig().LMS_BASE_URL}/dashboard`} className="nav-link">
-                  <i data-lucide="home"></i>
-                  <span>Dashboard</span>
+        <ul className="nav-menu">
+          {mainMenu && mainMenu.length > 0 ? (
+            mainMenu.map((item, index) => (
+              <li key={index} className="nav-item">
+                <a 
+                  href={item.href} 
+                  className={`nav-link ${window.location.pathname === item.href ? 'active' : ''}`}
+                >
+                  <i data-lucide={getIconForMenuItem(item, index)}></i>
+                  <span>{item.content}</span>
                 </a>
               </li>
-            )}
-          </ul>
-
-          {/* Secondary Menu */}
-          {secondaryMenu && secondaryMenu.length > 0 && (
-            <ul className="nav-menu">
-              {secondaryMenu.map((item, index) => (
-                <li key={index} className="nav-item">
-                  <a 
-                    href={item.href} 
-                    className="nav-link"
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <i data-lucide="circle"></i>
-                    <span>{item.content}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+            ))
+          ) : (
+            <>
+              <li className="nav-item">
+                <a href={`${getConfig().LMS_BASE_URL}/`} className="nav-link">
+                  <i data-lucide="home"></i>
+                  <span>Home</span>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a href={`${getConfig().LMS_BASE_URL}/dashboard`} className="nav-link active">
+                  <i data-lucide="layout-dashboard"></i>
+                  <span>My Dashboard</span>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a href={`${getConfig().LMS_BASE_URL}/courses`} className="nav-link">
+                  <i data-lucide="book-open"></i>
+                  <span>Courses</span>
+                </a>
+              </li>
+            </>
           )}
-        </nav>
-
+          
+          {/* Secondary Menu */}
+          {secondaryMenu && secondaryMenu.length > 0 && secondaryMenu.map((item, index) => (
+            <li key={`secondary-${index}`} className="nav-item">
+              <a 
+                href={item.href} 
+                className="nav-link"
+              >
+                <i data-lucide={getIconForMenuItem(item, index + mainMenu.length)}></i>
+                <span>{item.content}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        
         {/* User Menu Section */}
         {loggedIn ? (
           <div className="user-menu">
@@ -178,7 +203,7 @@ const DesktopHeader = ({
                 {avatar ? (
                   <img src={avatar} alt={username} />
                 ) : (
-                  <span>{username ? username.charAt(0).toUpperCase() : 'U'}</span>
+                  <span>{username ? username.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}</span>
                 )}
               </div>
               <div className="user-info">
@@ -197,9 +222,8 @@ const DesktopHeader = ({
                           <a 
                             href={item.href} 
                             className="nav-link"
-                            onClick={() => setSidebarOpen(false)}
                           >
-                            <i data-lucide="circle"></i>
+                            <i data-lucide={getIconForUserMenuItem(item)}></i>
                             <span>{item.content}</span>
                           </a>
                         </li>
@@ -242,6 +266,31 @@ const DesktopHeader = ({
           </div>
         )}
       </aside>
+
+      {/* Main Header */}
+      <header 
+        className="main-header"
+        style={{
+          marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
+        }}
+      >
+        <button 
+          className="header-toggle-btn" 
+          onClick={toggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          <i data-lucide="menu"></i>
+        </button>
+        <h1 className="page-title">{getPageTitle()}</h1>
+        <button 
+          className="dark-mode-toggle" 
+          onClick={toggleDarkMode} 
+          title="Toggle dark mode"
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          <i data-lucide={darkMode ? "sun" : "moon"}></i>
+        </button>
+      </header>
     </>
   );
 };
