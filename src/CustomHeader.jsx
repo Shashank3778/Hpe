@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { initLucideIcons } from './utilis/iconUtils';
+import { initLucideIcons } from './uitils/iconUtils';
 
 const CustomHeader = ({ title, toggleSidebar, darkMode, toggleDarkMode, sidebarCollapsed }) => {
   useEffect(() => {
