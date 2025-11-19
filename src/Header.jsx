@@ -1,4 +1,6 @@
-import React, { useContext, useState, useEffect } from 'react';
+
+import React, { useContext } from 'react';
+import Responsive from 'react-responsive';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import {
@@ -8,10 +10,12 @@ import {
   getConfig,
   subscribe,
 } from '@edx/frontend-platform';
+
 import PropTypes from 'prop-types';
-import CustomHeader from './CustomHeader';
-import CustomSidebar from './CustomSidebar';
-import './Header.css';
+import DesktopHeaderSlot from './plugin-slots/DesktopHeaderSlot';
+import MobileHeaderSlot from './plugin-slots/MobileHeaderSlot';
+
+import messages from './Header.messages';
 
 ensureConfig([
   'LMS_BASE_URL',
@@ -20,8 +24,6 @@ ensureConfig([
   'SITE_NAME',
   'LOGO_URL',
   'ORDER_HISTORY_URL',
-  'ACCOUNT_PROFILE_URL',
-  'ACCOUNT_SETTINGS_URL',
 ], 'Header component');
 
 subscribe(APP_CONFIG_INITIALIZED, () => {
@@ -30,150 +32,104 @@ subscribe(APP_CONFIG_INITIALIZED, () => {
   }, 'Header additional config');
 });
 
+/**
+ * Header component for the application.
+ * Displays a header with the provided main menu, secondary menu, and user menu when the user is authenticated.
+ * If any of the props (mainMenuItems, secondaryMenuItems, userMenuItems) are not provided, default
+ * items are displayed.
+ * For more details on how to use this component, please refer to this document:
+ * https://github.com/openedx/frontend-component-header/blob/master/docs/using_custom_header.rst
+ *
+ * @param {list} mainMenuItems - The list of main menu items to display.
+ * See the documentation for the structure of main menu item.
+ * @param {list} secondaryMenuItems - The list of secondary menu items to display.
+ * See the documentation for the structure of secondary menu item.
+ * @param {list} userMenuItems - The list of user menu items to display.
+ * See the documentation for the structure of user menu item.
+ */
 const Header = ({
-  mainMenuItems,
-  secondaryMenuItems,
-  userMenuItems,
+  mainMenuItems, secondaryMenuItems, userMenuItems,
 }) => {
   const { authenticatedUser, config } = useContext(AppContext);
   const intl = useIntl();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home');
-
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDarkMode);
-    if (savedDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', String(newDarkMode));
-    if (newDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
-  };
-
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
 
   const defaultMainMenu = [
     {
-      id: 'home',
-      icon: 'home',
-      label: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
+      type: 'item',
       href: `${config.LMS_BASE_URL}/dashboard`,
-    },
-    {
-      id: 'dashboard',
-      icon: 'layout-dashboard',
-      label: intl.formatMessage({ id: 'header.links.dashboard', defaultMessage: 'My Dashboard' }),
-      href: `${config.LMS_BASE_URL}/dashboard`,
-    },
-    {
-      id: 'courses',
-      icon: 'book-open',
-      label: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
-      href: `${config.LMS_BASE_URL}/courses`,
-    },
-    {
-      id: 'programs',
-      icon: 'route',
-      label: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Programs' }),
-      href: `${config.LMS_BASE_URL}/programs`,
+      content: intl.formatMessage(messages['header.links.courses']),
     },
   ];
-
-  const defaultUserMenu = authenticatedUser === null ? [] : [
-    {
-      id: 'user-dashboard',
-      icon: 'gauge',
-      label: intl.formatMessage({ id: 'header.user.menu.dashboard', defaultMessage: 'Dashboard' }),
-      href: `${config.LMS_BASE_URL}/dashboard`,
-    },
-    {
-      id: 'profile',
-      icon: 'user',
-      label: intl.formatMessage({ id: 'header.user.menu.profile', defaultMessage: 'Profile' }),
-      href: `${config.ACCOUNT_PROFILE_URL}/u/${authenticatedUser.username}`,
-    },
-    {
-      id: 'account',
-      icon: 'settings',
-      label: intl.formatMessage({ id: 'header.user.menu.account.settings', defaultMessage: 'Account' }),
-      href: config.ACCOUNT_SETTINGS_URL,
-    },
-    ...(config.ORDER_HISTORY_URL ? [{
-      id: 'order-history',
-      icon: 'shopping-bag',
-      label: intl.formatMessage({ id: 'header.user.menu.order.history', defaultMessage: 'Order History' }),
-      href: config.ORDER_HISTORY_URL,
-    }] : []),
-    {
-      id: 'signout',
-      icon: 'log-out',
-      label: intl.formatMessage({ id: 'header.user.menu.logout', defaultMessage: 'Sign Out' }),
-      href: config.LOGOUT_URL,
-    },
-  ];
+  const defaultUserMenu = authenticatedUser === null ? [] : [{
+    heading: '',
+    items: [
+      {
+        type: 'item',
+        href: `${config.LMS_BASE_URL}/dashboard`,
+        content: intl.formatMessage(messages['header.user.menu.dashboard']),
+      },
+      {
+        type: 'item',
+        href: `${config.ACCOUNT_PROFILE_URL}/u/${authenticatedUser.username}`,
+        content: intl.formatMessage(messages['header.user.menu.profile']),
+      },
+      {
+        type: 'item',
+        href: config.ACCOUNT_SETTINGS_URL,
+        content: intl.formatMessage(messages['header.user.menu.account.settings']),
+      },
+      // Users should only see Order History if have a ORDER_HISTORY_URL define in the environment.
+      ...(config.ORDER_HISTORY_URL ? [{
+        type: 'item',
+        href: config.ORDER_HISTORY_URL,
+        content: intl.formatMessage(messages['header.user.menu.order.history']),
+      }] : []),
+      {
+        type: 'item',
+        href: config.LOGOUT_URL,
+        content: intl.formatMessage(messages['header.user.menu.logout']),
+      },
+    ],
+  }];
 
   const mainMenu = mainMenuItems || defaultMainMenu;
+  const secondaryMenu = secondaryMenuItems || [];
   const userMenu = authenticatedUser === null ? [] : userMenuItems || defaultUserMenu;
 
   const loggedOutItems = [
     {
-      id: 'login',
-      label: intl.formatMessage({ id: 'header.user.menu.login', defaultMessage: 'Login' }),
+      type: 'item',
       href: config.LOGIN_URL,
+      content: intl.formatMessage(messages['header.user.menu.login']),
     },
     {
-      id: 'register',
-      label: intl.formatMessage({ id: 'header.user.menu.register', defaultMessage: 'Register' }),
+      type: 'item',
       href: `${config.LMS_BASE_URL}/register`,
+      content: intl.formatMessage(messages['header.user.menu.register']),
     },
   ];
 
-  const getPageTitle = () => {
-    const path = window.location.pathname;
-    if (path.includes('dashboard')) return intl.formatMessage({ id: 'header.title.dashboard', defaultMessage: 'Dashboard' });
-    if (path.includes('courses')) return intl.formatMessage({ id: 'header.title.courses', defaultMessage: 'Courses' });
-    if (path.includes('programs')) return intl.formatMessage({ id: 'header.title.programs', defaultMessage: 'Programs' });
-    return config.SITE_NAME || intl.formatMessage({ id: 'header.title.default', defaultMessage: 'Learning Platform' });
+  const props = {
+    logo: config.LOGO_URL,
+    logoAltText: config.SITE_NAME,
+    logoDestination: `${config.LMS_BASE_URL}/dashboard`,
+    loggedIn: authenticatedUser !== null,
+    username: authenticatedUser !== null ? authenticatedUser.username : null,
+    avatar: authenticatedUser !== null ? authenticatedUser.avatar : null,
+    mainMenu: getConfig().AUTHN_MINIMAL_HEADER ? [] : mainMenu,
+    secondaryMenu: getConfig().AUTHN_MINIMAL_HEADER ? [] : secondaryMenu,
+    userMenu: getConfig().AUTHN_MINIMAL_HEADER ? [] : userMenu,
+    loggedOutItems: getConfig().AUTHN_MINIMAL_HEADER ? [] : loggedOutItems,
   };
-
-  if (getConfig().AUTHN_MINIMAL_HEADER) {
-    return null;
-  }
 
   return (
     <>
-      <CustomSidebar
-        isCollapsed={sidebarCollapsed}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        darkMode={darkMode}
-        mainMenu={mainMenu}
-        userMenu={userMenu}
-        loggedOutItems={loggedOutItems}
-        authenticatedUser={authenticatedUser}
-        config={config}
-        logoUrl={config.LOGO_URL}
-        siteName={config.SITE_NAME}
-      />
-      <CustomHeader
-        title={getPageTitle()}
-        toggleSidebar={toggleSidebar}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        sidebarCollapsed={sidebarCollapsed}
-      />
+      <Responsive maxWidth={769}>
+        <MobileHeaderSlot props={props} />
+      </Responsive>
+      <Responsive minWidth={769}>
+        <DesktopHeaderSlot props={props} />
+      </Responsive>
     </>
   );
 };
@@ -185,22 +141,22 @@ Header.defaultProps = {
 };
 
 Header.propTypes = {
-  mainMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    icon: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string,
-  })),
-  secondaryMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string,
-  })),
+  mainMenuItems: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.array,
+  ]),
+  secondaryMenuItems: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.array,
+  ]),
   userMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    icon: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string,
+    heading: PropTypes.string,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      type: PropTypes.oneOf(['item', 'menu']),
+      href: PropTypes.string,
+      content: PropTypes.string,
+      isActive: PropTypes.bool,
+    })),
   })),
 };
 

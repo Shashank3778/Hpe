@@ -1,26 +1,18 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getConfig } from '@edx/frontend-platform';
 
-// Local Components
-import DesktopUserMenuToggleSlot
-  from '../plugin-slots/DesktopUserMenuToggleSlot';
-import { Menu, MenuTrigger, MenuContent } from '../Menu';
-import LogoSlot from '../plugin-slots/LogoSlot';
-import DesktopLoggedOutItemsSlot from '../plugin-slots/DesktopLoggedOutItemsSlot';
+// Import your icon utility
+import { initLucideIcons } from '../uitils/iconUtils';
+
+// Import only the data shape validators
 import { desktopLoggedOutItemsDataShape } from './DesktopLoggedOutItems';
-import DesktopMainMenuSlot from '../plugin-slots/DesktopMainMenuSlot';
 import { desktopHeaderMainOrSecondaryMenuDataShape } from './DesktopHeaderMainOrSecondaryMenu';
-import DesktopSecondaryMenuSlot from '../plugin-slots/DesktopSecondaryMenuSlot';
-import DesktopUserMenuSlot from '../plugin-slots/DesktopUserMenuSlot';
 import { desktopUserMenuDataShape } from './DesktopHeaderUserMenu';
 
 // i18n
 import messages from '../Header.messages';
-
-// Assets
 
 const DesktopHeader = ({
   mainMenu,
@@ -35,58 +27,222 @@ const DesktopHeader = ({
   loggedIn,
 }) => {
   const intl = useIntl();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
-  const renderMainMenu = () => <DesktopMainMenuSlot menu={mainMenu} />;
+  // Initialize icons when component mounts and when state changes
+  useEffect(() => {
+    initLucideIcons();
+  }, [sidebarOpen, userMenuOpen, darkMode]);
 
-  const renderSecondaryMenu = () => <DesktopSecondaryMenuSlot menu={secondaryMenu} />;
+  // Load dark mode preference from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  }, []);
 
-  const renderUserMenu = () => (
-    <Menu transitionClassName="menu-dropdown" transitionTimeout={250}>
-      <MenuTrigger
-        tag="button"
-        aria-label={intl.formatMessage(messages['header.label.account.menu.for'], { username })}
-        className="btn btn-outline-primary d-inline-flex align-items-center pl-2 pr-3"
-      >
-        <DesktopUserMenuToggleSlot avatar={avatar} label={username} />
-      </MenuTrigger>
-      <MenuContent className="mb-0 dropdown-menu show dropdown-menu-right pin-right shadow py-2">
-        <DesktopUserMenuSlot menu={userMenu} />
-      </MenuContent>
-    </Menu>
-  );
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
+    document.documentElement.setAttribute('data-theme', newDarkMode ? 'dark' : 'light');
+  };
 
-  const renderLoggedOutItems = () => <DesktopLoggedOutItemsSlot items={loggedOutItems} />;
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
-  const logoProps = { src: logo, alt: logoAltText, href: logoDestination };
-  const logoClasses = getConfig().AUTHN_MINIMAL_HEADER ? 'mw-100' : null;
+  // Get page title from URL
+  const getPageTitle = () => {
+    const path = window.location.pathname;
+    if (path.includes('dashboard')) {
+      return intl.formatMessage(messages['header.links.courses'] || { id: 'header.links.courses', defaultMessage: 'Dashboard' });
+    }
+    if (path.includes('courses')) {
+      return intl.formatMessage(messages['header.links.courses'] || { id: 'header.links.courses', defaultMessage: 'Courses' });
+    }
+    return getConfig().SITE_NAME || 'Learning Platform';
+  };
 
   return (
-    <header className="site-header-desktop">
-      <a className="nav-skip sr-only sr-only-focusable" href="#main">{intl.formatMessage(messages['header.label.skip.nav'])}</a>
-      <div className={`container-fluid ${logoClasses}`}>
-        <div className="nav-container position-relative d-flex align-items-center">
-          <LogoSlot {...logoProps} />
-          <nav
-            aria-label={intl.formatMessage(messages['header.label.main.nav'])}
-            className="nav main-nav"
-          >
-            {renderMainMenu()}
-          </nav>
-          <nav
-            aria-label={intl.formatMessage(messages['header.label.secondary.nav'])}
-            className="nav secondary-menu-container align-items-center ml-auto"
-          >
-            {loggedIn
-              ? (
-                <>
-                  {renderSecondaryMenu()}
-                  {renderUserMenu()}
-                </>
-              ) : renderLoggedOutItems()}
-          </nav>
+    <>
+      {/* Main Header */}
+      <header className="main-header">
+        <button 
+          className="header-toggle-btn" 
+          onClick={toggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          <i data-lucide="menu"></i>
+        </button>
+        <h1 className="page-title">{getPageTitle()}</h1>
+        <button 
+          className="dark-mode-toggle" 
+          onClick={toggleDarkMode} 
+          title="Toggle dark mode"
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          <i data-lucide={darkMode ? "sun" : "moon"}></i>
+        </button>
+      </header>
+
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        {/* Sidebar Header */}
+        <div className="sidebar-header">
+          <div className="logo-container">
+            <a href={logoDestination}>
+              <img 
+                className="logo-img"
+                src={logo} 
+                alt={logoAltText} 
+              />
+            </a>
+          </div>
         </div>
-      </div>
-    </header>
+        
+        {/* Main Menu Navigation */}
+        <nav className="sidebar-nav">
+          <ul className="nav-menu">
+            {mainMenu && mainMenu.length > 0 ? (
+              mainMenu.map((item, index) => (
+                <li key={index} className="nav-item">
+                  <a 
+                    href={item.href} 
+                    className="nav-link"
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <i data-lucide="circle"></i>
+                    <span>{item.content}</span>
+                  </a>
+                </li>
+              ))
+            ) : (
+              <li className="nav-item">
+                <a href={`${getConfig().LMS_BASE_URL}/dashboard`} className="nav-link">
+                  <i data-lucide="home"></i>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+            )}
+          </ul>
+
+          {/* Secondary Menu */}
+          {secondaryMenu && secondaryMenu.length > 0 && (
+            <ul className="nav-menu">
+              {secondaryMenu.map((item, index) => (
+                <li key={index} className="nav-item">
+                  <a 
+                    href={item.href} 
+                    className="nav-link"
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <i data-lucide="circle"></i>
+                    <span>{item.content}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </nav>
+
+        {/* User Menu Section */}
+        {loggedIn ? (
+          <div className="user-menu">
+            <div 
+              className="user-menu-header"
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setUserMenuOpen(!userMenuOpen);
+                }
+              }}
+            >
+              <div className="user-avatar">
+                {avatar ? (
+                  <img src={avatar} alt={username} />
+                ) : (
+                  <span>{username ? username.charAt(0).toUpperCase() : 'U'}</span>
+                )}
+              </div>
+              <div className="user-info">
+                <div className="user-name">{username || 'User'}</div>
+              </div>
+              <i data-lucide={userMenuOpen ? 'chevron-up' : 'chevron-down'}></i>
+            </div>
+            
+            {userMenuOpen && (
+              <ul className="user-menu-items nav-menu">
+                {userMenu && userMenu.length > 0 ? (
+                  userMenu.map((section, sectionIndex) => (
+                    <React.Fragment key={sectionIndex}>
+                      {section.items && section.items.map((item, itemIndex) => (
+                        <li key={itemIndex} className="nav-item">
+                          <a 
+                            href={item.href} 
+                            className="nav-link"
+                            onClick={() => setSidebarOpen(false)}
+                          >
+                            <i data-lucide="circle"></i>
+                            <span>{item.content}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <li className="nav-item">
+                    <a href={getConfig().LOGOUT_URL} className="nav-link">
+                      <i data-lucide="log-out"></i>
+                      <span>Logout</span>
+                    </a>
+                  </li>
+                )}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <div className="user-menu">
+            {loggedOutItems && loggedOutItems.length > 0 ? (
+              loggedOutItems.map((item, index) => (
+                <a 
+                  key={index}
+                  href={item.href}
+                  className="nav-link logged-out-link"
+                >
+                  {item.content}
+                </a>
+              ))
+            ) : (
+              <>
+                <a href={getConfig().LOGIN_URL} className="nav-link logged-out-link">
+                  Login
+                </a>
+                <a href={`${getConfig().LMS_BASE_URL}/register`} className="nav-link logged-out-link">
+                  Register
+                </a>
+              </>
+            )}
+          </div>
+        )}
+      </aside>
+    </>
   );
 };
 

@@ -1,27 +1,40 @@
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
 function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
-function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
+import Responsive from 'react-responsive';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { AppContext } from '@edx/frontend-platform/react';
 import { APP_CONFIG_INITIALIZED, ensureConfig, mergeConfig, getConfig, subscribe } from '@edx/frontend-platform';
 import PropTypes from 'prop-types';
-import CustomHeader from './CustomHeader';
-import CustomSidebar from './CustomSidebar';
-import './Header.css';
-ensureConfig(['LMS_BASE_URL', 'LOGOUT_URL', 'LOGIN_URL', 'SITE_NAME', 'LOGO_URL', 'ORDER_HISTORY_URL', 'ACCOUNT_PROFILE_URL', 'ACCOUNT_SETTINGS_URL'], 'Header component');
+import DesktopHeaderSlot from './plugin-slots/DesktopHeaderSlot';
+import MobileHeaderSlot from './plugin-slots/MobileHeaderSlot';
+import messages from './Header.messages';
+ensureConfig(['LMS_BASE_URL', 'LOGOUT_URL', 'LOGIN_URL', 'SITE_NAME', 'LOGO_URL', 'ORDER_HISTORY_URL'], 'Header component');
 subscribe(APP_CONFIG_INITIALIZED, function () {
   mergeConfig({
     AUTHN_MINIMAL_HEADER: !!process.env.AUTHN_MINIMAL_HEADER
   }, 'Header additional config');
 });
+
+/**
+ * Header component for the application.
+ * Displays a header with the provided main menu, secondary menu, and user menu when the user is authenticated.
+ * If any of the props (mainMenuItems, secondaryMenuItems, userMenuItems) are not provided, default
+ * items are displayed.
+ * For more details on how to use this component, please refer to this document:
+ * https://github.com/openedx/frontend-component-header/blob/master/docs/using_custom_header.rst
+ *
+ * @param {list} mainMenuItems - The list of main menu items to display.
+ * See the documentation for the structure of main menu item.
+ * @param {list} secondaryMenuItems - The list of secondary menu items to display.
+ * See the documentation for the structure of secondary menu item.
+ * @param {list} userMenuItems - The list of user menu items to display.
+ * See the documentation for the structure of user menu item.
+ */
 var Header = function Header(_ref) {
   var mainMenuItems = _ref.mainMenuItems,
     secondaryMenuItems = _ref.secondaryMenuItems,
@@ -30,170 +43,68 @@ var Header = function Header(_ref) {
     authenticatedUser = _useContext.authenticatedUser,
     config = _useContext.config;
   var intl = useIntl();
-  var _useState = useState(false),
-    _useState2 = _slicedToArray(_useState, 2),
-    sidebarCollapsed = _useState2[0],
-    setSidebarCollapsed = _useState2[1];
-  var _useState3 = useState(false),
-    _useState4 = _slicedToArray(_useState3, 2),
-    darkMode = _useState4[0],
-    setDarkMode = _useState4[1];
-  var _useState5 = useState('home'),
-    _useState6 = _slicedToArray(_useState5, 2),
-    currentPage = _useState6[0],
-    setCurrentPage = _useState6[1];
-  useEffect(function () {
-    var savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDarkMode);
-    if (savedDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  }, []);
-  var toggleDarkMode = function toggleDarkMode() {
-    var newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', String(newDarkMode));
-    if (newDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
-  };
-  var toggleSidebar = function toggleSidebar() {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
   var defaultMainMenu = [{
-    id: 'home',
-    icon: 'home',
-    label: intl.formatMessage({
-      id: 'header.links.home',
-      defaultMessage: 'Home'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/dashboard")
-  }, {
-    id: 'dashboard',
-    icon: 'layout-dashboard',
-    label: intl.formatMessage({
-      id: 'header.links.dashboard',
-      defaultMessage: 'My Dashboard'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/dashboard")
-  }, {
-    id: 'courses',
-    icon: 'book-open',
-    label: intl.formatMessage({
-      id: 'header.links.courses',
-      defaultMessage: 'Courses'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/courses")
-  }, {
-    id: 'programs',
-    icon: 'route',
-    label: intl.formatMessage({
-      id: 'header.links.programs',
-      defaultMessage: 'Programs'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/programs")
+    type: 'item',
+    href: "".concat(config.LMS_BASE_URL, "/dashboard"),
+    content: intl.formatMessage(messages['header.links.courses'])
   }];
   var defaultUserMenu = authenticatedUser === null ? [] : [{
-    id: 'user-dashboard',
-    icon: 'gauge',
-    label: intl.formatMessage({
-      id: 'header.user.menu.dashboard',
-      defaultMessage: 'Dashboard'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/dashboard")
-  }, {
-    id: 'profile',
-    icon: 'user',
-    label: intl.formatMessage({
-      id: 'header.user.menu.profile',
-      defaultMessage: 'Profile'
-    }),
-    href: "".concat(config.ACCOUNT_PROFILE_URL, "/u/").concat(authenticatedUser.username)
-  }, {
-    id: 'account',
-    icon: 'settings',
-    label: intl.formatMessage({
-      id: 'header.user.menu.account.settings',
-      defaultMessage: 'Account'
-    }),
-    href: config.ACCOUNT_SETTINGS_URL
-  }].concat(_toConsumableArray(config.ORDER_HISTORY_URL ? [{
-    id: 'order-history',
-    icon: 'shopping-bag',
-    label: intl.formatMessage({
-      id: 'header.user.menu.order.history',
-      defaultMessage: 'Order History'
-    }),
-    href: config.ORDER_HISTORY_URL
-  }] : []), [{
-    id: 'signout',
-    icon: 'log-out',
-    label: intl.formatMessage({
-      id: 'header.user.menu.logout',
-      defaultMessage: 'Sign Out'
-    }),
-    href: config.LOGOUT_URL
-  }]);
+    heading: '',
+    items: [{
+      type: 'item',
+      href: "".concat(config.LMS_BASE_URL, "/dashboard"),
+      content: intl.formatMessage(messages['header.user.menu.dashboard'])
+    }, {
+      type: 'item',
+      href: "".concat(config.ACCOUNT_PROFILE_URL, "/u/").concat(authenticatedUser.username),
+      content: intl.formatMessage(messages['header.user.menu.profile'])
+    }, {
+      type: 'item',
+      href: config.ACCOUNT_SETTINGS_URL,
+      content: intl.formatMessage(messages['header.user.menu.account.settings'])
+    }].concat(_toConsumableArray(config.ORDER_HISTORY_URL ? [{
+      type: 'item',
+      href: config.ORDER_HISTORY_URL,
+      content: intl.formatMessage(messages['header.user.menu.order.history'])
+    }] : []), [{
+      type: 'item',
+      href: config.LOGOUT_URL,
+      content: intl.formatMessage(messages['header.user.menu.logout'])
+    }])
+  }];
   var mainMenu = mainMenuItems || defaultMainMenu;
+  var secondaryMenu = secondaryMenuItems || [];
   var userMenu = authenticatedUser === null ? [] : userMenuItems || defaultUserMenu;
   var loggedOutItems = [{
-    id: 'login',
-    label: intl.formatMessage({
-      id: 'header.user.menu.login',
-      defaultMessage: 'Login'
-    }),
-    href: config.LOGIN_URL
+    type: 'item',
+    href: config.LOGIN_URL,
+    content: intl.formatMessage(messages['header.user.menu.login'])
   }, {
-    id: 'register',
-    label: intl.formatMessage({
-      id: 'header.user.menu.register',
-      defaultMessage: 'Register'
-    }),
-    href: "".concat(config.LMS_BASE_URL, "/register")
+    type: 'item',
+    href: "".concat(config.LMS_BASE_URL, "/register"),
+    content: intl.formatMessage(messages['header.user.menu.register'])
   }];
-  var getPageTitle = function getPageTitle() {
-    var path = window.location.pathname;
-    if (path.includes('dashboard')) return intl.formatMessage({
-      id: 'header.title.dashboard',
-      defaultMessage: 'Dashboard'
-    });
-    if (path.includes('courses')) return intl.formatMessage({
-      id: 'header.title.courses',
-      defaultMessage: 'Courses'
-    });
-    if (path.includes('programs')) return intl.formatMessage({
-      id: 'header.title.programs',
-      defaultMessage: 'Programs'
-    });
-    return config.SITE_NAME || intl.formatMessage({
-      id: 'header.title.default',
-      defaultMessage: 'Learning Platform'
-    });
+  var props = {
+    logo: config.LOGO_URL,
+    logoAltText: config.SITE_NAME,
+    logoDestination: "".concat(config.LMS_BASE_URL, "/dashboard"),
+    loggedIn: authenticatedUser !== null,
+    username: authenticatedUser !== null ? authenticatedUser.username : null,
+    avatar: authenticatedUser !== null ? authenticatedUser.avatar : null,
+    mainMenu: getConfig().AUTHN_MINIMAL_HEADER ? [] : mainMenu,
+    secondaryMenu: getConfig().AUTHN_MINIMAL_HEADER ? [] : secondaryMenu,
+    userMenu: getConfig().AUTHN_MINIMAL_HEADER ? [] : userMenu,
+    loggedOutItems: getConfig().AUTHN_MINIMAL_HEADER ? [] : loggedOutItems
   };
-  if (getConfig().AUTHN_MINIMAL_HEADER) {
-    return null;
-  }
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(CustomSidebar, {
-    isCollapsed: sidebarCollapsed,
-    currentPage: currentPage,
-    setCurrentPage: setCurrentPage,
-    darkMode: darkMode,
-    mainMenu: mainMenu,
-    userMenu: userMenu,
-    loggedOutItems: loggedOutItems,
-    authenticatedUser: authenticatedUser,
-    config: config,
-    logoUrl: config.LOGO_URL,
-    siteName: config.SITE_NAME
-  }), /*#__PURE__*/React.createElement(CustomHeader, {
-    title: getPageTitle(),
-    toggleSidebar: toggleSidebar,
-    darkMode: darkMode,
-    toggleDarkMode: toggleDarkMode,
-    sidebarCollapsed: sidebarCollapsed
-  }));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Responsive, {
+    maxWidth: 769
+  }, /*#__PURE__*/React.createElement(MobileHeaderSlot, {
+    props: props
+  })), /*#__PURE__*/React.createElement(Responsive, {
+    minWidth: 769
+  }, /*#__PURE__*/React.createElement(DesktopHeaderSlot, {
+    props: props
+  })));
 };
 Header.defaultProps = {
   mainMenuItems: null,
@@ -201,22 +112,16 @@ Header.defaultProps = {
   userMenuItems: null
 };
 Header.propTypes = {
-  mainMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    icon: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string
-  })),
-  secondaryMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string
-  })),
+  mainMenuItems: PropTypes.oneOfType([PropTypes.node, PropTypes.array]),
+  secondaryMenuItems: PropTypes.oneOfType([PropTypes.node, PropTypes.array]),
   userMenuItems: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    icon: PropTypes.string,
-    label: PropTypes.string,
-    href: PropTypes.string
+    heading: PropTypes.string,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      type: PropTypes.oneOf(['item', 'menu']),
+      href: PropTypes.string,
+      content: PropTypes.string,
+      isActive: PropTypes.bool
+    }))
   }))
 };
 export default Header;

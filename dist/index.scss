@@ -13,8 +13,7 @@ $rounded-pill: 50rem  !default;
 ====================================== */
 :root {
   --header-height: 60px;
-  --sidebar-width: 240px;
-  --sidebar-collapsed-width: 60px;
+  --sidebar-width: 280px;
 
   /* Light mode colors */
   --light-bg: #ffffff;
@@ -58,7 +57,6 @@ $rounded-pill: 50rem  !default;
   position: sticky;
   top: 0;
   z-index: 900;
-  transition: margin-left 0.3s ease;
 }
 
 .header-toggle-btn,
@@ -73,30 +71,49 @@ $rounded-pill: 50rem  !default;
   color: var(--text-primary);
   border-radius: 4px;
   transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  i {
+    width: 24px;
+    height: 24px;
+  }
 }
 
-.header-toggle-btn:hover,
-.dark-mode-toggle:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="dark"] .header-toggle-btn:hover,
-[data-theme="dark"] .dark-mode-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.header-toggle-btn i,
-.dark-mode-toggle i {
-  width: 24px;
-  height: 24px;
+[data-theme="dark"] {
+  .header-toggle-btn:hover,
+  .dark-mode-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
   flex: 1;
+}
+
+/* ======================================
+   SIDEBAR OVERLAY
+====================================== */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ======================================
@@ -112,25 +129,31 @@ $rounded-pill: 50rem  !default;
   position: fixed;
   left: 0;
   top: 0;
-  transition: width 0.3s ease, transform 0.3s ease;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
   overflow-x: hidden;
+  overflow-y: auto;
   z-index: 1000;
 
-  &.collapsed {
-    width: var(--sidebar-collapsed-width);
+  &.open {
+    transform: translateX(0);
   }
 }
 
-/* LOGO */
 .sidebar-header {
   padding: 20px;
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .logo-container {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  a {
+    display: block;
+  }
 }
 
 .logo-img {
@@ -141,23 +164,21 @@ $rounded-pill: 50rem  !default;
   display: block;
 }
 
-.sidebar.collapsed .logo-img {
-  height: 40px;
-  max-width: 40px;
+/* ======================================
+   NAVIGATION MENU
+====================================== */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px 0;
 }
 
-/* ======================================
-   MENU LIST
-====================================== */
 .nav-menu {
   list-style: none;
   margin: 0;
-  padding: 15px 0;
-  flex: 1;
-  overflow-y: auto;
+  padding: 0;
 }
 
-/* Each item */
 .nav-item {
   margin: 0;
 }
@@ -167,19 +188,12 @@ $rounded-pill: 50rem  !default;
   align-items: center;
   gap: 12px;
   padding: 14px 20px;
-  text-decoration: none;
+  text-decoration: none !important;
   cursor: pointer;
   border-left: 3px solid transparent;
   transition: all 0.2s;
   color: var(--sidebar-text) !important;
   background: transparent;
-
-  span {
-    color: var(--sidebar-text);
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
 
   i {
     width: 20px;
@@ -188,12 +202,22 @@ $rounded-pill: 50rem  !default;
     stroke: var(--sidebar-text);
   }
 
+  span {
+    color: var(--sidebar-text) !important;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.04);
     color: var(--sidebar-text-hover) !important;
 
     span {
-      color: var(--sidebar-text-hover);
+      color: var(--sidebar-text-hover) !important;
     }
 
     i {
@@ -208,7 +232,7 @@ $rounded-pill: 50rem  !default;
     border-left-color: var(--primary-color);
 
     span {
-      color: var(--primary-color);
+      color: var(--primary-color) !important;
     }
 
     i {
@@ -217,21 +241,8 @@ $rounded-pill: 50rem  !default;
   }
 }
 
-/* Collapsed behavior */
-.sidebar.collapsed {
-  .nav-link {
-    justify-content: center;
-    padding: 14px 10px;
-
-    span {
-      display: none;
-    }
-  }
-
-  .user-info,
-  .user-menu-header i {
-    display: none;
-  }
+[data-theme="dark"] .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* ======================================
@@ -241,6 +252,7 @@ $rounded-pill: 50rem  !default;
   padding: 15px;
   border-top: 1px solid var(--border-color);
   margin-top: auto;
+  flex-shrink: 0;
 }
 
 .user-menu-header {
@@ -262,6 +274,7 @@ $rounded-pill: 50rem  !default;
     color: var(--text-secondary);
     flex-shrink: 0;
     stroke: var(--text-secondary);
+    transition: transform 0.2s;
   }
 }
 
@@ -281,6 +294,13 @@ $rounded-pill: 50rem  !default;
   justify-content: center;
   flex-shrink: 0;
   font-size: 16px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .user-info {
@@ -297,14 +317,13 @@ $rounded-pill: 50rem  !default;
   text-overflow: ellipsis;
 }
 
-/* User dropdown list */
 .user-menu-items {
   padding-top: 10px;
 
   .nav-link {
     padding: 10px 15px;
     border-radius: 4px;
-    border-left: none;
+    border-left: none !important;
     font-size: 13px;
   }
 }
@@ -314,18 +333,16 @@ $rounded-pill: 50rem  !default;
 ====================================== */
 .logged-out-link {
   background-color: var(--primary-color) !important;
-  padding: 12px 15px;
+  padding: 12px 15px !important;
   border-radius: 4px;
   text-align: center;
   color: white !important;
   display: block;
   margin-bottom: 8px;
-  text-decoration: none;
   font-weight: 500;
   transition: all 0.2s;
 
   &:hover {
-    background-color: var(--primary-color) !important;
     opacity: 0.9;
   }
 }
@@ -336,24 +353,20 @@ $rounded-pill: 50rem  !default;
 @media (max-width: 768px) {
   .main-header {
     padding: 0 15px;
-    margin-left: 0 !important;
   }
 
   .page-title {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .sidebar {
-    transform: translateX(-100%);
-
-    &:not(.collapsed) {
-      transform: translateX(0);
-    }
+    width: 100%;
+    max-width: 300px;
   }
 }
 
 /* ======================================
-   ORIGINAL OPENEDX STYLES (Keep these)
+   ORIGINAL OPENEDX STYLES (PRESERVED)
 ====================================== */
 .dropdown-item a {
   text-decoration: none;

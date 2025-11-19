@@ -1,25 +1,24 @@
-import React from 'react';
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getConfig } from '@edx/frontend-platform';
 
-// Local Components
-import DesktopUserMenuToggleSlot from '../plugin-slots/DesktopUserMenuToggleSlot';
-import { Menu, MenuTrigger, MenuContent } from '../Menu';
-import LogoSlot from '../plugin-slots/LogoSlot';
-import DesktopLoggedOutItemsSlot from '../plugin-slots/DesktopLoggedOutItemsSlot';
+// Import your icon utility
+import { initLucideIcons } from '../uitils/iconUtils';
+
+// Import only the data shape validators
 import { desktopLoggedOutItemsDataShape } from './DesktopLoggedOutItems';
-import DesktopMainMenuSlot from '../plugin-slots/DesktopMainMenuSlot';
 import { desktopHeaderMainOrSecondaryMenuDataShape } from './DesktopHeaderMainOrSecondaryMenu';
-import DesktopSecondaryMenuSlot from '../plugin-slots/DesktopSecondaryMenuSlot';
-import DesktopUserMenuSlot from '../plugin-slots/DesktopUserMenuSlot';
 import { desktopUserMenuDataShape } from './DesktopHeaderUserMenu';
 
 // i18n
 import messages from '../Header.messages';
-
-// Assets
-
 var DesktopHeader = function DesktopHeader(_ref) {
   var mainMenu = _ref.mainMenu,
     secondaryMenu = _ref.secondaryMenu,
@@ -32,62 +31,202 @@ var DesktopHeader = function DesktopHeader(_ref) {
     username = _ref.username,
     loggedIn = _ref.loggedIn;
   var intl = useIntl();
-  var renderMainMenu = function renderMainMenu() {
-    return /*#__PURE__*/React.createElement(DesktopMainMenuSlot, {
-      menu: mainMenu
-    });
+  var _useState = useState(false),
+    _useState2 = _slicedToArray(_useState, 2),
+    sidebarOpen = _useState2[0],
+    setSidebarOpen = _useState2[1];
+  var _useState3 = useState(false),
+    _useState4 = _slicedToArray(_useState3, 2),
+    userMenuOpen = _useState4[0],
+    setUserMenuOpen = _useState4[1];
+  var _useState5 = useState(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    darkMode = _useState6[0],
+    setDarkMode = _useState6[1];
+
+  // Initialize icons when component mounts and when state changes
+  useEffect(function () {
+    initLucideIcons();
+  }, [sidebarOpen, userMenuOpen, darkMode]);
+
+  // Load dark mode preference from localStorage
+  useEffect(function () {
+    var savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  }, []);
+
+  // Toggle dark mode
+  var toggleDarkMode = function toggleDarkMode() {
+    var newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
+    document.documentElement.setAttribute('data-theme', newDarkMode ? 'dark' : 'light');
   };
-  var renderSecondaryMenu = function renderSecondaryMenu() {
-    return /*#__PURE__*/React.createElement(DesktopSecondaryMenuSlot, {
-      menu: secondaryMenu
-    });
+
+  // Toggle sidebar
+  var toggleSidebar = function toggleSidebar() {
+    setSidebarOpen(!sidebarOpen);
   };
-  var renderUserMenu = function renderUserMenu() {
-    return /*#__PURE__*/React.createElement(Menu, {
-      transitionClassName: "menu-dropdown",
-      transitionTimeout: 250
-    }, /*#__PURE__*/React.createElement(MenuTrigger, {
-      tag: "button",
-      "aria-label": intl.formatMessage(messages['header.label.account.menu.for'], {
-        username: username
-      }),
-      className: "btn btn-outline-primary d-inline-flex align-items-center pl-2 pr-3"
-    }, /*#__PURE__*/React.createElement(DesktopUserMenuToggleSlot, {
-      avatar: avatar,
-      label: username
-    })), /*#__PURE__*/React.createElement(MenuContent, {
-      className: "mb-0 dropdown-menu show dropdown-menu-right pin-right shadow py-2"
-    }, /*#__PURE__*/React.createElement(DesktopUserMenuSlot, {
-      menu: userMenu
-    })));
+
+  // Get page title from URL
+  var getPageTitle = function getPageTitle() {
+    var path = window.location.pathname;
+    if (path.includes('dashboard')) {
+      return intl.formatMessage(messages['header.links.courses'] || {
+        id: 'header.links.courses',
+        defaultMessage: 'Dashboard'
+      });
+    }
+    if (path.includes('courses')) {
+      return intl.formatMessage(messages['header.links.courses'] || {
+        id: 'header.links.courses',
+        defaultMessage: 'Courses'
+      });
+    }
+    return getConfig().SITE_NAME || 'Learning Platform';
   };
-  var renderLoggedOutItems = function renderLoggedOutItems() {
-    return /*#__PURE__*/React.createElement(DesktopLoggedOutItemsSlot, {
-      items: loggedOutItems
-    });
-  };
-  var logoProps = {
-    src: logo,
-    alt: logoAltText,
-    href: logoDestination
-  };
-  var logoClasses = getConfig().AUTHN_MINIMAL_HEADER ? 'mw-100' : null;
-  return /*#__PURE__*/React.createElement("header", {
-    className: "site-header-desktop"
-  }, /*#__PURE__*/React.createElement("a", {
-    className: "nav-skip sr-only sr-only-focusable",
-    href: "#main"
-  }, intl.formatMessage(messages['header.label.skip.nav'])), /*#__PURE__*/React.createElement("div", {
-    className: "container-fluid ".concat(logoClasses)
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("header", {
+    className: "main-header"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "header-toggle-btn",
+    onClick: toggleSidebar,
+    "aria-label": "Toggle sidebar"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "menu"
+  })), /*#__PURE__*/React.createElement("h1", {
+    className: "page-title"
+  }, getPageTitle()), /*#__PURE__*/React.createElement("button", {
+    className: "dark-mode-toggle",
+    onClick: toggleDarkMode,
+    title: "Toggle dark mode",
+    "aria-label": darkMode ? "Switch to light mode" : "Switch to dark mode"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": darkMode ? "sun" : "moon"
+  }))), sidebarOpen && /*#__PURE__*/React.createElement("div", {
+    className: "sidebar-overlay",
+    onClick: function onClick() {
+      return setSidebarOpen(false);
+    }
+  }), /*#__PURE__*/React.createElement("aside", {
+    className: "sidebar ".concat(sidebarOpen ? 'open' : '')
   }, /*#__PURE__*/React.createElement("div", {
-    className: "nav-container position-relative d-flex align-items-center"
-  }, /*#__PURE__*/React.createElement(LogoSlot, logoProps), /*#__PURE__*/React.createElement("nav", {
-    "aria-label": intl.formatMessage(messages['header.label.main.nav']),
-    className: "nav main-nav"
-  }, renderMainMenu()), /*#__PURE__*/React.createElement("nav", {
-    "aria-label": intl.formatMessage(messages['header.label.secondary.nav']),
-    className: "nav secondary-menu-container align-items-center ml-auto"
-  }, loggedIn ? /*#__PURE__*/React.createElement(React.Fragment, null, renderSecondaryMenu(), renderUserMenu()) : renderLoggedOutItems()))));
+    className: "sidebar-header"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "logo-container"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: logoDestination
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "logo-img",
+    src: logo,
+    alt: logoAltText
+  })))), /*#__PURE__*/React.createElement("nav", {
+    className: "sidebar-nav"
+  }, /*#__PURE__*/React.createElement("ul", {
+    className: "nav-menu"
+  }, mainMenu && mainMenu.length > 0 ? mainMenu.map(function (item, index) {
+    return /*#__PURE__*/React.createElement("li", {
+      key: index,
+      className: "nav-item"
+    }, /*#__PURE__*/React.createElement("a", {
+      href: item.href,
+      className: "nav-link",
+      onClick: function onClick() {
+        return setSidebarOpen(false);
+      }
+    }, /*#__PURE__*/React.createElement("i", {
+      "data-lucide": "circle"
+    }), /*#__PURE__*/React.createElement("span", null, item.content)));
+  }) : /*#__PURE__*/React.createElement("li", {
+    className: "nav-item"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "".concat(getConfig().LMS_BASE_URL, "/dashboard"),
+    className: "nav-link"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "home"
+  }), /*#__PURE__*/React.createElement("span", null, "Dashboard")))), secondaryMenu && secondaryMenu.length > 0 && /*#__PURE__*/React.createElement("ul", {
+    className: "nav-menu"
+  }, secondaryMenu.map(function (item, index) {
+    return /*#__PURE__*/React.createElement("li", {
+      key: index,
+      className: "nav-item"
+    }, /*#__PURE__*/React.createElement("a", {
+      href: item.href,
+      className: "nav-link",
+      onClick: function onClick() {
+        return setSidebarOpen(false);
+      }
+    }, /*#__PURE__*/React.createElement("i", {
+      "data-lucide": "circle"
+    }), /*#__PURE__*/React.createElement("span", null, item.content)));
+  }))), loggedIn ? /*#__PURE__*/React.createElement("div", {
+    className: "user-menu"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "user-menu-header",
+    onClick: function onClick() {
+      return setUserMenuOpen(!userMenuOpen);
+    },
+    role: "button",
+    tabIndex: 0,
+    onKeyPress: function onKeyPress(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        setUserMenuOpen(!userMenuOpen);
+      }
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "user-avatar"
+  }, avatar ? /*#__PURE__*/React.createElement("img", {
+    src: avatar,
+    alt: username
+  }) : /*#__PURE__*/React.createElement("span", null, username ? username.charAt(0).toUpperCase() : 'U')), /*#__PURE__*/React.createElement("div", {
+    className: "user-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "user-name"
+  }, username || 'User')), /*#__PURE__*/React.createElement("i", {
+    "data-lucide": userMenuOpen ? 'chevron-up' : 'chevron-down'
+  })), userMenuOpen && /*#__PURE__*/React.createElement("ul", {
+    className: "user-menu-items nav-menu"
+  }, userMenu && userMenu.length > 0 ? userMenu.map(function (section, sectionIndex) {
+    return /*#__PURE__*/React.createElement(React.Fragment, {
+      key: sectionIndex
+    }, section.items && section.items.map(function (item, itemIndex) {
+      return /*#__PURE__*/React.createElement("li", {
+        key: itemIndex,
+        className: "nav-item"
+      }, /*#__PURE__*/React.createElement("a", {
+        href: item.href,
+        className: "nav-link",
+        onClick: function onClick() {
+          return setSidebarOpen(false);
+        }
+      }, /*#__PURE__*/React.createElement("i", {
+        "data-lucide": "circle"
+      }), /*#__PURE__*/React.createElement("span", null, item.content)));
+    }));
+  }) : /*#__PURE__*/React.createElement("li", {
+    className: "nav-item"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: getConfig().LOGOUT_URL,
+    className: "nav-link"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "log-out"
+  }), /*#__PURE__*/React.createElement("span", null, "Logout"))))) : /*#__PURE__*/React.createElement("div", {
+    className: "user-menu"
+  }, loggedOutItems && loggedOutItems.length > 0 ? loggedOutItems.map(function (item, index) {
+    return /*#__PURE__*/React.createElement("a", {
+      key: index,
+      href: item.href,
+      className: "nav-link logged-out-link"
+    }, item.content);
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("a", {
+    href: getConfig().LOGIN_URL,
+    className: "nav-link logged-out-link"
+  }, "Login"), /*#__PURE__*/React.createElement("a", {
+    href: "".concat(getConfig().LMS_BASE_URL, "/register"),
+    className: "nav-link logged-out-link"
+  }, "Register")))));
 };
 export var desktopHeaderDataShape = {
   mainMenu: desktopHeaderMainOrSecondaryMenuDataShape,
