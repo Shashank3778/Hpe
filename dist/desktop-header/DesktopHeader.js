@@ -49,13 +49,32 @@ var DesktopHeader = function DesktopHeader(_ref) {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
-  // Load dark mode preference from localStorage
+  // Check if dark mode is enabled (read from Open edX default)
   useEffect(function () {
-    var savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDarkMode);
-    if (savedDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    // Check Paragon's dark mode
+    var checkDarkMode = function checkDarkMode() {
+      var htmlElement = document.documentElement;
+      var bodyElement = document.body;
+
+      // Check multiple possible dark mode indicators
+      var isDark = htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark' || localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark';
+      setDarkMode(isDark);
+    };
+    checkDarkMode();
+
+    // Listen for theme changes from Open edX
+    var observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+    return function () {
+      return observer.disconnect();
+    };
   }, []);
 
   // Apply body margin when sidebar state changes
@@ -67,12 +86,45 @@ var DesktopHeader = function DesktopHeader(_ref) {
     }
   }, [sidebarCollapsed]);
 
-  // Toggle dark mode
+  // Toggle dark mode using Open edX default method
   var toggleDarkMode = function toggleDarkMode() {
+    var htmlElement = document.documentElement;
+    var bodyElement = document.body;
     var newDarkMode = !darkMode;
+    if (newDarkMode) {
+      // Enable dark mode (Paragon style)
+      htmlElement.classList.add('pgn__dark-mode');
+      bodyElement.classList.add('pgn__dark-mode');
+      htmlElement.setAttribute('data-theme', 'dark');
+      bodyElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      localStorage.setItem('paragon.theme.variant', 'dark');
+    } else {
+      // Disable dark mode
+      htmlElement.classList.remove('pgn__dark-mode');
+      bodyElement.classList.remove('pgn__dark-mode');
+      htmlElement.setAttribute('data-theme', 'light');
+      bodyElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+      localStorage.setItem('paragon.theme.variant', 'light');
+    }
     setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', String(newDarkMode));
-    document.documentElement.setAttribute('data-theme', newDarkMode ? 'dark' : 'light');
+
+    // Trigger Paragon theme change event
+    var event = new CustomEvent('paragon.themeChanged', {
+      detail: {
+        theme: newDarkMode ? 'dark' : 'light'
+      }
+    });
+    window.dispatchEvent(event);
+
+    // Also trigger generic theme change event
+    var themeEvent = new CustomEvent('themeChanged', {
+      detail: {
+        darkMode: newDarkMode
+      }
+    });
+    window.dispatchEvent(themeEvent);
   };
 
   // Toggle sidebar collapse
@@ -163,7 +215,6 @@ var DesktopHeader = function DesktopHeader(_ref) {
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach(function (item) {
         var href = item.href || '';
-        var content = item.content || '';
 
         // Map "Courses" (old: /dashboard) to "My Dashboard" (new: /dashboard)
         if (href.includes('/dashboard')) {
