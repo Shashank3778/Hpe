@@ -4,7 +4,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { getConfig } from '@edx/frontend-platform';
 
 // Import your icon utility
-import { initLucideIcons } from '../uitils/iconUtils';
+import { initLucideIcons } from '../utils/iconUtils';
 
 // Import only the data shape validators
 import { desktopLoggedOutItemsDataShape } from './DesktopLoggedOutItems';
@@ -30,12 +30,11 @@ const DesktopHeader = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home');
 
   // Initialize icons when component mounts and when state changes
   useEffect(() => {
     initLucideIcons();
-  }, [sidebarCollapsed, userMenuOpen, darkMode, currentPage]);
+  }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
   // Load dark mode preference from localStorage
   useEffect(() => {
@@ -45,6 +44,15 @@ const DesktopHeader = ({
       document.documentElement.setAttribute('data-theme', 'dark');
     }
   }, []);
+
+  // Apply body margin when sidebar state changes
+  useEffect(() => {
+    const mainContent = document.querySelector('#main');
+    if (mainContent) {
+      mainContent.style.marginLeft = sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)';
+      mainContent.style.transition = 'margin-left 0.3s ease';
+    }
+  }, [sidebarCollapsed]);
 
   // Toggle dark mode
   const toggleDarkMode = () => {
@@ -63,44 +71,46 @@ const DesktopHeader = ({
   const getPageTitle = () => {
     const path = window.location.pathname;
     if (path.includes('dashboard')) {
-      return intl.formatMessage(messages['header.links.courses'] || { id: 'header.links.courses', defaultMessage: 'Dashboard' });
+      return intl.formatMessage({ id: 'header.title.dashboard', defaultMessage: 'My Dashboard' });
     }
     if (path.includes('courses')) {
-      return intl.formatMessage(messages['header.links.courses'] || { id: 'header.links.courses', defaultMessage: 'Courses' });
+      return intl.formatMessage({ id: 'header.title.courses', defaultMessage: 'Courses' });
+    }
+    if (path.includes('programs')) {
+      return intl.formatMessage({ id: 'header.title.programs', defaultMessage: 'Learning Paths' });
     }
     return getConfig().SITE_NAME || 'Learning Platform';
   };
 
-  // Map menu items to include icons
+  // Enhanced icon mapping function - matches your design exactly
   const getIconForMenuItem = (item, index) => {
-    const iconMap = {
-      'dashboard': 'layout-dashboard',
-      'courses': 'book-open',
-      'programs': 'route',
-      'home': 'home',
-    };
+    const href = (item.href || '').toLowerCase();
+    const content = (item.content || '').toLowerCase();
     
-    // Try to match by href
-    const href = item.href || '';
-    if (href.includes('dashboard')) return 'layout-dashboard';
-    if (href.includes('courses')) return 'book-open';
-    if (href.includes('programs') || href.includes('learning')) return 'route';
+    // Match by content/href keywords
+    if (content.includes('home') || href.endsWith('/') || href.endsWith('/home')) return 'home';
+    if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
+    if (content.includes('course') || href.includes('/courses')) return 'book-open';
+    if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
+    if (content.includes('ai') || content.includes('studio') || href.includes('ai')) return 'bot';
     
-    // Default icons based on position
+    // Fallback to position-based icons matching your design
     const defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route', 'bot'];
     return defaultIcons[index] || 'circle';
   };
 
-  // Map user menu items to include icons
+  // Map user menu items to include icons - matching your design
   const getIconForUserMenuItem = (item) => {
-    const href = item.href || '';
+    const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
     
-    if (href.includes('dashboard') || content.includes('dashboard')) return 'gauge';
-    if (href.includes('profile') || content.includes('profile')) return 'user';
-    if (href.includes('account') || href.includes('settings') || content.includes('account')) return 'settings';
-    if (href.includes('order') || content.includes('order')) return 'shopping-bag';
-    if (href.includes('logout') || content.includes('logout') || content.includes('sign out')) return 'log-out';
+    // Match icons from your design
+    if (content.includes('dashboard') || href.includes('dashboard')) return 'gauge';
+    if (content.includes('analytic') || href.includes('analytic')) return 'bar-chart-3';
+    if (content.includes('profile') || href.includes('profile')) return 'user';
+    if (content.includes('account') || content.includes('setting') || href.includes('account') || href.includes('setting')) return 'settings';
+    if (content.includes('order') || content.includes('history') || href.includes('order')) return 'shopping-bag';
+    if (content.includes('logout') || content.includes('sign out') || href.includes('logout')) return 'log-out';
     
     return 'circle';
   };
@@ -110,11 +120,104 @@ const DesktopHeader = ({
     if (sidebarCollapsed) {
       return logo || 'https://page.gensparksite.com/v1/base64_upload/54d382973dd8c88b434a48567fa6c866';
     }
-    // Use appropriate logo based on dark mode
     return logo || (darkMode 
       ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd'
       : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
+
+  // Transform and build correct menu structure
+  const buildCorrectMenu = () => {
+    const baseUrl = getConfig().LMS_BASE_URL;
+    const customMenu = [];
+
+    // Always add Home first (same as logo destination)
+    customMenu.push({
+      href: logoDestination || `${baseUrl}/`,
+      content: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
+      icon: 'home',
+    });
+
+    // Process mainMenu to map old URLs to new structure
+    if (mainMenu && mainMenu.length > 0) {
+      mainMenu.forEach((item) => {
+        const href = item.href || '';
+        const content = item.content || '';
+
+        // Map "Courses" (old: /dashboard) to "My Dashboard" (new: /dashboard)
+        if (href.includes('/dashboard')) {
+          customMenu.push({
+            href: `${baseUrl}/dashboard`,
+            content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
+            icon: 'layout-dashboard',
+          });
+        }
+        // Map "Discover New" or anything with /courses to "Courses" (new: /courses)
+        else if (href.includes('/courses')) {
+          customMenu.push({
+            href: `${baseUrl}/courses`,
+            content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
+            icon: 'book-open',
+          });
+        }
+        // Keep other items as-is
+        else if (!href.endsWith('/') && !href.endsWith('/home')) {
+          customMenu.push(item);
+        }
+      });
+    } else {
+      // Default menu if no mainMenu provided
+      customMenu.push({
+        href: `${baseUrl}/dashboard`,
+        content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
+        icon: 'layout-dashboard',
+      });
+      customMenu.push({
+        href: `${baseUrl}/courses`,
+        content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
+        icon: 'book-open',
+      });
+    }
+
+    // Add secondary menu items
+    if (secondaryMenu && secondaryMenu.length > 0) {
+      secondaryMenu.forEach((item) => {
+        customMenu.push(item);
+      });
+    }
+
+    // Check if Learning Paths exists
+    const hasLearningPaths = customMenu.some(item => 
+      (item.href || '').includes('program') || 
+      (item.content || '').toLowerCase().includes('program') ||
+      (item.content || '').toLowerCase().includes('learning path')
+    );
+
+    if (!hasLearningPaths) {
+      customMenu.push({
+        href: `${baseUrl}/programs`,
+        content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
+        icon: 'route',
+      });
+    }
+
+    // Check if AI Studio exists
+    const hasAIStudio = customMenu.some(item => 
+      (item.content || '').toLowerCase().includes('ai') || 
+      (item.content || '').toLowerCase().includes('studio')
+    );
+
+    if (!hasAIStudio) {
+      customMenu.push({
+        href: `${baseUrl}/ai-studio`,
+        content: intl.formatMessage({ id: 'header.links.ai.studio', defaultMessage: 'AI Studio' }),
+        icon: 'bot',
+      });
+    }
+
+    return customMenu;
+  };
+
+  const completeMenu = buildCorrectMenu();
 
   return (
     <>
@@ -135,57 +238,23 @@ const DesktopHeader = ({
         </div>
         
         {/* Main Menu Navigation */}
-        <ul className="nav-menu">
-          {mainMenu && mainMenu.length > 0 ? (
-            mainMenu.map((item, index) => (
+        <nav className="sidebar-nav">
+          <ul className="nav-menu">
+            {completeMenu.map((item, index) => (
               <li key={index} className="nav-item">
                 <a 
                   href={item.href} 
                   className={`nav-link ${window.location.pathname === item.href ? 'active' : ''}`}
                 >
-                  <i data-lucide={getIconForMenuItem(item, index)}></i>
+                  <i data-lucide={item.icon || getIconForMenuItem(item, index)}></i>
                   <span>{item.content}</span>
                 </a>
               </li>
-            ))
-          ) : (
-            <>
-              <li className="nav-item">
-                <a href={`${getConfig().LMS_BASE_URL}/`} className="nav-link">
-                  <i data-lucide="home"></i>
-                  <span>Home</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href={`${getConfig().LMS_BASE_URL}/dashboard`} className="nav-link active">
-                  <i data-lucide="layout-dashboard"></i>
-                  <span>My Dashboard</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href={`${getConfig().LMS_BASE_URL}/courses`} className="nav-link">
-                  <i data-lucide="book-open"></i>
-                  <span>Courses</span>
-                </a>
-              </li>
-            </>
-          )}
-          
-          {/* Secondary Menu */}
-          {secondaryMenu && secondaryMenu.length > 0 && secondaryMenu.map((item, index) => (
-            <li key={`secondary-${index}`} className="nav-item">
-              <a 
-                href={item.href} 
-                className="nav-link"
-              >
-                <i data-lucide={getIconForMenuItem(item, index + mainMenu.length)}></i>
-                <span>{item.content}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </ul>
+        </nav>
         
-        {/* User Menu Section */}
+        {/* User Menu Section - Directly below navigation */}
         {loggedIn ? (
           <div className="user-menu">
             <div 
@@ -231,12 +300,32 @@ const DesktopHeader = ({
                     </React.Fragment>
                   ))
                 ) : (
-                  <li className="nav-item">
-                    <a href={getConfig().LOGOUT_URL} className="nav-link">
-                      <i data-lucide="log-out"></i>
-                      <span>Logout</span>
-                    </a>
-                  </li>
+                  <>
+                    <li className="nav-item">
+                      <a href={`${getConfig().LMS_BASE_URL}/dashboard`} className="nav-link">
+                        <i data-lucide="gauge"></i>
+                        <span>Dashboard</span>
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a href={`${getConfig().ACCOUNT_PROFILE_URL}/u/${username}`} className="nav-link">
+                        <i data-lucide="user"></i>
+                        <span>Profile</span>
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a href={getConfig().ACCOUNT_SETTINGS_URL} className="nav-link">
+                        <i data-lucide="settings"></i>
+                        <span>Account</span>
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a href={getConfig().LOGOUT_URL} className="nav-link">
+                        <i data-lucide="log-out"></i>
+                        <span>Sign Out</span>
+                      </a>
+                    </li>
+                  </>
                 )}
               </ul>
             )}

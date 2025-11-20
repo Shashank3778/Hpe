@@ -10,7 +10,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { getConfig } from '@edx/frontend-platform';
 
 // Import your icon utility
-import { initLucideIcons } from '../uitils/iconUtils';
+import { initLucideIcons } from '../utils/iconUtils';
 
 // Import only the data shape validators
 import { desktopLoggedOutItemsDataShape } from './DesktopLoggedOutItems';
@@ -43,15 +43,11 @@ var DesktopHeader = function DesktopHeader(_ref) {
     _useState6 = _slicedToArray(_useState5, 2),
     darkMode = _useState6[0],
     setDarkMode = _useState6[1];
-  var _useState7 = useState('home'),
-    _useState8 = _slicedToArray(_useState7, 2),
-    currentPage = _useState8[0],
-    setCurrentPage = _useState8[1];
 
   // Initialize icons when component mounts and when state changes
   useEffect(function () {
     initLucideIcons();
-  }, [sidebarCollapsed, userMenuOpen, darkMode, currentPage]);
+  }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
   // Load dark mode preference from localStorage
   useEffect(function () {
@@ -61,6 +57,15 @@ var DesktopHeader = function DesktopHeader(_ref) {
       document.documentElement.setAttribute('data-theme', 'dark');
     }
   }, []);
+
+  // Apply body margin when sidebar state changes
+  useEffect(function () {
+    var mainContent = document.querySelector('#main');
+    if (mainContent) {
+      mainContent.style.marginLeft = sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)';
+      mainContent.style.transition = 'margin-left 0.3s ease';
+    }
+  }, [sidebarCollapsed]);
 
   // Toggle dark mode
   var toggleDarkMode = function toggleDarkMode() {
@@ -79,49 +84,55 @@ var DesktopHeader = function DesktopHeader(_ref) {
   var getPageTitle = function getPageTitle() {
     var path = window.location.pathname;
     if (path.includes('dashboard')) {
-      return intl.formatMessage(messages['header.links.courses'] || {
-        id: 'header.links.courses',
-        defaultMessage: 'Dashboard'
+      return intl.formatMessage({
+        id: 'header.title.dashboard',
+        defaultMessage: 'My Dashboard'
       });
     }
     if (path.includes('courses')) {
-      return intl.formatMessage(messages['header.links.courses'] || {
-        id: 'header.links.courses',
+      return intl.formatMessage({
+        id: 'header.title.courses',
         defaultMessage: 'Courses'
+      });
+    }
+    if (path.includes('programs')) {
+      return intl.formatMessage({
+        id: 'header.title.programs',
+        defaultMessage: 'Learning Paths'
       });
     }
     return getConfig().SITE_NAME || 'Learning Platform';
   };
 
-  // Map menu items to include icons
+  // Enhanced icon mapping function - matches your design exactly
   var getIconForMenuItem = function getIconForMenuItem(item, index) {
-    var iconMap = {
-      'dashboard': 'layout-dashboard',
-      'courses': 'book-open',
-      'programs': 'route',
-      'home': 'home'
-    };
+    var href = (item.href || '').toLowerCase();
+    var content = (item.content || '').toLowerCase();
 
-    // Try to match by href
-    var href = item.href || '';
-    if (href.includes('dashboard')) return 'layout-dashboard';
-    if (href.includes('courses')) return 'book-open';
-    if (href.includes('programs') || href.includes('learning')) return 'route';
+    // Match by content/href keywords
+    if (content.includes('home') || href.endsWith('/') || href.endsWith('/home')) return 'home';
+    if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
+    if (content.includes('course') || href.includes('/courses')) return 'book-open';
+    if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
+    if (content.includes('ai') || content.includes('studio') || href.includes('ai')) return 'bot';
 
-    // Default icons based on position
+    // Fallback to position-based icons matching your design
     var defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route', 'bot'];
     return defaultIcons[index] || 'circle';
   };
 
-  // Map user menu items to include icons
+  // Map user menu items to include icons - matching your design
   var getIconForUserMenuItem = function getIconForUserMenuItem(item) {
-    var href = item.href || '';
+    var href = (item.href || '').toLowerCase();
     var content = (item.content || '').toLowerCase();
-    if (href.includes('dashboard') || content.includes('dashboard')) return 'gauge';
-    if (href.includes('profile') || content.includes('profile')) return 'user';
-    if (href.includes('account') || href.includes('settings') || content.includes('account')) return 'settings';
-    if (href.includes('order') || content.includes('order')) return 'shopping-bag';
-    if (href.includes('logout') || content.includes('logout') || content.includes('sign out')) return 'log-out';
+
+    // Match icons from your design
+    if (content.includes('dashboard') || href.includes('dashboard')) return 'gauge';
+    if (content.includes('analytic') || href.includes('analytic')) return 'bar-chart-3';
+    if (content.includes('profile') || href.includes('profile')) return 'user';
+    if (content.includes('account') || content.includes('setting') || href.includes('account') || href.includes('setting')) return 'settings';
+    if (content.includes('order') || content.includes('history') || href.includes('order')) return 'shopping-bag';
+    if (content.includes('logout') || content.includes('sign out') || href.includes('logout')) return 'log-out';
     return 'circle';
   };
 
@@ -130,9 +141,116 @@ var DesktopHeader = function DesktopHeader(_ref) {
     if (sidebarCollapsed) {
       return logo || 'https://page.gensparksite.com/v1/base64_upload/54d382973dd8c88b434a48567fa6c866';
     }
-    // Use appropriate logo based on dark mode
     return logo || (darkMode ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd' : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
+
+  // Transform and build correct menu structure
+  var buildCorrectMenu = function buildCorrectMenu() {
+    var baseUrl = getConfig().LMS_BASE_URL;
+    var customMenu = [];
+
+    // Always add Home first (same as logo destination)
+    customMenu.push({
+      href: logoDestination || "".concat(baseUrl, "/"),
+      content: intl.formatMessage({
+        id: 'header.links.home',
+        defaultMessage: 'Home'
+      }),
+      icon: 'home'
+    });
+
+    // Process mainMenu to map old URLs to new structure
+    if (mainMenu && mainMenu.length > 0) {
+      mainMenu.forEach(function (item) {
+        var href = item.href || '';
+        var content = item.content || '';
+
+        // Map "Courses" (old: /dashboard) to "My Dashboard" (new: /dashboard)
+        if (href.includes('/dashboard')) {
+          customMenu.push({
+            href: "".concat(baseUrl, "/dashboard"),
+            content: intl.formatMessage({
+              id: 'header.links.my.dashboard',
+              defaultMessage: 'My Dashboard'
+            }),
+            icon: 'layout-dashboard'
+          });
+        }
+        // Map "Discover New" or anything with /courses to "Courses" (new: /courses)
+        else if (href.includes('/courses')) {
+          customMenu.push({
+            href: "".concat(baseUrl, "/courses"),
+            content: intl.formatMessage({
+              id: 'header.links.courses',
+              defaultMessage: 'Courses'
+            }),
+            icon: 'book-open'
+          });
+        }
+        // Keep other items as-is
+        else if (!href.endsWith('/') && !href.endsWith('/home')) {
+          customMenu.push(item);
+        }
+      });
+    } else {
+      // Default menu if no mainMenu provided
+      customMenu.push({
+        href: "".concat(baseUrl, "/dashboard"),
+        content: intl.formatMessage({
+          id: 'header.links.my.dashboard',
+          defaultMessage: 'My Dashboard'
+        }),
+        icon: 'layout-dashboard'
+      });
+      customMenu.push({
+        href: "".concat(baseUrl, "/courses"),
+        content: intl.formatMessage({
+          id: 'header.links.courses',
+          defaultMessage: 'Courses'
+        }),
+        icon: 'book-open'
+      });
+    }
+
+    // Add secondary menu items
+    if (secondaryMenu && secondaryMenu.length > 0) {
+      secondaryMenu.forEach(function (item) {
+        customMenu.push(item);
+      });
+    }
+
+    // Check if Learning Paths exists
+    var hasLearningPaths = customMenu.some(function (item) {
+      return (item.href || '').includes('program') || (item.content || '').toLowerCase().includes('program') || (item.content || '').toLowerCase().includes('learning path');
+    });
+    if (!hasLearningPaths) {
+      customMenu.push({
+        href: "".concat(baseUrl, "/programs"),
+        content: intl.formatMessage({
+          id: 'header.links.programs',
+          defaultMessage: 'Learning Paths'
+        }),
+        icon: 'route'
+      });
+    }
+
+    // Check if AI Studio exists
+    var hasAIStudio = customMenu.some(function (item) {
+      return (item.content || '').toLowerCase().includes('ai') || (item.content || '').toLowerCase().includes('studio');
+    });
+    if (!hasAIStudio) {
+      customMenu.push({
+        href: "".concat(baseUrl, "/ai-studio"),
+        content: intl.formatMessage({
+          id: 'header.links.ai.studio',
+          defaultMessage: 'AI Studio'
+        }),
+        icon: 'bot'
+      });
+    }
+    return customMenu;
+  };
+  var completeMenu = buildCorrectMenu();
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("aside", {
     className: "sidebar ".concat(sidebarCollapsed ? 'collapsed' : '')
   }, /*#__PURE__*/React.createElement("div", {
@@ -146,9 +264,11 @@ var DesktopHeader = function DesktopHeader(_ref) {
     key: "".concat(sidebarCollapsed, "-").concat(darkMode),
     src: getLogoSrc(),
     alt: logoAltText
-  })))), /*#__PURE__*/React.createElement("ul", {
+  })))), /*#__PURE__*/React.createElement("nav", {
+    className: "sidebar-nav"
+  }, /*#__PURE__*/React.createElement("ul", {
     className: "nav-menu"
-  }, mainMenu && mainMenu.length > 0 ? mainMenu.map(function (item, index) {
+  }, completeMenu.map(function (item, index) {
     return /*#__PURE__*/React.createElement("li", {
       key: index,
       className: "nav-item"
@@ -156,40 +276,9 @@ var DesktopHeader = function DesktopHeader(_ref) {
       href: item.href,
       className: "nav-link ".concat(window.location.pathname === item.href ? 'active' : '')
     }, /*#__PURE__*/React.createElement("i", {
-      "data-lucide": getIconForMenuItem(item, index)
+      "data-lucide": item.icon || getIconForMenuItem(item, index)
     }), /*#__PURE__*/React.createElement("span", null, item.content)));
-  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
-    className: "nav-item"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: "".concat(getConfig().LMS_BASE_URL, "/"),
-    className: "nav-link"
-  }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "home"
-  }), /*#__PURE__*/React.createElement("span", null, "Home"))), /*#__PURE__*/React.createElement("li", {
-    className: "nav-item"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: "".concat(getConfig().LMS_BASE_URL, "/dashboard"),
-    className: "nav-link active"
-  }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "layout-dashboard"
-  }), /*#__PURE__*/React.createElement("span", null, "My Dashboard"))), /*#__PURE__*/React.createElement("li", {
-    className: "nav-item"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: "".concat(getConfig().LMS_BASE_URL, "/courses"),
-    className: "nav-link"
-  }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "book-open"
-  }), /*#__PURE__*/React.createElement("span", null, "Courses")))), secondaryMenu && secondaryMenu.length > 0 && secondaryMenu.map(function (item, index) {
-    return /*#__PURE__*/React.createElement("li", {
-      key: "secondary-".concat(index),
-      className: "nav-item"
-    }, /*#__PURE__*/React.createElement("a", {
-      href: item.href,
-      className: "nav-link"
-    }, /*#__PURE__*/React.createElement("i", {
-      "data-lucide": getIconForMenuItem(item, index + mainMenu.length)
-    }), /*#__PURE__*/React.createElement("span", null, item.content)));
-  })), loggedIn ? /*#__PURE__*/React.createElement("div", {
+  }))), loggedIn ? /*#__PURE__*/React.createElement("div", {
     className: "user-menu"
   }, /*#__PURE__*/React.createElement("div", {
     className: "user-menu-header",
@@ -232,14 +321,35 @@ var DesktopHeader = function DesktopHeader(_ref) {
         "data-lucide": getIconForUserMenuItem(item)
       }), /*#__PURE__*/React.createElement("span", null, item.content)));
     }));
-  }) : /*#__PURE__*/React.createElement("li", {
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
+    className: "nav-item"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "".concat(getConfig().LMS_BASE_URL, "/dashboard"),
+    className: "nav-link"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "gauge"
+  }), /*#__PURE__*/React.createElement("span", null, "Dashboard"))), /*#__PURE__*/React.createElement("li", {
+    className: "nav-item"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "".concat(getConfig().ACCOUNT_PROFILE_URL, "/u/").concat(username),
+    className: "nav-link"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "user"
+  }), /*#__PURE__*/React.createElement("span", null, "Profile"))), /*#__PURE__*/React.createElement("li", {
+    className: "nav-item"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: getConfig().ACCOUNT_SETTINGS_URL,
+    className: "nav-link"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "settings"
+  }), /*#__PURE__*/React.createElement("span", null, "Account"))), /*#__PURE__*/React.createElement("li", {
     className: "nav-item"
   }, /*#__PURE__*/React.createElement("a", {
     href: getConfig().LOGOUT_URL,
     className: "nav-link"
   }, /*#__PURE__*/React.createElement("i", {
     "data-lucide": "log-out"
-  }), /*#__PURE__*/React.createElement("span", null, "Logout"))))) : /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", null, "Sign Out")))))) : /*#__PURE__*/React.createElement("div", {
     className: "user-menu"
   }, loggedOutItems && loggedOutItems.length > 0 ? loggedOutItems.map(function (item, index) {
     return /*#__PURE__*/React.createElement("a", {
