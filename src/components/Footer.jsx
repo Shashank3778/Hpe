@@ -1,86 +1,45 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { useIntl } from '@edx/frontend-platform/i18n';
-import { sendTrackEvent } from '@edx/frontend-platform/analytics';
-import { ensureConfig } from '@edx/frontend-platform';
 import { AppContext } from '@edx/frontend-platform/react';
+import { ensureConfig } from '@edx/frontend-platform';
+// Import the local images.
+// import hpeLogo from './assets/logo.svg';
 
-import messages from './Footer.messages';
-import LanguageSelector from './LanguageSelector';
-
-ensureConfig([
-  'LMS_BASE_URL',
-  'LOGO_TRADEMARK_URL',
-], 'Footer component');
+// Ensure the LMS_BASE_URL is available from the MFE configuration.
+ensureConfig(['LMS_BASE_URL', 'LOGO_URL']);
 
 const EVENT_NAMES = {
   FOOTER_LINK: 'edx.bi.footer.link',
 };
 
-const SiteFooter = ({
-  supportedLanguages,
-  onLanguageSelected,
-  logo,
-}) => {
-  const intl = useIntl();
+const Footer = () => {
+  // Get the MFE config object using the AppContext.
   const { config } = useContext(AppContext);
 
-  const showLanguageSelector = supportedLanguages.length > 0 && onLanguageSelected;
+  // Get the current year dynamically for the copyright notice.
+  const currentYear = new Date().getFullYear();
 
-  const externalLinkClickHandler = (event) => {
-    const label = event.currentTarget.getAttribute('href');
-    const eventName = EVENT_NAMES.FOOTER_LINK;
-    const properties = {
-      category: 'outbound_link',
-      label,
-    };
-    sendTrackEvent(eventName, properties);
-  };
+  // Construct the dynamic URL for the Striverra logo link.
+  const homeUrl = `${config.LMS_BASE_URL}`;
 
   return (
-    <footer
-      role="contentinfo"
-      className="footer d-flex border-top py-3 px-4"
-    >
-      <div className="container-fluid d-flex">
-        <a
-          className="d-block"
-          href={config.LMS_BASE_URL}
-          aria-label={intl.formatMessage(messages['footer.logo.ariaLabel'])}
-          onClick={externalLinkClickHandler}
-        >
-          <img
-            style={{ maxHeight: 45 }}
-            src={logo || config.LOGO_TRADEMARK_URL}
-            alt={intl.formatMessage(messages['footer.logo.altText'])}
-          />
-        </a>
-        <div className="flex-grow-1" />
-        {showLanguageSelector && (
-          <LanguageSelector
-            options={supportedLanguages}
-            onSubmit={onLanguageSelected}
-          />
-        )}
-      </div>
-    </footer>
+    <div className="wrapper wrapper-footer">
+      <footer id="footer" className="tutor-container">
+        <div className="footer-top">
+          <div className="powered-area">
+            <ul className="logo-list">
+                {/* MODIFIED: Using the dynamic dashboard URL and imported image */}
+                <a href={homeUrl} rel="noreferrer" target="_blank">
+                  <img
+                    src={`${config.LOGO_URL}`}
+                    alt="Logo"
+                  />
+                </a>
+            </ul>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 };
-
-SiteFooter.propTypes = {
-  logo: PropTypes.string,
-  onLanguageSelected: PropTypes.func,
-  supportedLanguages: PropTypes.arrayOf(PropTypes.shape({
-    label: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-  })),
-};
-
-SiteFooter.defaultProps = {
-  logo: undefined,
-  onLanguageSelected: undefined,
-  supportedLanguages: [],
-};
-
-export default SiteFooter;
 export { EVENT_NAMES };
+export default Footer;
