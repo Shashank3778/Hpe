@@ -7,6 +7,7 @@ import CoursesPanel from 'containers/CoursesPanel';
 import DashboardModalSlot from 'plugin-slots/DashboardModalSlot';
 
 import LoadingView from './LoadingView';
+// KEEP DashboardLayout if you want sidebar, or remove it
 import DashboardLayout from './DashboardLayout';
 import hooks from './hooks';
 import './index.scss';
@@ -32,6 +33,7 @@ export const Dashboard = () => {
           ? (<LoadingView />)
           : (
             <DashboardLayout>
+              {/* CoursesPanel now contains charts AND course list */}
               <CoursesPanel />
             </DashboardLayout>
           )}

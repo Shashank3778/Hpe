@@ -1,3 +1,40 @@
+@use "@openedx/paragon/styles/css/core/custom-media-breakpoints" as paragonCustomMediaBreakpoints;
+
+.charts-section {
+  margin-bottom: 30px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.chart-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.chart-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+.chart-wrapper {
+  position: relative;
+}
+
+@media (--pgn-size-breakpoint-max-width-md) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .course-list-column {
   padding: 0 var(--pgn-spacing-spacer-4);
 }
@@ -16,7 +53,6 @@
 
 @media (--pgn-size-breakpoint-max-width-lg) {
   .sidebar-column {
-    // grid are inheriting dir="ltr" from the body, so we need to override it
     [dir=ltr] & {
       padding: 0 var(--pgn-spacing-spacer-3);
     }

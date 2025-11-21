@@ -1,0 +1,111 @@
+.enrolled-card {
+  background: var(--light-bg);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .enrolled-card-image {
+    width: 100%;
+    height: 150px;
+    background: var(--icon-bg-neutral);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    overflow: hidden;
+
+    &.has-emoji {
+      font-size: 60px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    i {
+      width: 48px;
+      height: 48px;
+      color: var(--icon-color);
+    }
+  }
+
+  .enrolled-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+
+      a {
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: var(--primary-color);
+        }
+      }
+    }
+
+    .progress-bar-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .progress-bar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+
+        .progress-bar-fill {
+          height: 100%;
+          background-color: var(--primary-color);
+          transition: width 0.3s ease;
+        }
+      }
+    }
+
+    .course-card-actions {
+      margin-top: 8px;
+
+      .pgn__action-row {
+        justify-content: flex-start;
+      }
+
+      button, a {
+        &.btn-primary {
+          background-color: var(--primary-color);
+          border-color: var(--primary-color);
+
+          &:hover {
+            background-color: darken(#5b47fb, 10%);
+            border-color: darken(#5b47fb, 10%);
+          }
+        }
+      }
+    }
+  }
+}
