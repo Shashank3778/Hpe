@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { logError } from '@edx/frontend-platform/logging';
 import { initializeHotjar } from '@edx/frontend-enterprise-hotjar';
-
+import Header from '@edx/frontend-component-header';
 import { ErrorPage, AppContext } from '@edx/frontend-platform/react';
 import { FooterSlot } from '@edx/frontend-component-footer';
 import { Alert } from '@openedx/paragon';
@@ -79,7 +79,7 @@ export const App = () => {
       </Helmet>
       <div>
         <AppWrapper>
-          <LearnerDashboardHeader />
+          <Header />
           <main id="main">
             {hasNetworkFailure
               ? (
