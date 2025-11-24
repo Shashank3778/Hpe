@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import { reduxHooks } from 'hooks';
@@ -19,69 +19,77 @@ export const CoursesPanel = () => {
 
   const [activeTab, setActiveTab] = useState('enrolled');
 
-  // Debug: Log course data to see structure
-  useEffect(() => {
-    console.log('Course List Data:', courseListData);
-    console.log('Courses:', courseListData?.courses);
-  }, [courseListData]);
-
-  // Filter courses based on their courseStatus or certificate availability
+  // Get filtered courses based on active tab
   const getFilteredCourses = () => {
     const courses = courseListData?.courses || [];
     
     switch (activeTab) {
       case 'completed':
-        // Check for completed courses (usually have certificate or courseStatus)
+        // Filter completed courses (have certificate or 100% progress)
         return courses.filter(course => 
-          course.courseStatus === 'completed' || 
-          course.hasEnded === true ||
           course.certificate?.isAvailable === true ||
-          course.isCompleted === true
+          course.certificate?.isEarned === true ||
+          course.courseRunStatus === 'completed' ||
+          course.isCompleted === true ||
+          (course.progress && course.progress >= 100)
         );
       
       case 'cancelled':
-        // Check for cancelled/archived courses
+        // Filter cancelled/archived courses
         return courses.filter(course => 
-          course.courseStatus === 'archived' ||
           course.isArchived === true ||
+          course.courseRunStatus === 'archived' ||
           course.cancelled === true
         );
       
       case 'enrolled':
       default:
-        // Show active enrolled courses (not completed, not cancelled)
-        return courses.filter(course => 
-          course.courseStatus === 'active' ||
-          (!course.hasEnded && !course.isArchived && !course.cancelled) ||
-          course.courseStatus === 'in_progress' ||
-          course.courseStatus === undefined // Default to enrolled if no status
-        );
+        // For enrolled tab: Show all courses that are NOT completed or cancelled
+        // If a course has no status markers, it defaults to enrolled
+        return courses.filter(course => {
+          const isCompleted = course.certificate?.isAvailable === true ||
+                            course.certificate?.isEarned === true ||
+                            course.courseRunStatus === 'completed' ||
+                            course.isCompleted === true ||
+                            (course.progress && course.progress >= 100);
+          
+          const isCancelled = course.isArchived === true ||
+                            course.courseRunStatus === 'archived' ||
+                            course.cancelled === true;
+          
+          // Show course if it's NOT completed AND NOT cancelled
+          // This means new courses with no status will show in enrolled
+          return !isCompleted && !isCancelled;
+        });
     }
   };
 
   const filteredCourses = getFilteredCourses();
 
-  // Calculate counts for each tab
+  // Calculate course counts for each tab
   const getCounts = () => {
     const courses = courseListData?.courses || [];
+    
+    const completedCount = courses.filter(course => 
+      course.certificate?.isAvailable === true ||
+      course.certificate?.isEarned === true ||
+      course.courseRunStatus === 'completed' ||
+      course.isCompleted === true ||
+      (course.progress && course.progress >= 100)
+    ).length;
+
+    const cancelledCount = courses.filter(course => 
+      course.isArchived === true ||
+      course.courseRunStatus === 'archived' ||
+      course.cancelled === true
+    ).length;
+
+    const enrolledCount = courses.length - completedCount - cancelledCount;
+
     return {
-      enrolled: courses.filter(course => 
-        course.courseStatus === 'active' ||
-        (!course.hasEnded && !course.isArchived && !course.cancelled) ||
-        course.courseStatus === 'in_progress' ||
-        course.courseStatus === undefined
-      ).length,
-      completed: courses.filter(course => 
-        course.courseStatus === 'completed' || 
-        course.hasEnded === true ||
-        course.certificate?.isAvailable === true ||
-        course.isCompleted === true
-      ).length,
-      cancelled: courses.filter(course => 
-        course.courseStatus === 'archived' ||
-        course.isArchived === true ||
-        course.cancelled === true
-      ).length,
+      enrolled: enrolledCount,
+      completed: completedCount,
+      cancelled: cancelledCount
     };
   };
 
@@ -120,7 +128,9 @@ export const CoursesPanel = () => {
 
       {/* Course List / No Courses Section */}
       <div className="tab-content">
-        {filteredCourses?.length === 0 ? (
+        {!hasCourses ? (
+          <NoCoursesViewSlot />
+        ) : filteredCourses.length === 0 ? (
           <div className="empty-state">
             <p>No courses in this category yet.</p>
           </div>
