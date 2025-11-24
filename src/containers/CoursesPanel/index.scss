@@ -1,23 +1,35 @@
-@use "@openedx/paragon/styles/css/core/custom-media-breakpoints" as paragonCustomMediaBreakpoints;
-
-.courses-section {
-  margin-top: 20px;
+/* Keep original heading layout */
+.course-list-heading-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.section-header {
-  margin-bottom: 20px;
-}
-
-.section-title {
+.course-list-title {
   font-size: var(--pgn-typography-font-size-h2-base);
   margin: var(--pgn-spacing-spacer-3) 0;
 }
 
+.course-filter-controls-container {
+  text-align: right;
+  align-self: center;
+}
+
+/* ─────────────────────────── */
+/* CUSTOM DASHBOARD BODY DESIGN */
+/* ─────────────────────────── */
+
+.custom-dashboard-container {
+  padding-top: 10px;
+}
+
+/* Tabs */
 .tabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 30px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 20px;
 }
 
 .tab-btn {
@@ -25,166 +37,48 @@
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .tab-btn:hover {
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .tab-btn.active {
-  color: #5f6aff;
-  border-bottom-color: #5f6aff;
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
 }
 
-.tab-content {
-  min-height: 300px;
-}
-
-.enrolled-courses-grid {
+/* Course Grid */
+.custom-course-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  color: #6b7280;
-}
-
-.empty-state p {
-  font-size: 16px;
-  margin: 0;
-}
-
-// Enrolled Course Card Styles
-.enrolled-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  padding: 20px;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-}
-
-.enrolled-card:hover {
-  border-color: #5f6aff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.enrolled-card-image {
-  width: 100%;
-  height: 150px;
-  background: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  margin-bottom: 15px;
-  border-radius: 4px;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.enrolled-card-placeholder {
-  font-size: 60px;
-}
-
-.enrolled-card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.enrolled-card-content h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin: 0;
-}
-
-.completed-date,
-.cancelled-date {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 0;
-}
-
-.progress-bar-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.progress-bar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  color: #6b7280;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background-color: #e5e7eb;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background-color: #5f6aff;
-  transition: width 0.3s ease;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary {
-  background: #5f6aff;
-  color: white;
-
-  &:hover {
-    background: #4b56cc;
-  }
-}
-
+/* Responsive */
 @media (--pgn-size-breakpoint-max-width-md) {
-  .tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .course-list-heading-container {
+    flex-direction: column-reverse;
+    align-items: flex-start;
   }
 
-  .tab-btn {
-    flex-shrink: 0;
+  .course-filter-controls-container {
+    text-align: left;
+    align-self: flex-start;
   }
 
-  .enrolled-courses-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .section-title {
+  .course-list-title {
     font-size: var(--pgn-typography-font-size-h3-base);
     margin: var(--pgn-spacing-spacer-2) 0;
+  }
+
+  .custom-course-grid {
+    grid-template-columns: 1fr;
   }
 }
