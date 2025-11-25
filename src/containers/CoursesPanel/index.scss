@@ -56,10 +56,10 @@
   min-height: 300px;
 }
 
-/* Cards Grid - Your Design */
+/* Cards Grid - 5 cards per row */
 .cards-grid {
   display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  grid-template-columns: repeat(5, 1fr) !important;
   gap: 25px !important;
   
   /* Override any inherited styles */
@@ -94,6 +94,24 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1400px) {
+  .cards-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
 @media (--pgn-size-breakpoint-max-width-md) {
   .course-list-heading-container {
     flex-direction: column-reverse;
