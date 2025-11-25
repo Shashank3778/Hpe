@@ -30,6 +30,7 @@ export const CourseCard = ({
         <div className="custom-card-content">
           {/* Title with Menu */}
           <div className="custom-card-header">
+             
             <CourseCardTitle cardId={cardId} />
             <CourseCardMenu cardId={cardId} />
           </div>

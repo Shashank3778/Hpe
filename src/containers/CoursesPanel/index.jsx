@@ -51,13 +51,17 @@ export const CoursesPanel = () => {
         ))}
       </div>
 
-      {/* Course List Content - SAME LOGIC AS DEFAULT */}
+      {/* Course List Content */}
       <div className="tab-content">
         {activeTab === 'enrolled' ? (
-          // Enrolled tab: Use EXACT same logic as default
-          hasCourses ? <CourseListSlot courseListData={courseListData} /> : <NoCoursesViewSlot />
+          hasCourses ? (
+            <div className="cards-grid">
+              <CourseListSlot courseListData={courseListData} />
+            </div>
+          ) : (
+            <NoCoursesViewSlot />
+          )
         ) : (
-          // Completed and Cancelled tabs: Show empty message
           <div className="empty-state">
             <p>No courses in this category yet.</p>
           </div>

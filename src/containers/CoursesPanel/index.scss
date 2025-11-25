@@ -16,17 +16,18 @@
   align-self: center;
 }
 
-/* Custom Dashboard Design */
+/* Custom Dashboard Container */
 .custom-dashboard-container {
   padding-top: 10px;
 }
 
-/* Tabs */
+/* Tabs Styling */
 .tabs {
   display: flex;
   gap: 0;
   border-bottom: 1px solid var(--border-color, #e0e0e0);
   margin-bottom: 30px;
+  margin-top: 20px;
 }
 
 .tab-btn {
@@ -50,20 +51,33 @@
   border-bottom-color: var(--primary-color, #0066cc);
 }
 
-/* Tab Content */
+/* Tab Content Area */
 .tab-content {
   min-height: 300px;
 }
 
-/* Course Grid - Updated to match your design */
-.custom-course-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+/* Cards Grid - Your Design */
+.cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  gap: 25px !important;
+  
+  /* Override any inherited styles */
+  > * {
+    display: contents !important;
+  }
+  
+  /* Make sure course cards fit properly */
+  .course-card,
+  .custom-course-card,
+  [data-testid="CourseCard"] {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
 }
 
-/* Empty State */
+/* Empty State Message */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -79,7 +93,7 @@
   margin: 0;
 }
 
-/* Responsive */
+/* Responsive Design */
 @media (--pgn-size-breakpoint-max-width-md) {
   .course-list-heading-container {
     flex-direction: column-reverse;
@@ -96,10 +110,6 @@
     margin: var(--pgn-spacing-spacer-2) 0;
   }
 
-  .custom-course-grid {
-    grid-template-columns: 1fr;
-  }
-
   .tabs {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -108,5 +118,10 @@
   .tab-btn {
     flex-shrink: 0;
     white-space: nowrap;
+  }
+  
+  /* Single column on mobile */
+  .cards-grid {
+    grid-template-columns: 1fr !important;
   }
 }
