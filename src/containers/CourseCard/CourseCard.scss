@@ -1,72 +1,182 @@
-.course-card {
-  .card {
-    .pgn__card-wrapper-image-cap.vertical {
-      display: flex;
-      min-height: var(--pgn-size-card-image-vertical-max-height);
+.custom-course-card {
+  width: 100%;
+  
+  .custom-card-wrapper {
+    background: var(--light-bg, #ffffff);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    &:hover {
+      border-color: var(--primary-color, #0066cc);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
+  }
+  
+  // Course Image Section
+  .custom-card-image {
+    width: 100%;
+    height: 180px;
+    background: var(--icon-bg-neutral, #f5f5f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    
+    // Make the image fill the container properly
+    .pgn__card-wrapper-image-cap,
     .pgn__card-image-cap {
-      border-bottom-left-radius: 0 !important;
-    }
-    .overflow-visible {
-      overflow: visible;
-    }
-    .pgn__card-header-content {
-      margin-top: 1.5rem;
-    }
-    .pgn__card-footer {
-      flex-wrap: nowrap;
-
-      &.vertical {
-        flex-direction: column;
-      }
-
-      .pgn__action-row {
-        align-self: flex-end;
-        white-space: nowrap;
-      }
-    }
-
-    .course-card-verify-ribbon-container {
       width: 100%;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      text-align: center;
-
-      .badge {
-        border-radius: 0;
-      }
-
-      > img {
-        width: 40px;
-        z-index: 1000;
-        position: absolute;
-        top: 0;
-        right: 0;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0 !important;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
     }
   }
-
+  
+  // Course Content Section
+  .custom-card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+  
+  // Header (Title + Menu)
+  .custom-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    
+    // Title styling
+    .pgn__card-header-content,
+    h3, h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary, #333);
+      margin: 0;
+      flex: 1;
+      line-height: 1.4;
+    }
+    
+    // Menu dropdown
+    .dropdown {
+      flex-shrink: 0;
+    }
+  }
+  
+  // Course Details Section (dates, progress, etc.)
+  .custom-card-details {
+    font-size: 13px;
+    color: var(--text-secondary, #666);
+    
+    // Style dates and metadata
+    .pgn__card-section {
+      padding: 0;
+      
+      p, span, div {
+        font-size: 13px;
+        color: var(--text-secondary, #666);
+        margin-bottom: 8px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+    
+    // Progress bar styling (if exists in CourseCardDetails)
+    .progress,
+    [class*="progress"] {
+      height: 8px;
+      background-color: var(--border-color, #e0e0e0);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+      
+      .progress-bar,
+      [class*="progress-bar"] {
+        background-color: var(--primary-color, #0066cc);
+        transition: width 0.3s ease;
+      }
+    }
+  }
+  
+  // Action Buttons Section
+  .custom-card-actions {
+    margin-top: auto;
+    padding-top: 12px;
+    
+    .pgn__card-footer,
+    .btn-group,
+    .pgn__action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 0;
+      border: none;
+      background: none;
+      
+      .btn {
+        flex: 1;
+        min-width: fit-content;
+        white-space: nowrap;
+      }
+    }
+  }
+  
+  // Banners Section (verify, alerts, etc.)
   .course-card-banners {
     > .alert {
       border-radius: 0;
       box-shadow: none;
       padding: var(--pgn-spacing-spacer-3) var(--pgn-spacing-spacer-4);
-
+      margin: 0;
+      
       &:last-of-type {
-        border-bottom-left-radius: var(--pgn-size-alert-border-radius);
-        border-bottom-right-radius: var(--pgn-size-alert-border-radius);
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
       }
     }
-
+    
     .related-programs-banner {
       .related-programs-list-container {
         list-style: none;
         display: inline;
-
+        
         > li {
           line-height: 1rem;
         }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .custom-course-card {
+    .custom-card-image {
+      height: 150px;
+    }
+    
+    .custom-card-content {
+      padding: 15px;
+    }
+    
+    .custom-card-header {
+      h3, h4 {
+        font-size: 16px;
       }
     }
   }

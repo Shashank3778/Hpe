@@ -17,32 +17,41 @@ export const CourseCard = ({
   cardId,
 }) => {
   const isCollapsed = useIsCollapsed();
-  const orientation = isCollapsed ? 'vertical' : 'horizontal';
+  
   return (
-    <div className="mb-4.5 course-card" id={cardId} data-testid="CourseCard">
-      <Card orientation={orientation}>
-        <div className="d-flex flex-column w-100">
-          <div {...(!isCollapsed && { className: 'd-flex' })}>
-            <CourseCardImage cardId={cardId} orientation="horizontal" />
-            <Card.Body>
-              <Card.Header
-                title={<CourseCardTitle cardId={cardId} />}
-                actions={<CourseCardMenu cardId={cardId} />}
-              />
-              <Card.Section className="pt-0">
-                <CourseCardDetails cardId={cardId} />
-              </Card.Section>
-              <Card.Footer orientation={orientation}>
-                <CourseCardActions cardId={cardId} />
-              </Card.Footer>
-            </Card.Body>
-          </div>
-          <CourseCardBanners cardId={cardId} />
+    <div className="mb-4 custom-course-card" id={cardId} data-testid="CourseCard">
+      <div className="custom-card-wrapper">
+        {/* Course Image */}
+        <div className="custom-card-image">
+          <CourseCardImage cardId={cardId} orientation="vertical" />
         </div>
-      </Card>
+        
+        {/* Course Content */}
+        <div className="custom-card-content">
+          {/* Title with Menu */}
+          <div className="custom-card-header">
+            <CourseCardTitle cardId={cardId} />
+            <CourseCardMenu cardId={cardId} />
+          </div>
+          
+          {/* Course Details (progress, dates, etc.) */}
+          <div className="custom-card-details">
+            <CourseCardDetails cardId={cardId} />
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="custom-card-actions">
+            <CourseCardActions cardId={cardId} />
+          </div>
+        </div>
+        
+        {/* Banners (if any) */}
+        <CourseCardBanners cardId={cardId} />
+      </div>
     </div>
   );
 };
+
 CourseCard.propTypes = {
   cardId: PropTypes.string.isRequired,
 };
