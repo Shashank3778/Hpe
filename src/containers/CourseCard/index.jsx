@@ -39,15 +39,7 @@ export const CourseCard = ({
           <div className="custom-card-details">
             <CourseCardDetails cardId={cardId} />
           </div>
-          
-          {/* Action Buttons */}
-          <div className="custom-card-actions">
-            <CourseCardActions cardId={cardId} />
-          </div>
         </div>
-        
-        {/* Banners (if any) */}
-        <CourseCardBanners cardId={cardId} />
       </div>
     </div>
   );
