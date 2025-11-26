@@ -88,11 +88,13 @@ export const App = () => {
                   <ErrorPage message={formatMessage(messages.errorMessage, { supportEmail })} />
                 </Alert>
               ) : (
+                <div className='main-content'>
                 <Dashboard />
+                <Footer />
+                </div>
               )}
           </main>
         </AppWrapper>
-        <Footer />
       </div>
     </>
   );

@@ -31,7 +31,15 @@ $input-focus-box-shadow: var(--pgn-elevation-form-input-base); // hack to get up
   main {
     flex-grow: 1;
   }
-
+   .main-content{
+      flex: 1;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s 
+ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+   }
   header {
     flex: 0 0 auto;
 
