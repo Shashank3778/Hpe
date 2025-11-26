@@ -1,8 +1,20 @@
 .main-footer {
   background-color: var(--light-bg, #ffffff);
   border-top: 1px solid var(--border-color, #e0e0e0);
-  padding: 30px;
+  padding: 30px 20px;
   margin-top: auto;
+  
+  // KEY FIX: Add margin-left to sync with sidebar
+  margin-left: var(--sidebar-width, 240px);
+  width: calc(100% - var(--sidebar-width, 240px));
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  box-sizing: border-box;
+}
+
+// When sidebar is collapsed
+.main-footer.sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed-width, 60px);
+  width: calc(100% - var(--sidebar-collapsed-width, 60px));
 }
 
 .footer-content {
@@ -43,7 +55,7 @@
   transition: color 0.2s ease;
 
   &:hover {
-    color: var(--primary-color, #0066cc);
+    color: var(--primary-color, #5f6aff);
     text-decoration: none;
   }
 }
@@ -58,9 +70,13 @@
   margin: 0 auto;
 }
 
+// Mobile responsive
 @media (max-width: 768px) {
-  .main-footer {
+  .main-footer,
+  .main-footer.sidebar-collapsed {
     padding: 20px 15px;
+    margin-left: 0 !important;
+    width: 100% !important;
   }
   
   .footer-content {
@@ -74,10 +90,7 @@
 }
 
 // Remove old footer styles if they exist
-.wrapper-footer {
-  display: none;
-}
-
+.wrapper-footer,
 #footer {
   display: none;
 }

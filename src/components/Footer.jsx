@@ -1,9 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@edx/frontend-platform/react';
 import { ensureConfig } from '@edx/frontend-platform';
 
-
-// Ensure the LMS_BASE_URL is available from the MFE configuration.
 ensureConfig(['LMS_BASE_URL', 'LOGO_URL']);
 
 const EVENT_NAMES = {
@@ -11,27 +9,54 @@ const EVENT_NAMES = {
 };
 
 const Footer = () => {
-  // Get the MFE config object using the AppContext.
   const { config } = useContext(AppContext);
-
-  // Get the current year dynamically for the copyright notice.
   const currentYear = new Date().getFullYear();
-
-  // Get base URL from config
   const baseUrl = config.LMS_BASE_URL;
   const logoUrl = config.LOGO_URL;
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Construct footer links with base URL
   const footerLinks = [
     { label: 'Support', href: `${baseUrl}/support` },
     { label: 'Privacy Policy', href: `${baseUrl}/privacy` },
     { label: 'Terms', href: `${baseUrl}/terms` },
   ];
 
+  // Sync footer with sidebar state from header component
+  useEffect(() => {
+    const checkSidebarState = () => {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        setSidebarCollapsed(isCollapsed);
+      }
+    };
+
+    // Initial check
+    checkSidebarState();
+
+    // Watch for sidebar class changes
+    const observer = new MutationObserver(checkSidebarState);
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (sidebar) {
+      observer.observe(sidebar, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
+
+    // Fallback: periodic check for sidebar state
+    const interval = setInterval(checkSidebarState, 100);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
-    <footer className="main-footer">
+    <footer className={`main-footer ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <div className="footer-content">
-        {/* Logo Section */}
         <div className="footer-logo-container">
           <a href={baseUrl} rel="noreferrer">
             <img 
@@ -42,7 +67,6 @@ const Footer = () => {
           </a>
         </div>
 
-        {/* Footer Links */}
         <nav className="footer-links">
           {footerLinks.map((link) => (
             <a 
@@ -57,7 +81,6 @@ const Footer = () => {
         </nav>
       </div>
 
-      {/* Copyright Section */}
       <div className="footer-bottom">
         © {currentYear} Striverra. All rights reserved.
       </div>
