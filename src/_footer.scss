@@ -5,20 +5,13 @@
   margin-top: auto;
   
   // KEY FIX: Add margin-left to sync with sidebar
-  margin-left: var(--sidebar-width, 240px);
-  width: calc(100% - var(--sidebar-width, 240px));
   transition: margin-left 0.3s ease, width 0.3s ease;
   box-sizing: border-box;
 }
 
 // When sidebar is collapsed
-.main-footer.sidebar-collapsed {
-  margin-left: var(--sidebar-collapsed-width, 60px);
-  width: calc(100% - var(--sidebar-collapsed-width, 60px));
-}
 
 .footer-content {
-  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -61,12 +54,10 @@
 }
 
 .footer-bottom {
-  text-align: center;
   color: var(--text-secondary, #666);
   font-size: 13px;
   padding-top: 20px;
   border-top: 1px solid var(--border-color, #e0e0e0);
-  max-width: 1200px;
   margin: 0 auto;
 }
 
