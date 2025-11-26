@@ -10,22 +10,41 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    padding: 0; // Remove any default padding
+    overflow: hidden; // Prevent content overflow
     
+    // KEY FIX: Hover effect on the entire card
     &:hover {
       border-color: var(--primary-color, #0066cc);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // Optional: add subtle shadow
     }
   }
   
-  // Course Image Section - 150px height like your design
+  // Course Image Section - 150px height fixed
   .custom-card-image {
     width: 100%;
-    height: 150px;
+    height: 150px; // Fixed height
+    min-height: 150px; // Ensure minimum height
+    max-height: 150px; // Prevent expansion
     background: var(--icon-bg-neutral, #f5f5f5);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    margin-bottom: 15px;
+    margin-bottom: 0; // Remove margin, use padding in content instead
+    flex-shrink: 0; // Prevent shrinking
+    
+    // Icon styling for courses without images
+    i {
+      width: 48px;
+      height: 48px;
+      color: var(--icon-color, #666);
+    }
+    
+    // Emoji styling
+    &.has-emoji {
+      font-size: 60px;
+    }
     
     // Make the image fill the container properly
     .pgn__card-wrapper-image-cap,
@@ -39,17 +58,19 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        display: block;
       }
     }
   }
   
-  // Course Content Section
+  // Course Content Section - Fixed structure
   .custom-card-content {
     display: flex;
     flex-direction: column;
     gap: 12px;
     flex: 1;
     padding: 20px;
+    min-height: 0; // Allow proper flexbox behavior
   }
   
   // Header (Title + Menu)
@@ -68,6 +89,11 @@
       margin: 0;
       flex: 1;
       line-height: 1.4;
+      
+      // Prevent title from making card wider
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
     }
     
     // Menu dropdown
@@ -80,6 +106,7 @@
   .custom-card-details {
     font-size: 13px;
     color: var(--text-secondary, #666);
+    flex: 1; // Take available space
     
     // Style dates and metadata
     .pgn__card-section {
@@ -96,27 +123,20 @@
       }
     }
     
-    // Progress bar styling - 8px height like your design
-    .progress,
-    [class*="progress"] {
-      height: 8px;
-      background-color: var(--border-color, #e0e0e0);
-      border-radius: 0;
-      overflow: hidden;
-      margin-top: 8px;
-      
-      .progress-bar,
-      [class*="progress-bar"] {
-        background-color: var(--primary-color, #0066cc);
-        transition: width 0.3s ease;
-      }
+    // Completed/Cancelled dates
+    .completed-date,
+    .cancelled-date {
+      font-size: 13px;
+      color: var(--text-secondary, #666);
+      margin: 0;
     }
     
-    // Progress container styling
+    // Progress bar container
     .progress-bar-container {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      margin-top: 12px;
     }
     
     .progress-bar-header {
@@ -126,12 +146,35 @@
       font-size: 13px;
       color: var(--text-secondary, #666);
     }
+    
+    // Progress bar styling - 8px height like your design
+    .progress,
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: var(--border-color, #e0e0e0);
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+      
+      .progress-bar,
+      .progress-bar-fill,
+      [class*="progress-bar"] {
+        height: 100%;
+        background-color: var(--primary-color, #0066cc);
+        transition: width 0.3s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
   }
   
   // Action Buttons Section
   .custom-card-actions {
     margin-top: auto;
     padding-top: 12px;
+    flex-shrink: 0; // Prevent shrinking
     
     .pgn__card-footer,
     .btn-group,
@@ -154,6 +197,7 @@
   // Banners Section (verify, alerts, etc.)
   .course-card-banners {
     margin-top: 15px;
+    padding: 0 20px 20px 20px; // Add horizontal padding
     
     > .alert {
       border-radius: 0;
@@ -176,14 +220,32 @@
   }
 }
 
+// KEY FIX: Grid layout to ensure consistent card widths
+.enrolled-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  
+  // Each card takes equal width regardless of content
+  .custom-course-card {
+    width: 100%;
+    max-width: 100%; // Prevent expansion
+    min-width: 0; // Allow shrinking if needed
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
+  .enrolled-courses-grid {
+    grid-template-columns: 1fr; // Single column on mobile
+  }
+  
   .custom-course-card {
     .custom-card-image {
       height: 150px;
     }
     
-    .custom-card-wrapper {
+    .custom-card-content {
       padding: 15px;
     }
     
@@ -192,5 +254,17 @@
         font-size: 16px;
       }
     }
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .enrolled-courses-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (min-width: 1025px) {
+  .enrolled-courses-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
 }
