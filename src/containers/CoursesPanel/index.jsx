@@ -31,7 +31,14 @@ export const CoursesPanel = () => {
     <div className="course-list-container custom-dashboard-container">
       
       {/* Header with Title and Filters */}
-  
+      <div className="course-list-heading-container">
+        <h2 className="course-list-title">
+          {formatMessage(messages.myCourses)}
+        </h2>
+        <div className="course-filter-controls-container">
+          <CourseFilterControls />
+        </div>
+      </div>
 
       {/* Tabs */}
       <div className="tabs">
