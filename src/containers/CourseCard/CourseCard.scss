@@ -211,56 +211,6 @@
       }
     }
   }
-  
-  // Action Buttons Section
-  .custom-card-actions {
-    margin-top: auto;
-    padding-top: 12px;
-    flex-shrink: 0;
-    
-    .pgn__card-footer,
-    .btn-group,
-    .pgn__action-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding: 0;
-      border: none;
-      background: none;
-      
-      .btn {
-        flex: 1;
-        min-width: fit-content;
-        white-space: nowrap;
-        padding: 8px 16px;
-        font-size: 14px;
-      }
-    }
-  }
-  
-  // Banners Section (verify, alerts, etc.)
-  .course-card-banners {
-    padding: 0 20px 20px 20px;
-    
-    > .alert {
-      border-radius: 0;
-      box-shadow: none;
-      padding: 10px 15px;
-      margin: 0;
-      font-size: 13px;
-    }
-    
-    .related-programs-banner {
-      .related-programs-list-container {
-        list-style: none;
-        display: inline;
-        
-        > li {
-          line-height: 1rem;
-        }
-      }
-    }
-  }
 }
 
 // Responsive adjustments for card component

@@ -1,4 +1,3 @@
-/* Keep original heading layout */
 .course-list-heading-container {
   display: flex;
   flex-direction: row;
@@ -56,12 +55,17 @@
   min-height: 300px;
 }
 
-/* Cards Grid - 5 cards per row with equal widths */
+/* Cards Grid - KEY FIX: Handle CourseListSlot wrapper */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
   width: 100%;
+  
+  /* CRITICAL: Make CourseListSlot wrapper transparent to grid */
+  > * {
+    display: contents; /* This unwraps the plugin slot container */
+  }
   
   /* Ensure course cards respect grid structure */
   .course-card,

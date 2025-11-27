@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import CourseCardBanners from './components/CourseCardBanners';
 import CourseCardImage from './components/CourseCardImage';
 import CourseCardMenu from './components/CourseCardMenu';
-import CourseCardActions from './components/CourseCardActions';
 import CourseCardDetails from './components/CourseCardDetails';
 import CourseCardTitle from './components/CourseCardTitle';
 
@@ -34,9 +32,7 @@ export const CourseCard = ({ cardId }) => {
           <div className="custom-card-details">
             <CourseCardDetails cardId={cardId} />
           </div>
-          
         </div>
-        
       </div>
     </div>
   );
