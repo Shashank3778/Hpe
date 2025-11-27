@@ -35,14 +35,8 @@ export const CourseCard = ({ cardId }) => {
             <CourseCardDetails cardId={cardId} />
           </div>
           
-          {/* Action Buttons */}
-          <div className="custom-card-actions">
-            <CourseCardActions cardId={cardId} />
-          </div>
         </div>
         
-        {/* Banners */}
-        <CourseCardBanners cardId={cardId} />
       </div>
     </div>
   );
