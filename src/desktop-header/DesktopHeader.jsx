@@ -36,14 +36,10 @@ const DesktopHeader = ({
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
-  // Check if dark mode is enabled (read from Open edX default)
   useEffect(() => {
-    // Check Paragon's dark mode
     const checkDarkMode = () => {
       const htmlElement = document.documentElement;
       const bodyElement = document.body;
-      
-      // Check multiple possible dark mode indicators
       const isDark = 
         htmlElement.classList.contains('pgn__dark-mode') ||
         bodyElement.classList.contains('pgn__dark-mode') ||
@@ -139,7 +135,7 @@ const DesktopHeader = ({
     return getConfig().SITE_NAME || 'Learning Platform';
   };
 
-  // Enhanced icon mapping function - matches your design exactly
+  // Enhanced icon mapping function
   const getIconForMenuItem = (item, index) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
@@ -149,19 +145,17 @@ const DesktopHeader = ({
     if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
     if (content.includes('course') || href.includes('/courses')) return 'book-open';
     if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
-    if (content.includes('ai') || content.includes('studio') || href.includes('ai')) return 'bot';
     
-    // Fallback to position-based icons matching your design
-    const defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route', 'bot'];
+    // Fallback to position-based icons
+    const defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route'];
     return defaultIcons[index] || 'circle';
   };
 
-  // Map user menu items to include icons - matching your design
+  // Map user menu items to include icons
   const getIconForUserMenuItem = (item) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
     
-    // Match icons from your design
     if (content.includes('dashboard') || href.includes('dashboard')) return 'gauge';
     if (content.includes('analytic') || href.includes('analytic')) return 'bar-chart-3';
     if (content.includes('profile') || href.includes('profile')) return 'user';
@@ -182,91 +176,124 @@ const DesktopHeader = ({
       : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
 
-  // Transform and build correct menu structure
+  // ✅ FIXED: Transform and build correct menu structure
   const buildCorrectMenu = () => {
     const baseUrl = getConfig().LMS_BASE_URL;
     const customMenu = [];
 
-    // Always add Home first (same as logo destination)
+    // Always add Home first
     customMenu.push({
       href: logoDestination || `${baseUrl}/`,
       content: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
       icon: 'home',
     });
 
-    // Process mainMenu to map old URLs to new structure
+    // Track what we've added to avoid duplicates
+    let hasDashboard = false;
+    let hasCourses = false;
+    let hasLearningPaths = false;
+
+    // Process mainMenu
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach((item) => {
         const href = item.href || '';
+        const content = (item.content || '').toLowerCase();
 
-        // Map "Courses" (old: /dashboard) to "My Dashboard" (new: /dashboard)
+        // Skip AI Studio items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
+
+        // Dashboard
         if (href.includes('/dashboard')) {
-          customMenu.push({
-            href: `${baseUrl}/dashboard`,
-            content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
-            icon: 'layout-dashboard',
-          });
+          if (!hasDashboard) {
+            customMenu.push({
+              href: `${baseUrl}/dashboard`,
+              content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
+              icon: 'layout-dashboard',
+            });
+            hasDashboard = true;
+          }
         }
-        // Map "Discover New" or anything with /courses to "Courses" (new: /courses)
+        // Courses
         else if (href.includes('/courses')) {
-          customMenu.push({
-            href: `${baseUrl}/courses`,
-            content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
-            icon: 'book-open',
-          });
+          if (!hasCourses) {
+            customMenu.push({
+              href: `${baseUrl}/courses`,
+              content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
+              icon: 'book-open',
+            });
+            hasCourses = true;
+          }
         }
-        // Keep other items as-is
+        // Learning Paths
+        else if (href.includes('program') || content.includes('program') || content.includes('learning path')) {
+          if (!hasLearningPaths) {
+            customMenu.push({
+              href: `${baseUrl}/programs`,
+              content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
+              icon: 'route',
+            });
+            hasLearningPaths = true;
+          }
+        }
+        // Keep other items
         else if (!href.endsWith('/') && !href.endsWith('/home')) {
           customMenu.push(item);
         }
       });
-    } else {
-      // Default menu if no mainMenu provided
-      customMenu.push({
+    }
+
+    // Process secondaryMenu
+    if (secondaryMenu && secondaryMenu.length > 0) {
+      secondaryMenu.forEach((item) => {
+        const content = (item.content || '').toLowerCase();
+        const href = (item.href || '').toLowerCase();
+        
+        // Skip AI Studio items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
+
+        // Track items in secondary menu
+        if (href.includes('/dashboard')) {
+          hasDashboard = true;
+        } else if (href.includes('/courses')) {
+          hasCourses = true;
+        } else if (href.includes('program')) {
+          hasLearningPaths = true;
+        }
+        
+        customMenu.push(item);
+      });
+    }
+
+    // ✅ Ensure Dashboard exists
+    if (!hasDashboard) {
+      customMenu.splice(1, 0, {
         href: `${baseUrl}/dashboard`,
         content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
         icon: 'layout-dashboard',
       });
-      customMenu.push({
+    }
+
+    // ✅ Ensure Courses exists
+    if (!hasCourses) {
+      const dashboardIndex = customMenu.findIndex(item => item.href?.includes('/dashboard'));
+      const insertIndex = dashboardIndex >= 0 ? dashboardIndex + 1 : 2;
+      customMenu.splice(insertIndex, 0, {
         href: `${baseUrl}/courses`,
         content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
         icon: 'book-open',
       });
     }
 
-    // Add secondary menu items
-    if (secondaryMenu && secondaryMenu.length > 0) {
-      secondaryMenu.forEach((item) => {
-        customMenu.push(item);
-      });
-    }
-
-    // Check if Learning Paths exists
-    const hasLearningPaths = customMenu.some(item => 
-      (item.href || '').includes('program') || 
-      (item.content || '').toLowerCase().includes('program') ||
-      (item.content || '').toLowerCase().includes('learning path')
-    );
-
+    // ✅ Ensure Learning Paths exists
     if (!hasLearningPaths) {
       customMenu.push({
         href: `${baseUrl}/programs`,
         content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
         icon: 'route',
-      });
-    }
-
-    // Check if AI Studio exists
-    const hasAIStudio = customMenu.some(item => 
-      (item.content || '').toLowerCase().includes('ai') || 
-      (item.content || '').toLowerCase().includes('studio')
-    );
-
-    if (!hasAIStudio) {
-      customMenu.push({
-        href: `${baseUrl}/ai-studio`,
-        content: intl.formatMessage({ id: 'header.links.ai.studio', defaultMessage: 'AI Studio' }),
-        icon: 'bot',
       });
     }
 
@@ -310,7 +337,7 @@ const DesktopHeader = ({
           </ul>
         </nav>
         
-        {/* User Menu Section - Directly below navigation */}
+        {/* User Menu Section */}
         {loggedIn ? (
           <div className="user-menu">
             <div 

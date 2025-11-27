@@ -48,15 +48,10 @@ var DesktopHeader = function DesktopHeader(_ref) {
   useEffect(function () {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
-
-  // Check if dark mode is enabled (read from Open edX default)
   useEffect(function () {
-    // Check Paragon's dark mode
     var checkDarkMode = function checkDarkMode() {
       var htmlElement = document.documentElement;
       var bodyElement = document.body;
-
-      // Check multiple possible dark mode indicators
       var isDark = htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark' || localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark';
       setDarkMode(isDark);
     };
@@ -156,7 +151,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
     return getConfig().SITE_NAME || 'Learning Platform';
   };
 
-  // Enhanced icon mapping function - matches your design exactly
+  // Enhanced icon mapping function
   var getIconForMenuItem = function getIconForMenuItem(item, index) {
     var href = (item.href || '').toLowerCase();
     var content = (item.content || '').toLowerCase();
@@ -166,19 +161,16 @@ var DesktopHeader = function DesktopHeader(_ref) {
     if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
     if (content.includes('course') || href.includes('/courses')) return 'book-open';
     if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
-    if (content.includes('ai') || content.includes('studio') || href.includes('ai')) return 'bot';
 
-    // Fallback to position-based icons matching your design
-    var defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route', 'bot'];
+    // Fallback to position-based icons
+    var defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route'];
     return defaultIcons[index] || 'circle';
   };
 
-  // Map user menu items to include icons - matching your design
+  // Map user menu items to include icons
   var getIconForUserMenuItem = function getIconForUserMenuItem(item) {
     var href = (item.href || '').toLowerCase();
     var content = (item.content || '').toLowerCase();
-
-    // Match icons from your design
     if (content.includes('dashboard') || href.includes('dashboard')) return 'gauge';
     if (content.includes('analytic') || href.includes('analytic')) return 'bar-chart-3';
     if (content.includes('profile') || href.includes('profile')) return 'user';
@@ -196,12 +188,12 @@ var DesktopHeader = function DesktopHeader(_ref) {
     return logo || (darkMode ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd' : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
 
-  // Transform and build correct menu structure
+  // ✅ FIXED: Transform and build correct menu structure
   var buildCorrectMenu = function buildCorrectMenu() {
     var baseUrl = getConfig().LMS_BASE_URL;
     var customMenu = [];
 
-    // Always add Home first (same as logo destination)
+    // Always add Home first
     customMenu.push({
       href: logoDestination || "".concat(baseUrl, "/"),
       content: intl.formatMessage({
@@ -211,41 +203,97 @@ var DesktopHeader = function DesktopHeader(_ref) {
       icon: 'home'
     });
 
-    // Process mainMenu to map old URLs to new structure
+    // Track what we've added to avoid duplicates
+    var hasDashboard = false;
+    var hasCourses = false;
+    var hasLearningPaths = false;
+
+    // Process mainMenu
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach(function (item) {
         var href = item.href || '';
+        var content = (item.content || '').toLowerCase();
 
-        // Map "Courses" (old: /dashboard) to "My Dashboard" (new: /dashboard)
+        // Skip AI Studio items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
+
+        // Dashboard
         if (href.includes('/dashboard')) {
-          customMenu.push({
-            href: "".concat(baseUrl, "/dashboard"),
-            content: intl.formatMessage({
-              id: 'header.links.my.dashboard',
-              defaultMessage: 'My Dashboard'
-            }),
-            icon: 'layout-dashboard'
-          });
+          if (!hasDashboard) {
+            customMenu.push({
+              href: "".concat(baseUrl, "/dashboard"),
+              content: intl.formatMessage({
+                id: 'header.links.my.dashboard',
+                defaultMessage: 'My Dashboard'
+              }),
+              icon: 'layout-dashboard'
+            });
+            hasDashboard = true;
+          }
         }
-        // Map "Discover New" or anything with /courses to "Courses" (new: /courses)
+        // Courses
         else if (href.includes('/courses')) {
-          customMenu.push({
-            href: "".concat(baseUrl, "/courses"),
-            content: intl.formatMessage({
-              id: 'header.links.courses',
-              defaultMessage: 'Courses'
-            }),
-            icon: 'book-open'
-          });
+          if (!hasCourses) {
+            customMenu.push({
+              href: "".concat(baseUrl, "/courses"),
+              content: intl.formatMessage({
+                id: 'header.links.courses',
+                defaultMessage: 'Courses'
+              }),
+              icon: 'book-open'
+            });
+            hasCourses = true;
+          }
         }
-        // Keep other items as-is
+        // Learning Paths
+        else if (href.includes('program') || content.includes('program') || content.includes('learning path')) {
+          if (!hasLearningPaths) {
+            customMenu.push({
+              href: "".concat(baseUrl, "/programs"),
+              content: intl.formatMessage({
+                id: 'header.links.programs',
+                defaultMessage: 'Learning Paths'
+              }),
+              icon: 'route'
+            });
+            hasLearningPaths = true;
+          }
+        }
+        // Keep other items
         else if (!href.endsWith('/') && !href.endsWith('/home')) {
           customMenu.push(item);
         }
       });
-    } else {
-      // Default menu if no mainMenu provided
-      customMenu.push({
+    }
+
+    // Process secondaryMenu
+    if (secondaryMenu && secondaryMenu.length > 0) {
+      secondaryMenu.forEach(function (item) {
+        var content = (item.content || '').toLowerCase();
+        var href = (item.href || '').toLowerCase();
+
+        // Skip AI Studio items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
+
+        // Track items in secondary menu
+        if (href.includes('/dashboard')) {
+          hasDashboard = true;
+        } else if (href.includes('/courses')) {
+          hasCourses = true;
+        } else if (href.includes('program')) {
+          hasLearningPaths = true;
+        }
+        customMenu.push(item);
+      });
+    }
+
+    // ✅ Ensure Dashboard exists
+    if (!hasDashboard) {
+      customMenu.splice(1, 0, {
         href: "".concat(baseUrl, "/dashboard"),
         content: intl.formatMessage({
           id: 'header.links.my.dashboard',
@@ -253,7 +301,16 @@ var DesktopHeader = function DesktopHeader(_ref) {
         }),
         icon: 'layout-dashboard'
       });
-      customMenu.push({
+    }
+
+    // ✅ Ensure Courses exists
+    if (!hasCourses) {
+      var dashboardIndex = customMenu.findIndex(function (item) {
+        var _item$href;
+        return (_item$href = item.href) === null || _item$href === void 0 ? void 0 : _item$href.includes('/dashboard');
+      });
+      var insertIndex = dashboardIndex >= 0 ? dashboardIndex + 1 : 2;
+      customMenu.splice(insertIndex, 0, {
         href: "".concat(baseUrl, "/courses"),
         content: intl.formatMessage({
           id: 'header.links.courses',
@@ -263,17 +320,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
       });
     }
 
-    // Add secondary menu items
-    if (secondaryMenu && secondaryMenu.length > 0) {
-      secondaryMenu.forEach(function (item) {
-        customMenu.push(item);
-      });
-    }
-
-    // Check if Learning Paths exists
-    var hasLearningPaths = customMenu.some(function (item) {
-      return (item.href || '').includes('program') || (item.content || '').toLowerCase().includes('program') || (item.content || '').toLowerCase().includes('learning path');
-    });
+    // ✅ Ensure Learning Paths exists
     if (!hasLearningPaths) {
       customMenu.push({
         href: "".concat(baseUrl, "/programs"),
@@ -282,21 +329,6 @@ var DesktopHeader = function DesktopHeader(_ref) {
           defaultMessage: 'Learning Paths'
         }),
         icon: 'route'
-      });
-    }
-
-    // Check if AI Studio exists
-    var hasAIStudio = customMenu.some(function (item) {
-      return (item.content || '').toLowerCase().includes('ai') || (item.content || '').toLowerCase().includes('studio');
-    });
-    if (!hasAIStudio) {
-      customMenu.push({
-        href: "".concat(baseUrl, "/ai-studio"),
-        content: intl.formatMessage({
-          id: 'header.links.ai.studio',
-          defaultMessage: 'AI Studio'
-        }),
-        icon: 'bot'
       });
     }
     return customMenu;
