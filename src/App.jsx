@@ -80,7 +80,7 @@ export const App = () => {
       </Helmet>
       <div>
         <AppWrapper>
-                    <LearnerDashboardHeader />
+                    <Header />
           <main id="main">
             {hasNetworkFailure
               ? (
