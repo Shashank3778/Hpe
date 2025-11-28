@@ -1,53 +1,61 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import CourseCardImage from './components/CourseCardImage';
-import CourseCardMenu from './components/CourseCardMenu';
-import CourseCardDetails from './components/CourseCardDetails';
 import CourseCardTitle from './components/CourseCardTitle';
-import useCardDates from './components/CourseCardDetails/useCardDates'; // ✅ ADD THIS
+import CourseCardDetails from './components/CourseCardDetails';
+import useCardDates from './components/CourseCardDetails/useCardDates';
+import { initLucideIcons } from '../../utils/iconUtils';
 
-import './CourseCard.scss';
+import './CourseCard.css';
 
 export const CourseCard = ({ cardId }) => {
-  const { startDate, endDate } = useCardDates({ cardId }); // ✅ ADD THIS
+  const { startDate, endDate } = useCardDates({ cardId });
+
+  useEffect(() => {
+    initLucideIcons();
+  }, []);
 
   return (
-    <div className="custom-course-card" id={cardId} data-testid="CourseCard">
-      <div className="custom-card-wrapper">
-        <div className="custom-card-image">
-          <CourseCardImage cardId={cardId} orientation="vertical" />
+    <div className="course-card">
+      
+      {/* ----------- IMAGE ----------- */}
+      <div className="course-card-image">
+        <CourseCardImage cardId={cardId} orientation="vertical" />
+      </div>
+
+      {/* ----------- CONTENT ----------- */}
+      <div className="course-card-content">
+        <span className="course-label">COURSE</span>
+
+        <h3 className="course-title">
+          <CourseCardTitle cardId={cardId} />
+        </h3>
+
+        <div className="course-description">
+          <CourseCardDetails cardId={cardId} />
         </div>
-        <div className="custom-card-content">
-          <span className="course-label">COURSE</span>
-          <div className="custom-card-header">
-            <CourseCardTitle cardId={cardId} />
-          </div>
-          <div className="custom-card-details">
-            <CourseCardDetails cardId={cardId} />
-          </div>
-          
-          {/* ✅ ADD THIS SECTION */}
-          {(startDate || endDate) && (
-            <div className="course-dates-section">
-              {startDate && (
-                <div className="date-item">
-                  <i data-lucide="calendar" className="date-icon"></i>
-                  <span className="date-label">Start:</span>
-                  <span className="date-value">{startDate}</span>
-                </div>
-              )}
-              {endDate && (
-                <div className="date-item">
-                  <i data-lucide="calendar-check" className="date-icon"></i>
-                  <span className="date-label">End:</span>
-                  <span className="date-value">{endDate}</span>
-                </div>
-              )}
+      </div>
+
+      {/* ----------- DATES ----------- */}
+      {(startDate || endDate) && (
+        <div className="course-dates">
+          {startDate && (
+            <div className="date-item">
+              <i data-lucide="calendar"></i>
+              <span>{startDate}</span>
+            </div>
+          )}
+
+          {endDate && (
+            <div className="date-item">
+              <i data-lucide="calendar-check"></i>
+              <span>{endDate}</span>
             </div>
           )}
         </div>
-      </div>
+      )}
+
     </div>
   );
 };
