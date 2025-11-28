@@ -11,7 +11,7 @@ export const columnConfig = {
   courseList: {
     withSidebar: {
       lg: { span: 12, offset: 0 },
-      xl: { span: 8, offset: 0 },
+      xl: { span: 12, offset: 0 }, // ✅ CHANGED: from span: 8 to span: 12
     },
     noSidebar: {
       lg: { span: 12, offset: 0 },
@@ -44,6 +44,7 @@ export const DashboardLayout = ({ children }) => {
     </Container>
   );
 };
+
 DashboardLayout.propTypes = {
   children: PropTypes.node.isRequired,
 };
