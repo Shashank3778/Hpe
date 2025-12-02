@@ -40,14 +40,14 @@ const DesktopHeader = ({
     const checkDarkMode = () => {
       const htmlElement = document.documentElement;
       const bodyElement = document.body;
-      const isDark = 
+      const isDark =
         htmlElement.classList.contains('pgn__dark-mode') ||
         bodyElement.classList.contains('pgn__dark-mode') ||
         htmlElement.getAttribute('data-theme') === 'dark' ||
         bodyElement.getAttribute('data-theme') === 'dark' ||
         localStorage.getItem('theme') === 'dark' ||
         localStorage.getItem('paragon.theme.variant') === 'dark';
-      
+
       setDarkMode(isDark);
     };
 
@@ -104,13 +104,13 @@ const DesktopHeader = ({
 
     // Trigger Paragon theme change event
     const event = new CustomEvent('paragon.themeChanged', {
-      detail: { theme: newDarkMode ? 'dark' : 'light' }
+      detail: { theme: newDarkMode ? 'dark' : 'light' },
     });
     window.dispatchEvent(event);
 
     // Also trigger generic theme change event
     const themeEvent = new CustomEvent('themeChanged', {
-      detail: { darkMode: newDarkMode }
+      detail: { darkMode: newDarkMode },
     });
     window.dispatchEvent(themeEvent);
   };
@@ -139,13 +139,13 @@ const DesktopHeader = ({
   const getIconForMenuItem = (item, index) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
-    
+
     // Match by content/href keywords
     if (content.includes('home') || href.endsWith('/') || href.endsWith('/home')) return 'home';
     if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
     if (content.includes('course') || href.includes('/courses')) return 'book-open';
     if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
-    
+
     // Fallback to position-based icons
     const defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route'];
     return defaultIcons[index] || 'circle';
@@ -155,14 +155,14 @@ const DesktopHeader = ({
   const getIconForUserMenuItem = (item) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
-    
+
     if (content.includes('dashboard') || href.includes('dashboard')) return 'gauge';
     if (content.includes('analytic') || href.includes('analytic')) return 'bar-chart-3';
     if (content.includes('profile') || href.includes('profile')) return 'user';
     if (content.includes('account') || content.includes('setting') || href.includes('account') || href.includes('setting')) return 'settings';
     if (content.includes('order') || content.includes('history') || href.includes('order')) return 'shopping-bag';
     if (content.includes('logout') || content.includes('sign out') || href.includes('logout')) return 'log-out';
-    
+
     return 'circle';
   };
 
@@ -171,14 +171,15 @@ const DesktopHeader = ({
     if (sidebarCollapsed) {
       return logo || 'https://page.gensparksite.com/v1/base64_upload/54d382973dd8c88b434a48567fa6c866';
     }
-    return logo || (darkMode 
+    return logo || (darkMode
       ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd'
       : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
 
-  // ✅ FIXED: Transform and build correct menu structure
+  // ✅ FIXED: Transform and build correct menu structure with discovery check
   const buildCorrectMenu = () => {
     const baseUrl = getConfig().LMS_BASE_URL;
+    const discoveryEnabled = getConfig().FEATURES?.ENABLE_DISCOVERY ?? false;
     const customMenu = [];
 
     // Always add Home first
@@ -226,8 +227,8 @@ const DesktopHeader = ({
             hasCourses = true;
           }
         }
-        // Learning Paths
-        else if (href.includes('program') || content.includes('program') || content.includes('learning path')) {
+        // Learning Paths - only if discovery enabled
+        else if (discoveryEnabled && (href.includes('program') || content.includes('program') || content.includes('learning path'))) {
           if (!hasLearningPaths) {
             customMenu.push({
               href: `${baseUrl}/programs`,
@@ -249,21 +250,21 @@ const DesktopHeader = ({
       secondaryMenu.forEach((item) => {
         const content = (item.content || '').toLowerCase();
         const href = (item.href || '').toLowerCase();
-        
+
         // Skip AI Studio items
         if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
           return;
         }
 
-        // Track items in secondary menu
+        // Track items in secondary menu conditionally
         if (href.includes('/dashboard')) {
           hasDashboard = true;
         } else if (href.includes('/courses')) {
           hasCourses = true;
-        } else if (href.includes('program')) {
+        } else if (discoveryEnabled && href.includes('program')) {
           hasLearningPaths = true;
         }
-        
+
         customMenu.push(item);
       });
     }
@@ -288,8 +289,8 @@ const DesktopHeader = ({
       });
     }
 
-    // ✅ Ensure Learning Paths exists
-    if (!hasLearningPaths) {
+    // ✅ Ensure Learning Paths exists only if discovery enabled
+    if (discoveryEnabled && !hasLearningPaths) {
       customMenu.push({
         href: `${baseUrl}/programs`,
         content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
@@ -310,23 +311,23 @@ const DesktopHeader = ({
         <div className="sidebar-header">
           <div className="logo-container">
             <a href={logoDestination}>
-              <img 
+              <img
                 className="logo-img"
                 key={`${sidebarCollapsed}-${darkMode}`}
-                src={getLogoSrc()} 
-                alt={logoAltText} 
+                src={getLogoSrc()}
+                alt={logoAltText}
               />
             </a>
           </div>
         </div>
-        
+
         {/* Main Menu Navigation */}
         <nav className="sidebar-nav">
           <ul className="nav-menu">
             {completeMenu.map((item, index) => (
               <li key={index} className="nav-item">
-                <a 
-                  href={item.href} 
+                <a
+                  href={item.href}
                   className={`nav-link ${window.location.pathname === item.href ? 'active' : ''}`}
                 >
                   <i data-lucide={item.icon || getIconForMenuItem(item, index)}></i>
@@ -336,11 +337,11 @@ const DesktopHeader = ({
             ))}
           </ul>
         </nav>
-        
+
         {/* User Menu Section */}
         {loggedIn ? (
           <div className="user-menu">
-            <div 
+            <div
               className="user-menu-header"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               role="button"
@@ -363,7 +364,7 @@ const DesktopHeader = ({
               </div>
               <i data-lucide={userMenuOpen ? 'chevron-up' : 'chevron-down'}></i>
             </div>
-            
+
             {userMenuOpen && (
               <ul className="user-menu-items nav-menu">
                 {userMenu && userMenu.length > 0 ? (
@@ -371,10 +372,7 @@ const DesktopHeader = ({
                     <React.Fragment key={sectionIndex}>
                       {section.items && section.items.map((item, itemIndex) => (
                         <li key={itemIndex} className="nav-item">
-                          <a 
-                            href={item.href} 
-                            className="nav-link"
-                          >
+                          <a href={item.href} className="nav-link">
                             <i data-lucide={getIconForUserMenuItem(item)}></i>
                             <span>{item.content}</span>
                           </a>
@@ -417,11 +415,7 @@ const DesktopHeader = ({
           <div className="user-menu">
             {loggedOutItems && loggedOutItems.length > 0 ? (
               loggedOutItems.map((item, index) => (
-                <a 
-                  key={index}
-                  href={item.href}
-                  className="nav-link logged-out-link"
-                >
+                <a key={index} href={item.href} className="nav-link logged-out-link">
                   {item.content}
                 </a>
               ))
@@ -440,23 +434,23 @@ const DesktopHeader = ({
       </aside>
 
       {/* Main Header */}
-      <header 
+      <header
         className="main-header"
         style={{
           marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
         }}
       >
-        <button 
-          className="header-toggle-btn" 
+        <button
+          className="header-toggle-btn"
           onClick={toggleSidebar}
           aria-label="Toggle sidebar"
         >
           <i data-lucide="menu"></i>
         </button>
         <h1 className="page-title">{getPageTitle()}</h1>
-        <button 
-          className="dark-mode-toggle" 
-          onClick={toggleDarkMode} 
+        <button
+          className="dark-mode-toggle"
+          onClick={toggleDarkMode}
           title="Toggle dark mode"
           aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
         >

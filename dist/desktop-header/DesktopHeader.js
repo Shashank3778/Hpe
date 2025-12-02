@@ -188,9 +188,11 @@ var DesktopHeader = function DesktopHeader(_ref) {
     return logo || (darkMode ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd' : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
 
-  // ✅ FIXED: Transform and build correct menu structure
+  // ✅ FIXED: Transform and build correct menu structure with discovery check
   var buildCorrectMenu = function buildCorrectMenu() {
+    var _getConfig$FEATURES$E, _getConfig$FEATURES;
     var baseUrl = getConfig().LMS_BASE_URL;
+    var discoveryEnabled = (_getConfig$FEATURES$E = (_getConfig$FEATURES = getConfig().FEATURES) === null || _getConfig$FEATURES === void 0 ? void 0 : _getConfig$FEATURES.ENABLE_DISCOVERY) !== null && _getConfig$FEATURES$E !== void 0 ? _getConfig$FEATURES$E : false;
     var customMenu = [];
 
     // Always add Home first
@@ -247,8 +249,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
             hasCourses = true;
           }
         }
-        // Learning Paths
-        else if (href.includes('program') || content.includes('program') || content.includes('learning path')) {
+        // Learning Paths - only if discovery enabled
+        else if (discoveryEnabled && (href.includes('program') || content.includes('program') || content.includes('learning path'))) {
           if (!hasLearningPaths) {
             customMenu.push({
               href: "".concat(baseUrl, "/programs"),
@@ -279,12 +281,12 @@ var DesktopHeader = function DesktopHeader(_ref) {
           return;
         }
 
-        // Track items in secondary menu
+        // Track items in secondary menu conditionally
         if (href.includes('/dashboard')) {
           hasDashboard = true;
         } else if (href.includes('/courses')) {
           hasCourses = true;
-        } else if (href.includes('program')) {
+        } else if (discoveryEnabled && href.includes('program')) {
           hasLearningPaths = true;
         }
         customMenu.push(item);
@@ -320,8 +322,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
       });
     }
 
-    // ✅ Ensure Learning Paths exists
-    if (!hasLearningPaths) {
+    // ✅ Ensure Learning Paths exists only if discovery enabled
+    if (discoveryEnabled && !hasLearningPaths) {
       customMenu.push({
         href: "".concat(baseUrl, "/programs"),
         content: intl.formatMessage({
