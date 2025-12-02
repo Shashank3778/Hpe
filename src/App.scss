@@ -38,6 +38,8 @@ ease;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+      background-color: var(--light-bg);
+  color: var(--text-primary);
    }
   header {
     flex: 0 0 auto;

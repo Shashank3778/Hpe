@@ -18,6 +18,9 @@
 /* Custom Dashboard Container */
 .custom-dashboard-container {
   padding-top: 10px;
+    background-color: var(--light-bg);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Tabs Styling */
@@ -46,8 +49,8 @@
 }
 
 .tab-btn.active {
-  color: var(--primary-color, #0066cc);
-  border-bottom-color: var(--primary-color, #0066cc);
+  color: var(--primary-color, #009900);
+  border-bottom-color: var(--primary-color, #009900);
 }
 
 /* Tab Content Area */

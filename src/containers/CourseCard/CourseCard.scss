@@ -13,14 +13,12 @@
     padding: 0;
     overflow: hidden;
     
-    // Hover effect with shadow
     &:hover {
-      border-color: var(--primary-color, #0066cc);
+      border-color: var(--primary-color, #AFBF00);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
   }
   
-  // Image section - 150px height (matching your design)
   .custom-card-image {
     width: 100%;
     height: 150px;
@@ -32,19 +30,16 @@
     margin-bottom: 0;
     flex-shrink: 0;
     
-    // Icon styling for courses without images
     i {
       width: 48px;
       height: 48px;
       color: var(--icon-color, #666);
     }
     
-    // Emoji styling
     &.has-emoji {
       font-size: 60px;
     }
     
-    // Image fill
     .pgn__card-wrapper-image-cap,
     .pgn__card-image-cap {
       width: 100%;
@@ -61,7 +56,6 @@
     }
   }
   
-  // Content section
   .custom-card-content {
     display: flex;
     flex-direction: column;
@@ -71,7 +65,6 @@
     min-height: 0;
   }
   
-  // Course label (COURSE text above title)
   .course-label {
     display: inline-block;
     width: fit-content;
@@ -85,7 +78,6 @@
     margin: 0 0 8px 0;
   }
   
-  // Header (Title + Menu)
   .custom-card-header {
     display: flex;
     justify-content: space-between;
@@ -93,7 +85,6 @@
     gap: 10px;
     margin-top: 0;
     
-    // Title styling - 18px (matching your design)
     .pgn__card-header-content,
     h3, h4 {
       font-size: 18px;
@@ -169,7 +160,6 @@
       margin: 0;
     }
     
-    // Progress bar container
     .progress-bar-container {
       display: flex;
       flex-direction: column;
@@ -186,7 +176,6 @@
       color: var(--text-secondary, #666);
     }
     
-    // Progress bar styling - 8px height
     .progress,
     .progress-bar {
       width: 100%;
@@ -209,21 +198,20 @@
     }
   }
 
-  // ✅ UPDATED: Horizontal dates layout matching your design
   .course-dates-section {
-    margin-top: auto; // Push to bottom
+    margin-top: auto; 
     padding-top: 12px;
     border-top: 1px solid var(--border-color, #e0e0e0);
     display: flex;
-    flex-direction: row; // ✅ Changed from column to row
+    flex-direction: row; 
     justify-content: flex-start;
     align-items: center;
-    gap: 16px; // ✅ Space between start and end date
+    gap: 16px; 
 
     .date-item {
       display: flex;
       align-items: center;
-      gap: 6px; // ✅ Space between icon and date
+      gap: 6px; 
       font-size: 13px;
       color: var(--text-secondary, #666);
 
@@ -235,7 +223,7 @@
       }
 
       .date-label {
-        display: none; // ✅ Hide "Start:" and "End:" labels
+        display: none; 
       }
 
       .date-value {
@@ -246,7 +234,6 @@
   }
 }
 
-// Responsive adjustments for card component
 @media (max-width: 768px) {
   .custom-course-card {
     .custom-card-image {
