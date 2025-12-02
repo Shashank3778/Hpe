@@ -29,7 +29,7 @@ var Footer = function Footer() {
     href: "".concat(baseUrl, "/privacy")
   }, {
     label: 'Terms',
-    href: "".concat(baseUrl, "/terms")
+    href: "".concat(baseUrl, "/tos")
   }];
 
   // Sync footer with sidebar state from header component

@@ -18,7 +18,7 @@ const Footer = () => {
   const footerLinks = [
     { label: 'Support', href: `${baseUrl}/support` },
     { label: 'Privacy Policy', href: `${baseUrl}/privacy` },
-    { label: 'Terms', href: `${baseUrl}/terms` },
+    { label: 'Terms', href: `${baseUrl}/tos` },
   ];
 
   // Sync footer with sidebar state from header component
