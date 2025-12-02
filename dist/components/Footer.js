@@ -86,7 +86,7 @@ var Footer = function Footer() {
     }, link.label);
   }))), /*#__PURE__*/React.createElement("div", {
     className: "footer-bottom"
-  }, "\xA9 ", currentYear, " Striverra. All rights reserved."));
+  }, "\xA9 ", currentYear, " Hexis Academy. All rights reserved."));
 };
 export { EVENT_NAMES };
 export default Footer;

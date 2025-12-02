@@ -82,7 +82,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        © {currentYear} Striverra. All rights reserved.
+        © {currentYear} Hexis Academy. All rights reserved.
       </div>
     </footer>
   );
