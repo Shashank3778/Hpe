@@ -20,7 +20,7 @@ export const Dashboard = () => {
   const showSelectSessionModal = reduxHooks.useShowSelectSessionModal();
 
   return (
-    <div id="dashboard-container" className="d-flex  p-2 pt-0">
+    <div id="dashboard-container" >
       <h1 className="sr-only">{pageTitle}</h1>
       {!initIsPending && (
         <>

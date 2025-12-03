@@ -35,7 +35,7 @@ export const DashboardLayout = ({ children }) => {
     : columnConfig.courseList.noSidebar;
 
   return (
-    <Container fluid size="xl">
+    <Container fluid >
       <Row>
         <Col {...courseListColumnProps} className="course-list-column">
           {children}
