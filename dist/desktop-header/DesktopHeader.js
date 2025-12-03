@@ -1,3 +1,9 @@
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -43,6 +49,13 @@ var DesktopHeader = function DesktopHeader(_ref) {
     _useState6 = _slicedToArray(_useState5, 2),
     darkMode = _useState6[0],
     setDarkMode = _useState6[1];
+
+  // ✅ 20x20 Icon style
+  var iconStyle = {
+    width: '20px',
+    height: '20px',
+    flexShrink: 0
+  };
 
   // Initialize icons when component mounts and when state changes
   useEffect(function () {
@@ -188,15 +201,15 @@ var DesktopHeader = function DesktopHeader(_ref) {
     return logo || (darkMode ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd' : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
 
-  // ✅ FIXED: Transform and build correct menu structure with discovery check
+  // ✅ FIXED: Transform and build EXACT menu order: Home → My Dashboard → Courses
   var buildCorrectMenu = function buildCorrectMenu() {
     var _getConfig$FEATURES$E, _getConfig$FEATURES;
     var baseUrl = getConfig().LMS_BASE_URL;
     var discoveryEnabled = (_getConfig$FEATURES$E = (_getConfig$FEATURES = getConfig().FEATURES) === null || _getConfig$FEATURES === void 0 ? void 0 : _getConfig$FEATURES.ENABLE_DISCOVERY) !== null && _getConfig$FEATURES$E !== void 0 ? _getConfig$FEATURES$E : false;
-    var customMenu = [];
+    var menuItems = [];
 
-    // Always add Home first
-    customMenu.push({
+    // 1. ALWAYS add Home FIRST (index 0)
+    menuItems.push({
       href: logoDestination || "".concat(baseUrl, "/"),
       content: intl.formatMessage({
         id: 'header.links.home',
@@ -205,126 +218,29 @@ var DesktopHeader = function DesktopHeader(_ref) {
       icon: 'home'
     });
 
-    // Track what we've added to avoid duplicates
-    var hasDashboard = false;
-    var hasCourses = false;
-    var hasLearningPaths = false;
+    // 2. ALWAYS add My Dashboard SECOND (index 1)
+    menuItems.push({
+      href: "".concat(baseUrl, "/dashboard"),
+      content: intl.formatMessage({
+        id: 'header.links.my.dashboard',
+        defaultMessage: 'My Dashboard'
+      }),
+      icon: 'layout-dashboard'
+    });
 
-    // Process mainMenu
-    if (mainMenu && mainMenu.length > 0) {
-      mainMenu.forEach(function (item) {
-        var href = item.href || '';
-        var content = (item.content || '').toLowerCase();
+    // 3. ALWAYS add Courses THIRD (index 2)
+    menuItems.push({
+      href: "".concat(baseUrl, "/courses"),
+      content: intl.formatMessage({
+        id: 'header.links.courses',
+        defaultMessage: 'Courses'
+      }),
+      icon: 'book-open'
+    });
 
-        // Skip AI Studio items
-        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
-          return;
-        }
-
-        // Dashboard
-        if (href.includes('/dashboard')) {
-          if (!hasDashboard) {
-            customMenu.push({
-              href: "".concat(baseUrl, "/dashboard"),
-              content: intl.formatMessage({
-                id: 'header.links.my.dashboard',
-                defaultMessage: 'My Dashboard'
-              }),
-              icon: 'layout-dashboard'
-            });
-            hasDashboard = true;
-          }
-        }
-        // Courses
-        else if (href.includes('/courses')) {
-          if (!hasCourses) {
-            customMenu.push({
-              href: "".concat(baseUrl, "/courses"),
-              content: intl.formatMessage({
-                id: 'header.links.courses',
-                defaultMessage: 'Courses'
-              }),
-              icon: 'book-open'
-            });
-            hasCourses = true;
-          }
-        }
-        // Learning Paths - only if discovery enabled
-        else if (discoveryEnabled && (href.includes('program') || content.includes('program') || content.includes('learning path'))) {
-          if (!hasLearningPaths) {
-            customMenu.push({
-              href: "".concat(baseUrl, "/programs"),
-              content: intl.formatMessage({
-                id: 'header.links.programs',
-                defaultMessage: 'Learning Paths'
-              }),
-              icon: 'route'
-            });
-            hasLearningPaths = true;
-          }
-        }
-        // Keep other items
-        else if (!href.endsWith('/') && !href.endsWith('/home')) {
-          customMenu.push(item);
-        }
-      });
-    }
-
-    // Process secondaryMenu
-    if (secondaryMenu && secondaryMenu.length > 0) {
-      secondaryMenu.forEach(function (item) {
-        var content = (item.content || '').toLowerCase();
-        var href = (item.href || '').toLowerCase();
-
-        // Skip AI Studio items
-        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
-          return;
-        }
-
-        // Track items in secondary menu conditionally
-        if (href.includes('/dashboard')) {
-          hasDashboard = true;
-        } else if (href.includes('/courses')) {
-          hasCourses = true;
-        } else if (discoveryEnabled && href.includes('program')) {
-          hasLearningPaths = true;
-        }
-        customMenu.push(item);
-      });
-    }
-
-    // ✅ Ensure Dashboard exists
-    if (!hasDashboard) {
-      customMenu.splice(1, 0, {
-        href: "".concat(baseUrl, "/dashboard"),
-        content: intl.formatMessage({
-          id: 'header.links.my.dashboard',
-          defaultMessage: 'My Dashboard'
-        }),
-        icon: 'layout-dashboard'
-      });
-    }
-
-    // ✅ Ensure Courses exists
-    if (!hasCourses) {
-      var dashboardIndex = customMenu.findIndex(function (item) {
-        var _item$href;
-        return (_item$href = item.href) === null || _item$href === void 0 ? void 0 : _item$href.includes('/dashboard');
-      });
-      var insertIndex = dashboardIndex >= 0 ? dashboardIndex + 1 : 2;
-      customMenu.splice(insertIndex, 0, {
-        href: "".concat(baseUrl, "/courses"),
-        content: intl.formatMessage({
-          id: 'header.links.courses',
-          defaultMessage: 'Courses'
-        }),
-        icon: 'book-open'
-      });
-    }
-
-    // ✅ Ensure Learning Paths exists only if discovery enabled
-    if (discoveryEnabled && !hasLearningPaths) {
-      customMenu.push({
+    // 4. Add Learning Paths FOURTH only if discovery enabled
+    if (discoveryEnabled) {
+      menuItems.push({
         href: "".concat(baseUrl, "/programs"),
         content: intl.formatMessage({
           id: 'header.links.programs',
@@ -333,7 +249,46 @@ var DesktopHeader = function DesktopHeader(_ref) {
         icon: 'route'
       });
     }
-    return customMenu;
+
+    // 5. Process mainMenu and secondaryMenu for OTHER items (skip duplicates)
+    var processedItems = new Set(['/', '/dashboard', '/courses', '/programs']);
+    if (mainMenu && mainMenu.length > 0) {
+      mainMenu.forEach(function (item) {
+        var href = item.href || '';
+        var content = (item.content || '').toLowerCase();
+
+        // Skip AI Studio items and our core 4 items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
+        var cleanHref = href.replace(baseUrl, '').toLowerCase();
+        if (!processedItems.has(cleanHref) && !cleanHref.endsWith('/') && !cleanHref.endsWith('/home')) {
+          menuItems.push(_objectSpread(_objectSpread({}, item), {}, {
+            icon: getIconForMenuItem(item, menuItems.length)
+          }));
+          processedItems.add(cleanHref);
+        }
+      });
+    }
+    if (secondaryMenu && secondaryMenu.length > 0) {
+      secondaryMenu.forEach(function (item) {
+        var href = item.href || '';
+        var content = (item.content || '').toLowerCase();
+
+        // Skip AI Studio items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
+        var cleanHref = href.replace(baseUrl, '').toLowerCase();
+        if (!processedItems.has(cleanHref)) {
+          menuItems.push(_objectSpread(_objectSpread({}, item), {}, {
+            icon: getIconForMenuItem(item, menuItems.length)
+          }));
+          processedItems.add(cleanHref);
+        }
+      });
+    }
+    return menuItems;
   };
   var completeMenu = buildCorrectMenu();
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("aside", {
@@ -361,7 +316,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
       href: item.href,
       className: "nav-link ".concat(window.location.pathname === item.href ? 'active' : '')
     }, /*#__PURE__*/React.createElement("i", {
-      "data-lucide": item.icon || getIconForMenuItem(item, index)
+      "data-lucide": item.icon || getIconForMenuItem(item, index),
+      style: iconStyle
     }), /*#__PURE__*/React.createElement("span", null, item.content)));
   }))), loggedIn ? /*#__PURE__*/React.createElement("div", {
     className: "user-menu"
@@ -389,7 +345,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "user-name"
   }, username || 'User')), /*#__PURE__*/React.createElement("i", {
-    "data-lucide": userMenuOpen ? 'chevron-up' : 'chevron-down'
+    "data-lucide": userMenuOpen ? 'chevron-up' : 'chevron-down',
+    style: iconStyle
   })), userMenuOpen && /*#__PURE__*/React.createElement("ul", {
     className: "user-menu-items nav-menu"
   }, userMenu && userMenu.length > 0 ? userMenu.map(function (section, sectionIndex) {
@@ -403,7 +360,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
         href: item.href,
         className: "nav-link"
       }, /*#__PURE__*/React.createElement("i", {
-        "data-lucide": getIconForUserMenuItem(item)
+        "data-lucide": getIconForUserMenuItem(item),
+        style: iconStyle
       }), /*#__PURE__*/React.createElement("span", null, item.content)));
     }));
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("li", {
@@ -412,28 +370,32 @@ var DesktopHeader = function DesktopHeader(_ref) {
     href: "".concat(getConfig().LMS_BASE_URL, "/dashboard"),
     className: "nav-link"
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "gauge"
+    "data-lucide": "gauge",
+    style: iconStyle
   }), /*#__PURE__*/React.createElement("span", null, "Dashboard"))), /*#__PURE__*/React.createElement("li", {
     className: "nav-item"
   }, /*#__PURE__*/React.createElement("a", {
     href: "".concat(getConfig().ACCOUNT_PROFILE_URL, "/u/").concat(username),
     className: "nav-link"
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "user"
+    "data-lucide": "user",
+    style: iconStyle
   }), /*#__PURE__*/React.createElement("span", null, "Profile"))), /*#__PURE__*/React.createElement("li", {
     className: "nav-item"
   }, /*#__PURE__*/React.createElement("a", {
     href: getConfig().ACCOUNT_SETTINGS_URL,
     className: "nav-link"
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "settings"
+    "data-lucide": "settings",
+    style: iconStyle
   }), /*#__PURE__*/React.createElement("span", null, "Account"))), /*#__PURE__*/React.createElement("li", {
     className: "nav-item"
   }, /*#__PURE__*/React.createElement("a", {
     href: getConfig().LOGOUT_URL,
     className: "nav-link"
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "log-out"
+    "data-lucide": "log-out",
+    style: iconStyle
   }), /*#__PURE__*/React.createElement("span", null, "Sign Out")))))) : /*#__PURE__*/React.createElement("div", {
     className: "user-menu"
   }, loggedOutItems && loggedOutItems.length > 0 ? loggedOutItems.map(function (item, index) {
@@ -458,7 +420,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
     onClick: toggleSidebar,
     "aria-label": "Toggle sidebar"
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": "menu"
+    "data-lucide": "menu",
+    style: iconStyle
   })), /*#__PURE__*/React.createElement("h1", {
     className: "page-title"
   }, getPageTitle()), /*#__PURE__*/React.createElement("button", {
@@ -467,7 +430,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
     title: "Toggle dark mode",
     "aria-label": darkMode ? "Switch to light mode" : "Switch to dark mode"
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": darkMode ? "sun" : "moon"
+    "data-lucide": darkMode ? "sun" : "moon",
+    style: iconStyle
   }))));
 };
 export var desktopHeaderDataShape = {

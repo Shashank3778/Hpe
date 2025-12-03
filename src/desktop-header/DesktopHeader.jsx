@@ -31,6 +31,13 @@ const DesktopHeader = ({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
+  // ✅ 20x20 Icon style
+  const iconStyle = {
+    width: '20px',
+    height: '20px',
+    flexShrink: 0
+  };
+
   // Initialize icons when component mounts and when state changes
   useEffect(() => {
     initLucideIcons();
@@ -176,27 +183,68 @@ const DesktopHeader = ({
       : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
 
-  // ✅ FIXED: Transform and build correct menu structure with discovery check
+  // ✅ FIXED: Transform and build EXACT menu order: Home → My Dashboard → Courses
   const buildCorrectMenu = () => {
     const baseUrl = getConfig().LMS_BASE_URL;
     const discoveryEnabled = getConfig().FEATURES?.ENABLE_DISCOVERY ?? false;
-    const customMenu = [];
+    const menuItems = [];
 
-    // Always add Home first
-    customMenu.push({
+    // 1. ALWAYS add Home FIRST (index 0)
+    menuItems.push({
       href: logoDestination || `${baseUrl}/`,
       content: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
       icon: 'home',
     });
 
-    // Track what we've added to avoid duplicates
-    let hasDashboard = false;
-    let hasCourses = false;
-    let hasLearningPaths = false;
+    // 2. ALWAYS add My Dashboard SECOND (index 1)
+    menuItems.push({
+      href: `${baseUrl}/dashboard`,
+      content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
+      icon: 'layout-dashboard',
+    });
 
-    // Process mainMenu
+    // 3. ALWAYS add Courses THIRD (index 2)
+    menuItems.push({
+      href: `${baseUrl}/courses`,
+      content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
+      icon: 'book-open',
+    });
+
+    // 4. Add Learning Paths FOURTH only if discovery enabled
+    if (discoveryEnabled) {
+      menuItems.push({
+        href: `${baseUrl}/programs`,
+        content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
+        icon: 'route',
+      });
+    }
+
+    // 5. Process mainMenu and secondaryMenu for OTHER items (skip duplicates)
+    const processedItems = new Set(['/', '/dashboard', '/courses', '/programs']);
+    
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach((item) => {
+        const href = item.href || '';
+        const content = (item.content || '').toLowerCase();
+
+        // Skip AI Studio items and our core 4 items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
+
+        const cleanHref = href.replace(baseUrl, '').toLowerCase();
+        if (!processedItems.has(cleanHref) && !cleanHref.endsWith('/') && !cleanHref.endsWith('/home')) {
+          menuItems.push({
+            ...item,
+            icon: getIconForMenuItem(item, menuItems.length),
+          });
+          processedItems.add(cleanHref);
+        }
+      });
+    }
+
+    if (secondaryMenu && secondaryMenu.length > 0) {
+      secondaryMenu.forEach((item) => {
         const href = item.href || '';
         const content = (item.content || '').toLowerCase();
 
@@ -205,100 +253,18 @@ const DesktopHeader = ({
           return;
         }
 
-        // Dashboard
-        if (href.includes('/dashboard')) {
-          if (!hasDashboard) {
-            customMenu.push({
-              href: `${baseUrl}/dashboard`,
-              content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
-              icon: 'layout-dashboard',
-            });
-            hasDashboard = true;
-          }
-        }
-        // Courses
-        else if (href.includes('/courses')) {
-          if (!hasCourses) {
-            customMenu.push({
-              href: `${baseUrl}/courses`,
-              content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
-              icon: 'book-open',
-            });
-            hasCourses = true;
-          }
-        }
-        // Learning Paths - only if discovery enabled
-        else if (discoveryEnabled && (href.includes('program') || content.includes('program') || content.includes('learning path'))) {
-          if (!hasLearningPaths) {
-            customMenu.push({
-              href: `${baseUrl}/programs`,
-              content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
-              icon: 'route',
-            });
-            hasLearningPaths = true;
-          }
-        }
-        // Keep other items
-        else if (!href.endsWith('/') && !href.endsWith('/home')) {
-          customMenu.push(item);
+        const cleanHref = href.replace(baseUrl, '').toLowerCase();
+        if (!processedItems.has(cleanHref)) {
+          menuItems.push({
+            ...item,
+            icon: getIconForMenuItem(item, menuItems.length),
+          });
+          processedItems.add(cleanHref);
         }
       });
     }
 
-    // Process secondaryMenu
-    if (secondaryMenu && secondaryMenu.length > 0) {
-      secondaryMenu.forEach((item) => {
-        const content = (item.content || '').toLowerCase();
-        const href = (item.href || '').toLowerCase();
-
-        // Skip AI Studio items
-        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
-          return;
-        }
-
-        // Track items in secondary menu conditionally
-        if (href.includes('/dashboard')) {
-          hasDashboard = true;
-        } else if (href.includes('/courses')) {
-          hasCourses = true;
-        } else if (discoveryEnabled && href.includes('program')) {
-          hasLearningPaths = true;
-        }
-
-        customMenu.push(item);
-      });
-    }
-
-    // ✅ Ensure Dashboard exists
-    if (!hasDashboard) {
-      customMenu.splice(1, 0, {
-        href: `${baseUrl}/dashboard`,
-        content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
-        icon: 'layout-dashboard',
-      });
-    }
-
-    // ✅ Ensure Courses exists
-    if (!hasCourses) {
-      const dashboardIndex = customMenu.findIndex(item => item.href?.includes('/dashboard'));
-      const insertIndex = dashboardIndex >= 0 ? dashboardIndex + 1 : 2;
-      customMenu.splice(insertIndex, 0, {
-        href: `${baseUrl}/courses`,
-        content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
-        icon: 'book-open',
-      });
-    }
-
-    // ✅ Ensure Learning Paths exists only if discovery enabled
-    if (discoveryEnabled && !hasLearningPaths) {
-      customMenu.push({
-        href: `${baseUrl}/programs`,
-        content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
-        icon: 'route',
-      });
-    }
-
-    return customMenu;
+    return menuItems;
   };
 
   const completeMenu = buildCorrectMenu();
@@ -321,7 +287,7 @@ const DesktopHeader = ({
           </div>
         </div>
 
-        {/* Main Menu Navigation */}
+        {/* Main Menu Navigation - GUARANTEED ORDER */}
         <nav className="sidebar-nav">
           <ul className="nav-menu">
             {completeMenu.map((item, index) => (
@@ -330,7 +296,10 @@ const DesktopHeader = ({
                   href={item.href}
                   className={`nav-link ${window.location.pathname === item.href ? 'active' : ''}`}
                 >
-                  <i data-lucide={item.icon || getIconForMenuItem(item, index)}></i>
+                  <i 
+                    data-lucide={item.icon || getIconForMenuItem(item, index)} 
+                    style={iconStyle}
+                  />
                   <span>{item.content}</span>
                 </a>
               </li>
@@ -362,7 +331,7 @@ const DesktopHeader = ({
               <div className="user-info">
                 <div className="user-name">{username || 'User'}</div>
               </div>
-              <i data-lucide={userMenuOpen ? 'chevron-up' : 'chevron-down'}></i>
+              <i data-lucide={userMenuOpen ? 'chevron-up' : 'chevron-down'} style={iconStyle} />
             </div>
 
             {userMenuOpen && (
@@ -373,7 +342,10 @@ const DesktopHeader = ({
                       {section.items && section.items.map((item, itemIndex) => (
                         <li key={itemIndex} className="nav-item">
                           <a href={item.href} className="nav-link">
-                            <i data-lucide={getIconForUserMenuItem(item)}></i>
+                            <i 
+                              data-lucide={getIconForUserMenuItem(item)} 
+                              style={iconStyle}
+                            />
                             <span>{item.content}</span>
                           </a>
                         </li>
@@ -384,25 +356,25 @@ const DesktopHeader = ({
                   <>
                     <li className="nav-item">
                       <a href={`${getConfig().LMS_BASE_URL}/dashboard`} className="nav-link">
-                        <i data-lucide="gauge"></i>
+                        <i data-lucide="gauge" style={iconStyle} />
                         <span>Dashboard</span>
                       </a>
                     </li>
                     <li className="nav-item">
                       <a href={`${getConfig().ACCOUNT_PROFILE_URL}/u/${username}`} className="nav-link">
-                        <i data-lucide="user"></i>
+                        <i data-lucide="user" style={iconStyle} />
                         <span>Profile</span>
                       </a>
                     </li>
                     <li className="nav-item">
                       <a href={getConfig().ACCOUNT_SETTINGS_URL} className="nav-link">
-                        <i data-lucide="settings"></i>
+                        <i data-lucide="settings" style={iconStyle} />
                         <span>Account</span>
                       </a>
                     </li>
                     <li className="nav-item">
                       <a href={getConfig().LOGOUT_URL} className="nav-link">
-                        <i data-lucide="log-out"></i>
+                        <i data-lucide="log-out" style={iconStyle} />
                         <span>Sign Out</span>
                       </a>
                     </li>
@@ -445,7 +417,7 @@ const DesktopHeader = ({
           onClick={toggleSidebar}
           aria-label="Toggle sidebar"
         >
-          <i data-lucide="menu"></i>
+          <i data-lucide="menu" style={iconStyle} />
         </button>
         <h1 className="page-title">{getPageTitle()}</h1>
         <button
@@ -454,7 +426,7 @@ const DesktopHeader = ({
           title="Toggle dark mode"
           aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
         >
-          <i data-lucide={darkMode ? "sun" : "moon"}></i>
+          <i data-lucide={darkMode ? "sun" : "moon"} style={iconStyle} />
         </button>
       </header>
     </>

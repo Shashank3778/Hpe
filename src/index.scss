@@ -12,36 +12,36 @@ $rounded-pill: 50rem  !default;
    GLOBAL THEME VARIABLES
 ====================================== */
 :root {
-  --header-height: 60px;
-  --sidebar-width: 240px;
-  --sidebar-collapsed-width: 60px;
+  --header-height: 70px;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 70px;
 
   /* Light mode colors */
   --light-bg: #ffffff;
-  --sidebar-bg: #f5f5f5;
+  --sidebar-bg: #fafbfb;
   --border-color: #e0e0e0;
 
   --text-primary: #333333;
   --text-secondary: #666666;
 
-  --sidebar-text: #333333;
+  --sidebar-text: #4b5563;
   --sidebar-text-hover: #000000;
 
-  --primary-color: #5f6aff;
+  --primary-color: #009900;
 }
 
 [data-theme="dark"] {
-  --light-bg: #1a1a1a;
-  --sidebar-bg: #2d2d2d;
+  --light-bg: #0f172a;
+  --sidebar-bg: #1e293b;
   --border-color: #404040;
 
   --text-primary: #ffffff;
   --text-secondary: #cccccc;
 
-  --sidebar-text: #e0e0e0;
+  --sidebar-text: #cbd5e1;
   --sidebar-text-hover: #ffffff;
 
-  --primary-color: #7c85ff;
+  --primary-color: #009900;
 }
 
 /* ======================================
@@ -68,7 +68,7 @@ main {
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  padding: 0 30px;
+  padding: 20px 40px;
   gap: 20px;
   position: sticky;
   top: 0;
@@ -141,6 +141,10 @@ main {
   padding: 20px;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
+  display: flex;
+  height: 70px;
+  justify-content:space-between ;
+  align-items: center;
 }
 
 .logo-container {
@@ -188,8 +192,8 @@ main {
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
+  gap: 15px;
+  padding: 12px 20px;
   color: var(--sidebar-text);
   text-decoration: none;
   transition: all 0.2s ease;
@@ -244,8 +248,8 @@ main {
 .user-menu-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px;
+  gap: 15px;
+  padding: 12px 20px;
   cursor: pointer;
   border-radius: 6px;
   transition: background-color 0.2s ease;
@@ -267,8 +271,8 @@ main {
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background-color: var(--primary-color);
   color: white;
@@ -294,7 +298,7 @@ main {
 
 .user-name {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
