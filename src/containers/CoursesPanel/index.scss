@@ -18,7 +18,7 @@
 /* Custom Dashboard Container */
 .custom-dashboard-container {
   padding-top: 10px;
-  background-color: var(--light-bg);
+    background-color: var(--light-bg);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -49,7 +49,7 @@
 }
 
 .tab-btn.active {
-  color: #009900;
+  color:  #009900;
   border-bottom-color: #009900;
 }
 
@@ -58,35 +58,32 @@
   min-height: 300px;
 }
 
-/* ---------------------------------------------------------------------
-   UPDATED GRID SECTION (NO BREAKAGE, NO display: contents)
-   --------------------------------------------------------------------- */
-
-/* Keep outer grid wrapper simple */
+/* Cards Grid - KEY FIX: Handle CourseListSlot wrapper */
 .cards-grid {
-  width: 100%;
-}
-
-/* Make PluginSlot wrapper the grid container */
-.cards-grid > [data-plugin-slot-wrapper] {
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
   width: 100%;
-}
-
-/* Ensure course cards fill the grid cells correctly */
-.cards-grid .course-card,
-.cards-grid .custom-course-card,
-.cards-grid [data-testid="CourseCard"] {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  margin: 0;
-}
-
-.cards-grid .custom-card-wrapper {
-  height: 100%;
+  
+  /* CRITICAL: Make CourseListSlot wrapper transparent to grid */
+  > * {
+    display: contents; /* This unwraps the plugin slot container */
+  }
+  
+  /* Ensure course cards respect grid structure */
+  .course-card,
+  .custom-course-card,
+  [data-testid="CourseCard"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    
+    /* Ensure wrapper takes full grid cell */
+    .custom-card-wrapper {
+      height: 100%;
+    }
+  }
 }
 
 /* Empty State Message */
@@ -107,43 +104,43 @@
 
 /* Responsive Design */
 @media (min-width: 1601px) {
-  .cards-grid > [data-plugin-slot-wrapper] {
+  .cards-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (max-width: 1600px) {
-  .cards-grid > [data-plugin-slot-wrapper] {
+  .cards-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 1400px) {
-  .cards-grid > [data-plugin-slot-wrapper] {
+  .cards-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 1200px) {
-  .cards-grid > [data-plugin-slot-wrapper] {
+  .cards-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
 }
 
 @media (max-width: 992px) {
-  .cards-grid > [data-plugin-slot-wrapper] {
+  .cards-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
 }
 
 @media (max-width: 768px) {
-  .cards-grid > [data-plugin-slot-wrapper] {
+  .cards-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-
+  
   .tabs {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
