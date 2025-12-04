@@ -57,16 +57,61 @@ var DesktopHeader = function DesktopHeader(_ref) {
     flexShrink: 0
   };
 
+  // 🔥 NEW: Helper function to get cookie value
+  var getCookie = function getCookie(name) {
+    var _document$cookie$spli;
+    var value = (_document$cookie$spli = document.cookie.split('; ').find(function (row) {
+      return row.startsWith("".concat(name, "="));
+    })) === null || _document$cookie$spli === void 0 ? void 0 : _document$cookie$spli.split('=')[1];
+    return value;
+  };
+
+  // 🔥 NEW: Helper function to set cookie
+  var setCookie = function setCookie(name, value) {
+    var days = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 90;
+    var hostname = window.location.hostname;
+    var expires = new Date();
+    expires.setDate(expires.getDate() + days);
+    document.cookie = "".concat(name, "=").concat(value, "; domain=").concat(hostname, "; expires=").concat(expires.toUTCString(), "; path=/");
+  };
+
   // Initialize icons when component mounts and when state changes
   useEffect(function () {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
+
+  // 🔥 UPDATED: Check dark mode with cookie priority
   useEffect(function () {
     var checkDarkMode = function checkDarkMode() {
+      // 🔥 NEW: First check legacy cookie
+      var legacyCookie = getCookie('indigo-toggle-dark');
       var htmlElement = document.documentElement;
       var bodyElement = document.body;
-      var isDark = htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark' || localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark';
+
+      // Priority order: cookie → localStorage → class attributes
+      var isDark = legacyCookie === 'dark' ||
+      // Check cookie FIRST
+      localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark' || htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark';
       setDarkMode(isDark);
+
+      // 🔥 NEW: Sync to localStorage if cookie exists but localStorage doesn't match
+      if (legacyCookie && localStorage.getItem('theme') !== legacyCookie) {
+        localStorage.setItem('theme', legacyCookie);
+        localStorage.setItem('paragon.theme.variant', legacyCookie);
+
+        // Apply the theme to the page
+        if (legacyCookie === 'dark') {
+          htmlElement.classList.add('pgn__dark-mode');
+          bodyElement.classList.add('pgn__dark-mode');
+          htmlElement.setAttribute('data-theme', 'dark');
+          bodyElement.setAttribute('data-theme', 'dark');
+        } else {
+          htmlElement.classList.remove('pgn__dark-mode');
+          bodyElement.classList.remove('pgn__dark-mode');
+          htmlElement.setAttribute('data-theme', 'light');
+          bodyElement.setAttribute('data-theme', 'light');
+        }
+      }
     };
     checkDarkMode();
 
@@ -94,11 +139,12 @@ var DesktopHeader = function DesktopHeader(_ref) {
     }
   }, [sidebarCollapsed]);
 
-  // Toggle dark mode using Open edX default method
+  // 🔥 UPDATED: Toggle dark mode with cookie sync
   var toggleDarkMode = function toggleDarkMode() {
     var htmlElement = document.documentElement;
     var bodyElement = document.body;
     var newDarkMode = !darkMode;
+    var themeValue = newDarkMode ? 'dark' : 'light';
     if (newDarkMode) {
       // Enable dark mode (Paragon style)
       htmlElement.classList.add('pgn__dark-mode');
@@ -116,12 +162,15 @@ var DesktopHeader = function DesktopHeader(_ref) {
       localStorage.setItem('theme', 'light');
       localStorage.setItem('paragon.theme.variant', 'light');
     }
+
+    // 🔥 NEW: Set legacy cookie for backward compatibility
+    setCookie('indigo-toggle-dark', themeValue, 90);
     setDarkMode(newDarkMode);
 
     // Trigger Paragon theme change event
     var event = new CustomEvent('paragon.themeChanged', {
       detail: {
-        theme: newDarkMode ? 'dark' : 'light'
+        theme: themeValue
       }
     });
     window.dispatchEvent(event);
@@ -133,6 +182,11 @@ var DesktopHeader = function DesktopHeader(_ref) {
       }
     });
     window.dispatchEvent(themeEvent);
+
+    // 🔥 NEW: Post message to any legacy iframes
+    window.parent.postMessage({
+      "indigo-toggle-dark": themeValue
+    }, '*');
   };
 
   // Toggle sidebar collapse

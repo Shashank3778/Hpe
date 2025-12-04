@@ -38,24 +38,67 @@ const DesktopHeader = ({
     flexShrink: 0
   };
 
+  // 🔥 NEW: Helper function to get cookie value
+  const getCookie = (name) => {
+    const value = document.cookie
+      .split('; ')
+      .find(row => row.startsWith(`${name}=`))
+      ?.split('=')[1];
+    return value;
+  };
+
+  // 🔥 NEW: Helper function to set cookie
+  const setCookie = (name, value, days = 90) => {
+    const hostname = window.location.hostname;
+    const expires = new Date();
+    expires.setDate(expires.getDate() + days);
+    document.cookie = `${name}=${value}; domain=${hostname}; expires=${expires.toUTCString()}; path=/`;
+  };
+
   // Initialize icons when component mounts and when state changes
   useEffect(() => {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
+  // 🔥 UPDATED: Check dark mode with cookie priority
   useEffect(() => {
     const checkDarkMode = () => {
+      // 🔥 NEW: First check legacy cookie
+      const legacyCookie = getCookie('indigo-toggle-dark');
+
       const htmlElement = document.documentElement;
       const bodyElement = document.body;
+      
+      // Priority order: cookie → localStorage → class attributes
       const isDark =
+        legacyCookie === 'dark' || // Check cookie FIRST
+        localStorage.getItem('theme') === 'dark' ||
+        localStorage.getItem('paragon.theme.variant') === 'dark' ||
         htmlElement.classList.contains('pgn__dark-mode') ||
         bodyElement.classList.contains('pgn__dark-mode') ||
         htmlElement.getAttribute('data-theme') === 'dark' ||
-        bodyElement.getAttribute('data-theme') === 'dark' ||
-        localStorage.getItem('theme') === 'dark' ||
-        localStorage.getItem('paragon.theme.variant') === 'dark';
+        bodyElement.getAttribute('data-theme') === 'dark';
 
       setDarkMode(isDark);
+      
+      // 🔥 NEW: Sync to localStorage if cookie exists but localStorage doesn't match
+      if (legacyCookie && localStorage.getItem('theme') !== legacyCookie) {
+        localStorage.setItem('theme', legacyCookie);
+        localStorage.setItem('paragon.theme.variant', legacyCookie);
+        
+        // Apply the theme to the page
+        if (legacyCookie === 'dark') {
+          htmlElement.classList.add('pgn__dark-mode');
+          bodyElement.classList.add('pgn__dark-mode');
+          htmlElement.setAttribute('data-theme', 'dark');
+          bodyElement.setAttribute('data-theme', 'dark');
+        } else {
+          htmlElement.classList.remove('pgn__dark-mode');
+          bodyElement.classList.remove('pgn__dark-mode');
+          htmlElement.setAttribute('data-theme', 'light');
+          bodyElement.setAttribute('data-theme', 'light');
+        }
+      }
     };
 
     checkDarkMode();
@@ -83,11 +126,12 @@ const DesktopHeader = ({
     }
   }, [sidebarCollapsed]);
 
-  // Toggle dark mode using Open edX default method
+  // 🔥 UPDATED: Toggle dark mode with cookie sync
   const toggleDarkMode = () => {
     const htmlElement = document.documentElement;
     const bodyElement = document.body;
     const newDarkMode = !darkMode;
+    const themeValue = newDarkMode ? 'dark' : 'light';
 
     if (newDarkMode) {
       // Enable dark mode (Paragon style)
@@ -107,11 +151,14 @@ const DesktopHeader = ({
       localStorage.setItem('paragon.theme.variant', 'light');
     }
 
+    // 🔥 NEW: Set legacy cookie for backward compatibility
+    setCookie('indigo-toggle-dark', themeValue, 90);
+
     setDarkMode(newDarkMode);
 
     // Trigger Paragon theme change event
     const event = new CustomEvent('paragon.themeChanged', {
-      detail: { theme: newDarkMode ? 'dark' : 'light' },
+      detail: { theme: themeValue },
     });
     window.dispatchEvent(event);
 
@@ -120,6 +167,9 @@ const DesktopHeader = ({
       detail: { darkMode: newDarkMode },
     });
     window.dispatchEvent(themeEvent);
+
+    // 🔥 NEW: Post message to any legacy iframes
+    window.parent.postMessage({ "indigo-toggle-dark": themeValue }, '*');
   };
 
   // Toggle sidebar collapse
