@@ -43,14 +43,15 @@ const DesktopHeader = ({
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
   // ================================
-  // THEME SYNC FIX — OPTION C
+  // THEME SYNC FIX (Corrected)
   // ================================
   useEffect(() => {
     const checkDarkMode = () => {
-      // --- Option C: Check Indigo cookie ONLY on first load ---
+
+      // FIRST: read legacy cookie shared-domain
       const legacyCookie = document.cookie
         .split('; ')
-        .find(row => row.startsWith('indigo-toggle-dark='))
+        .find((row) => row.startsWith('indigo-toggle-dark='))
         ?.split('=')[1];
 
       if (legacyCookie === 'dark') {
@@ -62,7 +63,7 @@ const DesktopHeader = ({
         return;
       }
 
-      // Original MFE theme detection
+      // fallback to MFE theme logic
       const htmlElement = document.documentElement;
       const bodyElement = document.body;
       const isDark =
@@ -126,8 +127,12 @@ const DesktopHeader = ({
     });
     window.dispatchEvent(themeEvent);
 
-    // Write cookie so Legacy syncs back
-    document.cookie = `indigo-toggle-dark=${newDarkMode ? 'dark' : 'light'};path=/;domain=${window.location.hostname};max-age=${60 * 60 * 24 * 90}`;
+    // ================================
+    // FIXED: WRITE SHARED DOMAIN COOKIE
+    // ================================
+    document.cookie =
+      `indigo-toggle-dark=${newDarkMode ? 'dark' : 'light'};` +
+      `path=/;domain=.denali.stagelxp.striverra.com;max-age=${60 * 60 * 24 * 90}`;
   };
 
   const toggleSidebar = () => {

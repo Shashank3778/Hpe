@@ -61,12 +61,12 @@ var DesktopHeader = function DesktopHeader(_ref) {
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
   // ================================
-  // THEME SYNC FIX — OPTION C
+  // THEME SYNC FIX (Corrected)
   // ================================
   useEffect(function () {
     var checkDarkMode = function checkDarkMode() {
       var _document$cookie$spli;
-      // --- Option C: Check Indigo cookie ONLY on first load ---
+      // FIRST: read legacy cookie shared-domain
       var legacyCookie = (_document$cookie$spli = document.cookie.split('; ').find(function (row) {
         return row.startsWith('indigo-toggle-dark=');
       })) === null || _document$cookie$spli === void 0 ? void 0 : _document$cookie$spli.split('=')[1];
@@ -79,7 +79,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
         return;
       }
 
-      // Original MFE theme detection
+      // fallback to MFE theme logic
       var htmlElement = document.documentElement;
       var bodyElement = document.body;
       var isDark = htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark' || localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark';
@@ -139,8 +139,10 @@ var DesktopHeader = function DesktopHeader(_ref) {
     });
     window.dispatchEvent(themeEvent);
 
-    // Write cookie so Legacy syncs back
-    document.cookie = "indigo-toggle-dark=".concat(newDarkMode ? 'dark' : 'light', ";path=/;domain=").concat(window.location.hostname, ";max-age=").concat(60 * 60 * 24 * 90);
+    // ================================
+    // FIXED: WRITE SHARED DOMAIN COOKIE
+    // ================================
+    document.cookie = "indigo-toggle-dark=".concat(newDarkMode ? 'dark' : 'light', ";") + "path=/;domain=.denali.stagelxp.striverra.com;max-age=".concat(60 * 60 * 24 * 90);
   };
   var toggleSidebar = function toggleSidebar() {
     setSidebarCollapsed(!sidebarCollapsed);
