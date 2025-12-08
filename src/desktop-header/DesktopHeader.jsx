@@ -31,39 +31,20 @@ const DesktopHeader = ({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Icon style
+  // ✅ 20x20 Icon style
   const iconStyle = {
     width: '20px',
     height: '20px',
     flexShrink: 0
   };
 
+  // Initialize icons when component mounts and when state changes
   useEffect(() => {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
-  // ================================
-  // THEME SYNC FIX (Corrected)
-  // ================================
   useEffect(() => {
     const checkDarkMode = () => {
-
-      // FIRST: read legacy cookie shared-domain
-      const legacyCookie = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('indigo-toggle-dark='))
-        ?.split('=')[1];
-
-      if (legacyCookie === 'dark') {
-        setDarkMode(true);
-        return;
-      }
-      if (legacyCookie === 'light') {
-        setDarkMode(false);
-        return;
-      }
-
-      // fallback to MFE theme logic
       const htmlElement = document.documentElement;
       const bodyElement = document.body;
       const isDark =
@@ -79,13 +60,21 @@ const DesktopHeader = ({
 
     checkDarkMode();
 
+    // Listen for theme changes from Open edX
     const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    });
 
     return () => observer.disconnect();
   }, []);
 
+  // Apply body margin when sidebar state changes
   useEffect(() => {
     const mainContent = document.querySelector('#main');
     if (mainContent) {
@@ -94,12 +83,14 @@ const DesktopHeader = ({
     }
   }, [sidebarCollapsed]);
 
+  // Toggle dark mode using Open edX default method
   const toggleDarkMode = () => {
     const htmlElement = document.documentElement;
     const bodyElement = document.body;
     const newDarkMode = !darkMode;
 
     if (newDarkMode) {
+      // Enable dark mode (Paragon style)
       htmlElement.classList.add('pgn__dark-mode');
       bodyElement.classList.add('pgn__dark-mode');
       htmlElement.setAttribute('data-theme', 'dark');
@@ -107,6 +98,7 @@ const DesktopHeader = ({
       localStorage.setItem('theme', 'dark');
       localStorage.setItem('paragon.theme.variant', 'dark');
     } else {
+      // Disable dark mode
       htmlElement.classList.remove('pgn__dark-mode');
       bodyElement.classList.remove('pgn__dark-mode');
       htmlElement.setAttribute('data-theme', 'light');
@@ -117,28 +109,25 @@ const DesktopHeader = ({
 
     setDarkMode(newDarkMode);
 
+    // Trigger Paragon theme change event
     const event = new CustomEvent('paragon.themeChanged', {
       detail: { theme: newDarkMode ? 'dark' : 'light' },
     });
     window.dispatchEvent(event);
 
+    // Also trigger generic theme change event
     const themeEvent = new CustomEvent('themeChanged', {
       detail: { darkMode: newDarkMode },
     });
     window.dispatchEvent(themeEvent);
-
-    // ================================
-    // FIXED: WRITE SHARED DOMAIN COOKIE
-    // ================================
-    document.cookie =
-      `indigo-toggle-dark=${newDarkMode ? 'dark' : 'light'};` +
-      `path=/;domain=.denali.stagelxp.striverra.com;max-age=${60 * 60 * 24 * 90}`;
   };
 
+  // Toggle sidebar collapse
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
+  // Get page title from URL
   const getPageTitle = () => {
     const path = window.location.pathname;
     if (path.includes('dashboard')) {
@@ -153,29 +142,38 @@ const DesktopHeader = ({
     return getConfig().SITE_NAME || 'Learning Platform';
   };
 
+  // Enhanced icon mapping function
   const getIconForMenuItem = (item, index) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
+
+    // Match by content/href keywords
     if (content.includes('home') || href.endsWith('/') || href.endsWith('/home')) return 'home';
     if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
     if (content.includes('course') || href.includes('/courses')) return 'book-open';
     if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
+
+    // Fallback to position-based icons
     const defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route'];
     return defaultIcons[index] || 'circle';
   };
 
+  // Map user menu items to include icons
   const getIconForUserMenuItem = (item) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
+
     if (content.includes('dashboard') || href.includes('dashboard')) return 'gauge';
     if (content.includes('analytic') || href.includes('analytic')) return 'bar-chart-3';
     if (content.includes('profile') || href.includes('profile')) return 'user';
     if (content.includes('account') || content.includes('setting') || href.includes('account') || href.includes('setting')) return 'settings';
     if (content.includes('order') || content.includes('history') || href.includes('order')) return 'shopping-bag';
     if (content.includes('logout') || content.includes('sign out') || href.includes('logout')) return 'log-out';
+
     return 'circle';
   };
 
+  // Determine which logo to show
   const getLogoSrc = () => {
     if (sidebarCollapsed) {
       return logo || 'https://page.gensparksite.com/v1/base64_upload/54d382973dd8c88b434a48567fa6c866';
@@ -185,29 +183,34 @@ const DesktopHeader = ({
       : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
 
+  // ✅ FIXED: Transform and build EXACT menu order: Home → My Dashboard → Courses
   const buildCorrectMenu = () => {
     const baseUrl = getConfig().LMS_BASE_URL;
     const discoveryEnabled = getConfig().FEATURES?.ENABLE_DISCOVERY ?? false;
     const menuItems = [];
 
+    // 1. ALWAYS add Home FIRST (index 0)
     menuItems.push({
       href: logoDestination || `${baseUrl}/`,
       content: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
       icon: 'home',
     });
 
+    // 2. ALWAYS add My Dashboard SECOND (index 1)
     menuItems.push({
       href: `${baseUrl}/dashboard`,
       content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
       icon: 'layout-dashboard',
     });
 
+    // 3. ALWAYS add Courses THIRD (index 2)
     menuItems.push({
       href: `${baseUrl}/courses`,
       content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
       icon: 'book-open',
     });
 
+    // 4. Add Learning Paths FOURTH only if discovery enabled
     if (discoveryEnabled) {
       menuItems.push({
         href: `${baseUrl}/programs`,
@@ -216,13 +219,18 @@ const DesktopHeader = ({
       });
     }
 
+    // 5. Process mainMenu and secondaryMenu for OTHER items (skip duplicates)
     const processedItems = new Set(['/', '/dashboard', '/courses', '/programs']);
-
+    
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach((item) => {
         const href = item.href || '';
         const content = (item.content || '').toLowerCase();
-        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) return;
+
+        // Skip AI Studio items and our core 4 items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
 
         const cleanHref = href.replace(baseUrl, '').toLowerCase();
         if (!processedItems.has(cleanHref) && !cleanHref.endsWith('/') && !cleanHref.endsWith('/home')) {
@@ -239,7 +247,11 @@ const DesktopHeader = ({
       secondaryMenu.forEach((item) => {
         const href = item.href || '';
         const content = (item.content || '').toLowerCase();
-        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) return;
+
+        // Skip AI Studio items
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
+          return;
+        }
 
         const cleanHref = href.replace(baseUrl, '').toLowerCase();
         if (!processedItems.has(cleanHref)) {
@@ -259,7 +271,9 @@ const DesktopHeader = ({
 
   return (
     <>
+      {/* Sidebar - Always visible on desktop */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        {/* Sidebar Header */}
         <div className="sidebar-header">
           <div className="logo-container">
             <a href={logoDestination}>
@@ -273,6 +287,7 @@ const DesktopHeader = ({
           </div>
         </div>
 
+        {/* Main Menu Navigation - GUARANTEED ORDER */}
         <nav className="sidebar-nav">
           <ul className="nav-menu">
             {completeMenu.map((item, index) => (
@@ -281,7 +296,10 @@ const DesktopHeader = ({
                   href={item.href}
                   className={`nav-link ${window.location.pathname === item.href ? 'active' : ''}`}
                 >
-                  <i data-lucide={item.icon || getIconForMenuItem(item, index)} style={iconStyle} />
+                  <i 
+                    data-lucide={item.icon || getIconForMenuItem(item, index)} 
+                    style={iconStyle}
+                  />
                   <span>{item.content}</span>
                 </a>
               </li>
@@ -289,6 +307,7 @@ const DesktopHeader = ({
           </ul>
         </nav>
 
+        {/* User Menu Section */}
         {loggedIn ? (
           <div className="user-menu">
             <div
@@ -297,7 +316,9 @@ const DesktopHeader = ({
               role="button"
               tabIndex={0}
               onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setUserMenuOpen(!userMenuOpen);
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setUserMenuOpen(!userMenuOpen);
+                }
               }}
             >
               <div className="user-avatar">
@@ -321,7 +342,10 @@ const DesktopHeader = ({
                       {section.items && section.items.map((item, itemIndex) => (
                         <li key={itemIndex} className="nav-item">
                           <a href={item.href} className="nav-link">
-                            <i data-lucide={getIconForUserMenuItem(item)} style={iconStyle} />
+                            <i 
+                              data-lucide={getIconForUserMenuItem(item)} 
+                              style={iconStyle}
+                            />
                             <span>{item.content}</span>
                           </a>
                         </li>
@@ -381,6 +405,7 @@ const DesktopHeader = ({
         )}
       </aside>
 
+      {/* Main Header */}
       <header
         className="main-header"
         style={{
@@ -394,9 +419,7 @@ const DesktopHeader = ({
         >
           <i data-lucide="menu" style={iconStyle} />
         </button>
-
         <h1 className="page-title">{getPageTitle()}</h1>
-
         <button
           className="dark-mode-toggle"
           onClick={toggleDarkMode}
