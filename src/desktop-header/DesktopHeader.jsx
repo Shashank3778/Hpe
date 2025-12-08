@@ -31,25 +31,67 @@ const DesktopHeader = ({
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
+  // -------------------------------------------------------------
+  // 🔥 FIXED DARK MODE SYNC: check cookie FIRST and APPLY theme
+  // -------------------------------------------------------------
   useEffect(() => {
     const getCookie = (name) => {
       return document.cookie
         .split('; ')
-        .find((row) => row.startsWith(name + '='))?.split('=')[1];
+        .find(row => row.startsWith(name + '='))?.split('=')[1];
     };
 
     const checkDarkMode = () => {
-      const htmlElement = document.documentElement;
-      const bodyElement = document.body;
-      const cookieTheme = getCookie('indigo-toggle-dark');
+      const html = document.documentElement;
+      const body = document.body;
+
+      const cookieTheme = getCookie("indigo-toggle-dark");
+      const mfeTheme = localStorage.getItem("theme");
+      const paragonTheme = localStorage.getItem("paragon.theme.variant");
+      const legacyTheme = localStorage.getItem("hexis-theme");
+
+      // --------------------------
+      // 1️⃣ COOKIE TAKES PRIORITY
+      // --------------------------
+      if (cookieTheme === "dark" || cookieTheme === "light") {
+        const isDark = cookieTheme === "dark";
+
+        if (isDark) {
+          html.classList.add("pgn__dark-mode");
+          body.classList.add("pgn__dark-mode");
+          html.setAttribute("data-theme", "dark");
+          body.setAttribute("data-theme", "dark");
+        } else {
+          html.classList.remove("pgn__dark-mode");
+          body.classList.remove("pgn__dark-mode");
+          html.setAttribute("data-theme", "light");
+          body.setAttribute("data-theme", "light");
+        }
+
+        setDarkMode(isDark);
+        return; // cookie decides theme completely
+      }
+
+      // --------------------------
+      // 2️⃣ FALLBACK: localStorage
+      // --------------------------
       const isDark =
-        htmlElement.classList.contains('pgn__dark-mode') ||
-        bodyElement.classList.contains('pgn__dark-mode') ||
-        htmlElement.getAttribute('data-theme') === 'dark' ||
-        bodyElement.getAttribute('data-theme') === 'dark' ||
-        localStorage.getItem('theme') === 'dark' ||
-        localStorage.getItem('paragon.theme.variant') === 'dark' ||
-        cookieTheme === 'dark';
+        legacyTheme === "dark" ||
+        mfeTheme === "dark" ||
+        paragonTheme === "dark";
+
+      if (isDark) {
+        html.classList.add("pgn__dark-mode");
+        body.classList.add("pgn__dark-mode");
+        html.setAttribute("data-theme", "dark");
+        body.setAttribute("data-theme", "dark");
+      } else {
+        html.classList.remove("pgn__dark-mode");
+        body.classList.remove("pgn__dark-mode");
+        html.setAttribute("data-theme", "light");
+        body.setAttribute("data-theme", "light");
+      }
+
       setDarkMode(isDark);
     };
 
@@ -62,6 +104,9 @@ const DesktopHeader = ({
     return () => observer.disconnect();
   }, []);
 
+  // ------------------------------
+  // Sidebar Handling
+  // ------------------------------
   useEffect(() => {
     const mainContent = document.querySelector('#main');
     if (mainContent) {
@@ -70,66 +115,61 @@ const DesktopHeader = ({
     }
   }, [sidebarCollapsed]);
 
+  // -------------------------------------------------------------
+  // 🔥 Toggle Dark Mode (MFE → Legacy sync)
+  // -------------------------------------------------------------
   const toggleDarkMode = () => {
-    const htmlElement = document.documentElement;
-    const bodyElement = document.body;
+    const html = document.documentElement;
+    const body = document.body;
+
     const newDarkMode = !darkMode;
-    const themeValue = newDarkMode ? 'dark' : 'light';
+    const themeValue = newDarkMode ? "dark" : "light";
 
+    // Cross-domain cookie
     document.cookie =
-      'indigo-toggle-dark=' +
-      themeValue +
-      ';path=/;domain=.striverra.com;max-age=7776000';
+      `indigo-toggle-dark=${themeValue};path=/;domain=.striverra.com;max-age=7776000;Secure;SameSite=None`;
 
-    localStorage.setItem('theme', themeValue);
-    localStorage.setItem('paragon.theme.variant', themeValue);
+    // Update MFE storages
+    localStorage.setItem("theme", themeValue);
+    localStorage.setItem("paragon.theme.variant", themeValue);
+
+    // Update legacy localStorage (sync back)
+    localStorage.setItem("hexis-theme", themeValue);
 
     if (newDarkMode) {
-      htmlElement.classList.add('pgn__dark-mode');
-      bodyElement.classList.add('pgn__dark-mode');
-      htmlElement.setAttribute('data-theme', 'dark');
-      bodyElement.setAttribute('data-theme', 'dark');
+      html.classList.add("pgn__dark-mode");
+      body.classList.add("pgn__dark-mode");
+      html.setAttribute("data-theme", "dark");
+      body.setAttribute("data-theme", "dark");
     } else {
-      htmlElement.classList.remove('pgn__dark-mode');
-      bodyElement.classList.remove('pgn__dark-mode');
-      htmlElement.setAttribute('data-theme', 'light');
-      bodyElement.setAttribute('data-theme', 'light');
+      html.classList.remove("pgn__dark-mode");
+      body.classList.remove("pgn__dark-mode");
+      html.setAttribute("data-theme", "light");
+      body.setAttribute("data-theme", "light");
     }
 
     setDarkMode(newDarkMode);
-
-    const event = new CustomEvent('paragon.themeChanged', { detail: { theme: themeValue } });
-    window.dispatchEvent(event);
-
-    const themeEvent = new CustomEvent('themeChanged', { detail: { darkMode: newDarkMode } });
-    window.dispatchEvent(themeEvent);
   };
 
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
+  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
 
   const getPageTitle = () => {
     const path = window.location.pathname;
-    if (path.includes('dashboard')) {
-      return intl.formatMessage({ id: 'header.title.dashboard', defaultMessage: 'My Dashboard' });
-    }
-    if (path.includes('courses')) {
-      return intl.formatMessage({ id: 'header.title.courses', defaultMessage: 'Courses' });
-    }
-    if (path.includes('programs')) {
-      return intl.formatMessage({ id: 'header.title.programs', defaultMessage: 'Learning Paths' });
-    }
+    if (path.includes('dashboard')) return intl.formatMessage({ id: 'header.title.dashboard', defaultMessage: 'My Dashboard' });
+    if (path.includes('courses')) return intl.formatMessage({ id: 'header.title.courses', defaultMessage: 'Courses' });
+    if (path.includes('programs')) return intl.formatMessage({ id: 'header.title.programs', defaultMessage: 'Learning Paths' });
     return getConfig().SITE_NAME || 'Learning Platform';
   };
 
   const getIconForMenuItem = (item, index) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
+
     if (content.includes('home') || href.endsWith('/') || href.endsWith('/home')) return 'home';
     if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
     if (content.includes('course') || href.includes('/courses')) return 'book-open';
     if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
+
     const defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route'];
     return defaultIcons[index] || 'circle';
   };
@@ -137,12 +177,14 @@ const DesktopHeader = ({
   const getIconForUserMenuItem = (item) => {
     const href = (item.href || '').toLowerCase();
     const content = (item.content || '').toLowerCase();
+
     if (content.includes('dashboard') || href.includes('dashboard')) return 'gauge';
     if (content.includes('analytic') || href.includes('analytic')) return 'bar-chart-3';
     if (content.includes('profile') || href.includes('profile')) return 'user';
     if (content.includes('account') || content.includes('setting') || href.includes('account') || href.includes('setting')) return 'settings';
     if (content.includes('order') || content.includes('history') || href.includes('order')) return 'shopping-bag';
     if (content.includes('logout') || content.includes('sign out') || href.includes('logout')) return 'log-out';
+
     return 'circle';
   };
 
@@ -150,30 +192,37 @@ const DesktopHeader = ({
     if (sidebarCollapsed) {
       return logo || 'https://page.gensparksite.com/v1/base64_upload/54d382973dd8c88b434a48567fa6c866';
     }
-    return logo || (darkMode
-      ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd'
-      : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
+    return (
+      logo ||
+      (darkMode
+        ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd'
+        : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6')
+    );
   };
 
   const buildCorrectMenu = () => {
     const baseUrl = getConfig().LMS_BASE_URL;
     const discoveryEnabled = getConfig().FEATURES?.ENABLE_DISCOVERY ?? false;
     const menuItems = [];
+
     menuItems.push({
       href: logoDestination || `${baseUrl}/`,
       content: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
       icon: 'home',
     });
+
     menuItems.push({
       href: `${baseUrl}/dashboard`,
       content: intl.formatMessage({ id: 'header.links.my.dashboard', defaultMessage: 'My Dashboard' }),
       icon: 'layout-dashboard',
     });
+
     menuItems.push({
       href: `${baseUrl}/courses`,
       content: intl.formatMessage({ id: 'header.links.courses', defaultMessage: 'Courses' }),
       icon: 'book-open',
     });
+
     if (discoveryEnabled) {
       menuItems.push({
         href: `${baseUrl}/programs`,
@@ -181,31 +230,41 @@ const DesktopHeader = ({
         icon: 'route',
       });
     }
+
     const processedItems = new Set(['/', '/dashboard', '/courses', '/programs']);
+
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach((item) => {
         const href = item.href || '';
         const content = (item.content || '').toLowerCase();
+
         if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) return;
+
         const cleanHref = href.replace(baseUrl, '').toLowerCase();
+
         if (!processedItems.has(cleanHref) && !cleanHref.endsWith('/') && !cleanHref.endsWith('/home')) {
           menuItems.push({ ...item, icon: getIconForMenuItem(item, menuItems.length) });
           processedItems.add(cleanHref);
         }
       });
     }
+
     if (secondaryMenu && secondaryMenu.length > 0) {
       secondaryMenu.forEach((item) => {
         const href = item.href || '';
         const content = (item.content || '').toLowerCase();
+
         if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) return;
+
         const cleanHref = href.replace(baseUrl, '').toLowerCase();
+
         if (!processedItems.has(cleanHref)) {
           menuItems.push({ ...item, icon: getIconForMenuItem(item, menuItems.length) });
           processedItems.add(cleanHref);
         }
       });
     }
+
     return menuItems;
   };
 
@@ -226,14 +285,12 @@ const DesktopHeader = ({
             </a>
           </div>
         </div>
+
         <nav className="sidebar-nav">
           <ul className="nav-menu">
             {completeMenu.map((item, index) => (
               <li key={index} className="nav-item">
-                <a
-                  href={item.href}
-                  className={`nav-link ${window.location.pathname === item.href ? 'active' : ''}`}
-                >
+                <a href={item.href} className={`nav-link ${window.location.pathname === item.href ? 'active' : ''}`}>
                   <i data-lucide={item.icon || getIconForMenuItem(item, index)} style={iconStyle} />
                   <span>{item.content}</span>
                 </a>
@@ -249,10 +306,16 @@ const DesktopHeader = ({
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               role="button"
               tabIndex={0}
-              onKeyPress={(e) => { if (e.key === 'Enter' || e.key === ' ') setUserMenuOpen(!userMenuOpen); }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') setUserMenuOpen(!userMenuOpen);
+              }}
             >
               <div className="user-avatar">
-                {avatar ? <img src={avatar} alt={username} /> : <span>{username ? username.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}</span>}
+                {avatar ? (
+                  <img src={avatar} alt={username} />
+                ) : (
+                  <span>{username ? username.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}</span>
+                )}
               </div>
               <div className="user-info">
                 <div className="user-name">{username || 'User'}</div>
@@ -265,14 +328,15 @@ const DesktopHeader = ({
                 {userMenu && userMenu.length > 0 ? (
                   userMenu.map((section, sectionIndex) => (
                     <React.Fragment key={sectionIndex}>
-                      {section.items && section.items.map((item, itemIndex) => (
-                        <li key={itemIndex} className="nav-item">
-                          <a href={item.href} className="nav-link">
-                            <i data-lucide={getIconForUserMenuItem(item)} style={iconStyle} />
-                            <span>{item.content}</span>
-                          </a>
-                        </li>
-                      ))}
+                      {section.items &&
+                        section.items.map((item, itemIndex) => (
+                          <li key={itemIndex} className="nav-item">
+                            <a href={item.href} className="nav-link">
+                              <i data-lucide={getIconForUserMenuItem(item)} style={iconStyle} />
+                              <span>{item.content}</span>
+                            </a>
+                          </li>
+                        ))}
                     </React.Fragment>
                   ))
                 ) : (
@@ -316,8 +380,12 @@ const DesktopHeader = ({
               ))
             ) : (
               <>
-                <a href={getConfig().LOGIN_URL} className="nav-link logged-out-link">Login</a>
-                <a href={`${getConfig().LMS_BASE_URL}/register`} className="nav-link logged-out-link">Register</a>
+                <a href={getConfig().LOGIN_URL} className="nav-link logged-out-link">
+                  Login
+                </a>
+                <a href={`${getConfig().LMS_BASE_URL}/register`} className="nav-link logged-out-link">
+                  Register
+                </a>
               </>
             )}
           </div>
@@ -331,7 +399,9 @@ const DesktopHeader = ({
         <button className="header-toggle-btn" onClick={toggleSidebar} aria-label="Toggle sidebar">
           <i data-lucide="menu" style={iconStyle} />
         </button>
+
         <h1 className="page-title">{getPageTitle()}</h1>
+
         <button
           className="dark-mode-toggle"
           onClick={toggleDarkMode}
@@ -345,6 +415,7 @@ const DesktopHeader = ({
   );
 };
 
+// Prop types
 export const desktopHeaderDataShape = {
   mainMenu: desktopHeaderMainOrSecondaryMenuDataShape,
   secondaryMenu: desktopHeaderMainOrSecondaryMenuDataShape,

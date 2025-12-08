@@ -51,6 +51,10 @@ var DesktopHeader = function DesktopHeader(_ref) {
   useEffect(function () {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
+
+  // -------------------------------------------------------------
+  // 🔥 FIXED DARK MODE SYNC: check cookie FIRST and APPLY theme
+  // -------------------------------------------------------------
   useEffect(function () {
     var getCookie = function getCookie(name) {
       var _document$cookie$spli;
@@ -59,10 +63,48 @@ var DesktopHeader = function DesktopHeader(_ref) {
       })) === null || _document$cookie$spli === void 0 ? void 0 : _document$cookie$spli.split('=')[1];
     };
     var checkDarkMode = function checkDarkMode() {
-      var htmlElement = document.documentElement;
-      var bodyElement = document.body;
-      var cookieTheme = getCookie('indigo-toggle-dark');
-      var isDark = htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark' || localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark' || cookieTheme === 'dark';
+      var html = document.documentElement;
+      var body = document.body;
+      var cookieTheme = getCookie("indigo-toggle-dark");
+      var mfeTheme = localStorage.getItem("theme");
+      var paragonTheme = localStorage.getItem("paragon.theme.variant");
+      var legacyTheme = localStorage.getItem("hexis-theme");
+
+      // --------------------------
+      // 1️⃣ COOKIE TAKES PRIORITY
+      // --------------------------
+      if (cookieTheme === "dark" || cookieTheme === "light") {
+        var _isDark = cookieTheme === "dark";
+        if (_isDark) {
+          html.classList.add("pgn__dark-mode");
+          body.classList.add("pgn__dark-mode");
+          html.setAttribute("data-theme", "dark");
+          body.setAttribute("data-theme", "dark");
+        } else {
+          html.classList.remove("pgn__dark-mode");
+          body.classList.remove("pgn__dark-mode");
+          html.setAttribute("data-theme", "light");
+          body.setAttribute("data-theme", "light");
+        }
+        setDarkMode(_isDark);
+        return; // cookie decides theme completely
+      }
+
+      // --------------------------
+      // 2️⃣ FALLBACK: localStorage
+      // --------------------------
+      var isDark = legacyTheme === "dark" || mfeTheme === "dark" || paragonTheme === "dark";
+      if (isDark) {
+        html.classList.add("pgn__dark-mode");
+        body.classList.add("pgn__dark-mode");
+        html.setAttribute("data-theme", "dark");
+        body.setAttribute("data-theme", "dark");
+      } else {
+        html.classList.remove("pgn__dark-mode");
+        body.classList.remove("pgn__dark-mode");
+        html.setAttribute("data-theme", "light");
+        body.setAttribute("data-theme", "light");
+      }
       setDarkMode(isDark);
     };
     checkDarkMode();
@@ -79,6 +121,10 @@ var DesktopHeader = function DesktopHeader(_ref) {
       return observer.disconnect();
     };
   }, []);
+
+  // ------------------------------
+  // Sidebar Handling
+  // ------------------------------
   useEffect(function () {
     var mainContent = document.querySelector('#main');
     if (mainContent) {
@@ -86,62 +132,55 @@ var DesktopHeader = function DesktopHeader(_ref) {
       mainContent.style.transition = 'margin-left 0.3s ease';
     }
   }, [sidebarCollapsed]);
+
+  // -------------------------------------------------------------
+  // 🔥 Toggle Dark Mode (MFE → Legacy sync)
+  // -------------------------------------------------------------
   var toggleDarkMode = function toggleDarkMode() {
-    var htmlElement = document.documentElement;
-    var bodyElement = document.body;
+    var html = document.documentElement;
+    var body = document.body;
     var newDarkMode = !darkMode;
-    var themeValue = newDarkMode ? 'dark' : 'light';
-    document.cookie = 'indigo-toggle-dark=' + themeValue + ';path=/;domain=.striverra.com;max-age=7776000';
-    localStorage.setItem('theme', themeValue);
-    localStorage.setItem('paragon.theme.variant', themeValue);
+    var themeValue = newDarkMode ? "dark" : "light";
+
+    // Cross-domain cookie
+    document.cookie = "indigo-toggle-dark=".concat(themeValue, ";path=/;domain=.striverra.com;max-age=7776000;Secure;SameSite=None");
+
+    // Update MFE storages
+    localStorage.setItem("theme", themeValue);
+    localStorage.setItem("paragon.theme.variant", themeValue);
+
+    // Update legacy localStorage (sync back)
+    localStorage.setItem("hexis-theme", themeValue);
     if (newDarkMode) {
-      htmlElement.classList.add('pgn__dark-mode');
-      bodyElement.classList.add('pgn__dark-mode');
-      htmlElement.setAttribute('data-theme', 'dark');
-      bodyElement.setAttribute('data-theme', 'dark');
+      html.classList.add("pgn__dark-mode");
+      body.classList.add("pgn__dark-mode");
+      html.setAttribute("data-theme", "dark");
+      body.setAttribute("data-theme", "dark");
     } else {
-      htmlElement.classList.remove('pgn__dark-mode');
-      bodyElement.classList.remove('pgn__dark-mode');
-      htmlElement.setAttribute('data-theme', 'light');
-      bodyElement.setAttribute('data-theme', 'light');
+      html.classList.remove("pgn__dark-mode");
+      body.classList.remove("pgn__dark-mode");
+      html.setAttribute("data-theme", "light");
+      body.setAttribute("data-theme", "light");
     }
     setDarkMode(newDarkMode);
-    var event = new CustomEvent('paragon.themeChanged', {
-      detail: {
-        theme: themeValue
-      }
-    });
-    window.dispatchEvent(event);
-    var themeEvent = new CustomEvent('themeChanged', {
-      detail: {
-        darkMode: newDarkMode
-      }
-    });
-    window.dispatchEvent(themeEvent);
   };
   var toggleSidebar = function toggleSidebar() {
-    setSidebarCollapsed(!sidebarCollapsed);
+    return setSidebarCollapsed(!sidebarCollapsed);
   };
   var getPageTitle = function getPageTitle() {
     var path = window.location.pathname;
-    if (path.includes('dashboard')) {
-      return intl.formatMessage({
-        id: 'header.title.dashboard',
-        defaultMessage: 'My Dashboard'
-      });
-    }
-    if (path.includes('courses')) {
-      return intl.formatMessage({
-        id: 'header.title.courses',
-        defaultMessage: 'Courses'
-      });
-    }
-    if (path.includes('programs')) {
-      return intl.formatMessage({
-        id: 'header.title.programs',
-        defaultMessage: 'Learning Paths'
-      });
-    }
+    if (path.includes('dashboard')) return intl.formatMessage({
+      id: 'header.title.dashboard',
+      defaultMessage: 'My Dashboard'
+    });
+    if (path.includes('courses')) return intl.formatMessage({
+      id: 'header.title.courses',
+      defaultMessage: 'Courses'
+    });
+    if (path.includes('programs')) return intl.formatMessage({
+      id: 'header.title.programs',
+      defaultMessage: 'Learning Paths'
+    });
     return getConfig().SITE_NAME || 'Learning Platform';
   };
   var getIconForMenuItem = function getIconForMenuItem(item, index) {
@@ -383,6 +422,8 @@ var DesktopHeader = function DesktopHeader(_ref) {
     style: iconStyle
   }))));
 };
+
+// Prop types
 export var desktopHeaderDataShape = {
   mainMenu: desktopHeaderMainOrSecondaryMenuDataShape,
   secondaryMenu: desktopHeaderMainOrSecondaryMenuDataShape,
