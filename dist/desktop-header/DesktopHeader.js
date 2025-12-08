@@ -14,16 +14,10 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getConfig } from '@edx/frontend-platform';
-
-// Import your icon utility
 import { initLucideIcons } from '../utils/iconUtils';
-
-// Import only the data shape validators
 import { desktopLoggedOutItemsDataShape } from './DesktopLoggedOutItems';
 import { desktopHeaderMainOrSecondaryMenuDataShape } from './DesktopHeaderMainOrSecondaryMenu';
 import { desktopUserMenuDataShape } from './DesktopHeaderUserMenu';
-
-// i18n
 import messages from '../Header.messages';
 var DesktopHeader = function DesktopHeader(_ref) {
   var mainMenu = _ref.mainMenu,
@@ -49,28 +43,29 @@ var DesktopHeader = function DesktopHeader(_ref) {
     _useState6 = _slicedToArray(_useState5, 2),
     darkMode = _useState6[0],
     setDarkMode = _useState6[1];
-
-  // ✅ 20x20 Icon style
   var iconStyle = {
     width: '20px',
     height: '20px',
     flexShrink: 0
   };
-
-  // Initialize icons when component mounts and when state changes
   useEffect(function () {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
   useEffect(function () {
+    var getCookie = function getCookie(name) {
+      var _document$cookie$spli;
+      return (_document$cookie$spli = document.cookie.split('; ').find(function (row) {
+        return row.startsWith(name + '=');
+      })) === null || _document$cookie$spli === void 0 ? void 0 : _document$cookie$spli.split('=')[1];
+    };
     var checkDarkMode = function checkDarkMode() {
       var htmlElement = document.documentElement;
       var bodyElement = document.body;
-      var isDark = htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark' || localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark';
+      var cookieTheme = getCookie('indigo-toggle-dark');
+      var isDark = htmlElement.classList.contains('pgn__dark-mode') || bodyElement.classList.contains('pgn__dark-mode') || htmlElement.getAttribute('data-theme') === 'dark' || bodyElement.getAttribute('data-theme') === 'dark' || localStorage.getItem('theme') === 'dark' || localStorage.getItem('paragon.theme.variant') === 'dark' || cookieTheme === 'dark';
       setDarkMode(isDark);
     };
     checkDarkMode();
-
-    // Listen for theme changes from Open edX
     var observer = new MutationObserver(checkDarkMode);
     observer.observe(document.documentElement, {
       attributes: true,
@@ -84,8 +79,6 @@ var DesktopHeader = function DesktopHeader(_ref) {
       return observer.disconnect();
     };
   }, []);
-
-  // Apply body margin when sidebar state changes
   useEffect(function () {
     var mainContent = document.querySelector('#main');
     if (mainContent) {
@@ -93,40 +86,32 @@ var DesktopHeader = function DesktopHeader(_ref) {
       mainContent.style.transition = 'margin-left 0.3s ease';
     }
   }, [sidebarCollapsed]);
-
-  // Toggle dark mode using Open edX default method
   var toggleDarkMode = function toggleDarkMode() {
     var htmlElement = document.documentElement;
     var bodyElement = document.body;
     var newDarkMode = !darkMode;
+    var themeValue = newDarkMode ? 'dark' : 'light';
+    document.cookie = 'indigo-toggle-dark=' + themeValue + ';path=/;domain=.striverra.com;max-age=7776000';
+    localStorage.setItem('theme', themeValue);
+    localStorage.setItem('paragon.theme.variant', themeValue);
     if (newDarkMode) {
-      // Enable dark mode (Paragon style)
       htmlElement.classList.add('pgn__dark-mode');
       bodyElement.classList.add('pgn__dark-mode');
       htmlElement.setAttribute('data-theme', 'dark');
       bodyElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('theme', 'dark');
-      localStorage.setItem('paragon.theme.variant', 'dark');
     } else {
-      // Disable dark mode
       htmlElement.classList.remove('pgn__dark-mode');
       bodyElement.classList.remove('pgn__dark-mode');
       htmlElement.setAttribute('data-theme', 'light');
       bodyElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('theme', 'light');
-      localStorage.setItem('paragon.theme.variant', 'light');
     }
     setDarkMode(newDarkMode);
-
-    // Trigger Paragon theme change event
     var event = new CustomEvent('paragon.themeChanged', {
       detail: {
-        theme: newDarkMode ? 'dark' : 'light'
+        theme: themeValue
       }
     });
     window.dispatchEvent(event);
-
-    // Also trigger generic theme change event
     var themeEvent = new CustomEvent('themeChanged', {
       detail: {
         darkMode: newDarkMode
@@ -134,13 +119,9 @@ var DesktopHeader = function DesktopHeader(_ref) {
     });
     window.dispatchEvent(themeEvent);
   };
-
-  // Toggle sidebar collapse
   var toggleSidebar = function toggleSidebar() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
-
-  // Get page title from URL
   var getPageTitle = function getPageTitle() {
     var path = window.location.pathname;
     if (path.includes('dashboard')) {
@@ -163,24 +144,16 @@ var DesktopHeader = function DesktopHeader(_ref) {
     }
     return getConfig().SITE_NAME || 'Learning Platform';
   };
-
-  // Enhanced icon mapping function
   var getIconForMenuItem = function getIconForMenuItem(item, index) {
     var href = (item.href || '').toLowerCase();
     var content = (item.content || '').toLowerCase();
-
-    // Match by content/href keywords
     if (content.includes('home') || href.endsWith('/') || href.endsWith('/home')) return 'home';
     if (content.includes('dashboard') || href.includes('dashboard')) return 'layout-dashboard';
     if (content.includes('course') || href.includes('/courses')) return 'book-open';
     if (content.includes('program') || content.includes('learning path') || href.includes('program')) return 'route';
-
-    // Fallback to position-based icons
     var defaultIcons = ['home', 'layout-dashboard', 'book-open', 'route'];
     return defaultIcons[index] || 'circle';
   };
-
-  // Map user menu items to include icons
   var getIconForUserMenuItem = function getIconForUserMenuItem(item) {
     var href = (item.href || '').toLowerCase();
     var content = (item.content || '').toLowerCase();
@@ -192,23 +165,17 @@ var DesktopHeader = function DesktopHeader(_ref) {
     if (content.includes('logout') || content.includes('sign out') || href.includes('logout')) return 'log-out';
     return 'circle';
   };
-
-  // Determine which logo to show
   var getLogoSrc = function getLogoSrc() {
     if (sidebarCollapsed) {
       return logo || 'https://page.gensparksite.com/v1/base64_upload/54d382973dd8c88b434a48567fa6c866';
     }
     return logo || (darkMode ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd' : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6');
   };
-
-  // ✅ FIXED: Transform and build EXACT menu order: Home → My Dashboard → Courses
   var buildCorrectMenu = function buildCorrectMenu() {
     var _getConfig$FEATURES$E, _getConfig$FEATURES;
     var baseUrl = getConfig().LMS_BASE_URL;
     var discoveryEnabled = (_getConfig$FEATURES$E = (_getConfig$FEATURES = getConfig().FEATURES) === null || _getConfig$FEATURES === void 0 ? void 0 : _getConfig$FEATURES.ENABLE_DISCOVERY) !== null && _getConfig$FEATURES$E !== void 0 ? _getConfig$FEATURES$E : false;
     var menuItems = [];
-
-    // 1. ALWAYS add Home FIRST (index 0)
     menuItems.push({
       href: logoDestination || "".concat(baseUrl, "/"),
       content: intl.formatMessage({
@@ -217,8 +184,6 @@ var DesktopHeader = function DesktopHeader(_ref) {
       }),
       icon: 'home'
     });
-
-    // 2. ALWAYS add My Dashboard SECOND (index 1)
     menuItems.push({
       href: "".concat(baseUrl, "/dashboard"),
       content: intl.formatMessage({
@@ -227,8 +192,6 @@ var DesktopHeader = function DesktopHeader(_ref) {
       }),
       icon: 'layout-dashboard'
     });
-
-    // 3. ALWAYS add Courses THIRD (index 2)
     menuItems.push({
       href: "".concat(baseUrl, "/courses"),
       content: intl.formatMessage({
@@ -237,8 +200,6 @@ var DesktopHeader = function DesktopHeader(_ref) {
       }),
       icon: 'book-open'
     });
-
-    // 4. Add Learning Paths FOURTH only if discovery enabled
     if (discoveryEnabled) {
       menuItems.push({
         href: "".concat(baseUrl, "/programs"),
@@ -249,18 +210,12 @@ var DesktopHeader = function DesktopHeader(_ref) {
         icon: 'route'
       });
     }
-
-    // 5. Process mainMenu and secondaryMenu for OTHER items (skip duplicates)
     var processedItems = new Set(['/', '/dashboard', '/courses', '/programs']);
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach(function (item) {
         var href = item.href || '';
         var content = (item.content || '').toLowerCase();
-
-        // Skip AI Studio items and our core 4 items
-        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
-          return;
-        }
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) return;
         var cleanHref = href.replace(baseUrl, '').toLowerCase();
         if (!processedItems.has(cleanHref) && !cleanHref.endsWith('/') && !cleanHref.endsWith('/home')) {
           menuItems.push(_objectSpread(_objectSpread({}, item), {}, {
@@ -274,11 +229,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
       secondaryMenu.forEach(function (item) {
         var href = item.href || '';
         var content = (item.content || '').toLowerCase();
-
-        // Skip AI Studio items
-        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) {
-          return;
-        }
+        if (content.includes('ai') || content.includes('studio') || href.includes('ai-studio')) return;
         var cleanHref = href.replace(baseUrl, '').toLowerCase();
         if (!processedItems.has(cleanHref)) {
           menuItems.push(_objectSpread(_objectSpread({}, item), {}, {
@@ -329,9 +280,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
     role: "button",
     tabIndex: 0,
     onKeyPress: function onKeyPress(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        setUserMenuOpen(!userMenuOpen);
-      }
+      if (e.key === 'Enter' || e.key === ' ') setUserMenuOpen(!userMenuOpen);
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "user-avatar"
@@ -428,9 +377,9 @@ var DesktopHeader = function DesktopHeader(_ref) {
     className: "dark-mode-toggle",
     onClick: toggleDarkMode,
     title: "Toggle dark mode",
-    "aria-label": darkMode ? "Switch to light mode" : "Switch to dark mode"
+    "aria-label": darkMode ? 'Switch to light mode' : 'Switch to dark mode'
   }, /*#__PURE__*/React.createElement("i", {
-    "data-lucide": darkMode ? "sun" : "moon",
+    "data-lucide": darkMode ? 'sun' : 'moon',
     style: iconStyle
   }))));
 };
