@@ -32,7 +32,7 @@ const DesktopHeader = ({
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
   // -------------------------------------------------------------
-  // 🔥 FIXED DARK MODE SYNC: check cookie FIRST and APPLY theme
+  // 🔥 DARK MODE SYNC: check cookie FIRST and APPLY theme
   // -------------------------------------------------------------
   useEffect(() => {
     const getCookie = (name) => {
@@ -45,27 +45,36 @@ const DesktopHeader = ({
       const html = document.documentElement;
       const body = document.body;
 
-      const cookieTheme = getCookie("indigo-toggle-dark");
-      const mfeTheme = localStorage.getItem("theme");
-      const paragonTheme = localStorage.getItem("paragon.theme.variant");
-      const legacyTheme = localStorage.getItem("hexis-theme");
+      const cookieTheme = getCookie('indigo-toggle-dark');
+      const mfeTheme = localStorage.getItem('theme');
+      const paragonTheme = localStorage.getItem('paragon.theme.variant');
+      const legacyTheme = localStorage.getItem('hexis-theme');
 
       // --------------------------
       // 1️⃣ COOKIE TAKES PRIORITY
       // --------------------------
-      if (cookieTheme === "dark" || cookieTheme === "light") {
-        const isDark = cookieTheme === "dark";
+      if (cookieTheme === 'dark' || cookieTheme === 'light') {
+        const isDark = cookieTheme === 'dark';
+
+        const currentTheme = html.getAttribute('data-theme');
+        if (
+          (isDark && currentTheme === 'dark') ||
+          (!isDark && currentTheme === 'light')
+        ) {
+          setDarkMode(isDark);
+          return;
+        }
 
         if (isDark) {
-          html.classList.add("pgn__dark-mode");
-          body.classList.add("pgn__dark-mode");
-          html.setAttribute("data-theme", "dark");
-          body.setAttribute("data-theme", "dark");
+          html.classList.add('pgn__dark-mode');
+          body.classList.add('pgn__dark-mode');
+          html.setAttribute('data-theme', 'dark');
+          body.setAttribute('data-theme', 'dark');
         } else {
-          html.classList.remove("pgn__dark-mode");
-          body.classList.remove("pgn__dark-mode");
-          html.setAttribute("data-theme", "light");
-          body.setAttribute("data-theme", "light");
+          html.classList.remove('pgn__dark-mode');
+          body.classList.remove('pgn__dark-mode');
+          html.setAttribute('data-theme', 'light');
+          body.setAttribute('data-theme', 'light');
         }
 
         setDarkMode(isDark);
@@ -76,32 +85,29 @@ const DesktopHeader = ({
       // 2️⃣ FALLBACK: localStorage
       // --------------------------
       const isDark =
-        legacyTheme === "dark" ||
-        mfeTheme === "dark" ||
-        paragonTheme === "dark";
+        legacyTheme === 'dark' ||
+        mfeTheme === 'dark' ||
+        paragonTheme === 'dark';
 
       if (isDark) {
-        html.classList.add("pgn__dark-mode");
-        body.classList.add("pgn__dark-mode");
-        html.setAttribute("data-theme", "dark");
-        body.setAttribute("data-theme", "dark");
+        html.classList.add('pgn__dark-mode');
+        body.classList.add('pgn__dark-mode');
+        html.setAttribute('data-theme', 'dark');
+        body.setAttribute('data-theme', 'dark');
       } else {
-        html.classList.remove("pgn__dark-mode");
-        body.classList.remove("pgn__dark-mode");
-        html.setAttribute("data-theme", "light");
-        body.setAttribute("data-theme", "light");
+        html.classList.remove('pgn__dark-mode');
+        body.classList.remove('pgn__dark-mode');
+        html.setAttribute('data-theme', 'light');
+        body.setAttribute('data-theme', 'light');
       }
 
       setDarkMode(isDark);
     };
 
+    // ✅ Run once on mount to apply theme based on cookie/localStorage
     checkDarkMode();
 
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-theme'] });
-
-    return () => observer.disconnect();
+    // ❌ MutationObserver REMOVED – no more infinite loop / hanging
   }, []);
 
   // ------------------------------
@@ -123,29 +129,29 @@ const DesktopHeader = ({
     const body = document.body;
 
     const newDarkMode = !darkMode;
-    const themeValue = newDarkMode ? "dark" : "light";
+    const themeValue = newDarkMode ? 'dark' : 'light';
 
     // Cross-domain cookie
     document.cookie =
       `indigo-toggle-dark=${themeValue};path=/;domain=.striverra.com;max-age=7776000;Secure;SameSite=None`;
 
     // Update MFE storages
-    localStorage.setItem("theme", themeValue);
-    localStorage.setItem("paragon.theme.variant", themeValue);
+    localStorage.setItem('theme', themeValue);
+    localStorage.setItem('paragon.theme.variant', themeValue);
 
     // Update legacy localStorage (sync back)
-    localStorage.setItem("hexis-theme", themeValue);
+    localStorage.setItem('hexis-theme', themeValue);
 
     if (newDarkMode) {
-      html.classList.add("pgn__dark-mode");
-      body.classList.add("pgn__dark-mode");
-      html.setAttribute("data-theme", "dark");
-      body.setAttribute("data-theme", "dark");
+      html.classList.add('pgn__dark-mode');
+      body.classList.add('pgn__dark-mode');
+      html.setAttribute('data-theme', 'dark');
+      body.setAttribute('data-theme', 'dark');
     } else {
-      html.classList.remove("pgn__dark-mode");
-      body.classList.remove("pgn__dark-mode");
-      html.setAttribute("data-theme", "light");
-      body.setAttribute("data-theme", "light");
+      html.classList.remove('pgn__dark-mode');
+      body.classList.remove('pgn__dark-mode');
+      html.setAttribute('data-theme', 'light');
+      body.setAttribute('data-theme', 'light');
     }
 
     setDarkMode(newDarkMode);
@@ -205,8 +211,9 @@ const DesktopHeader = ({
     const discoveryEnabled = getConfig().FEATURES?.ENABLE_DISCOVERY ?? false;
     const menuItems = [];
 
+    // ✅ HOME → {LMS_BASE_URL}/home/
     menuItems.push({
-      href: logoDestination || `${baseUrl}/`,
+      href: `${baseUrl}/home/`,
       content: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
       icon: 'home',
     });
@@ -231,7 +238,7 @@ const DesktopHeader = ({
       });
     }
 
-    const processedItems = new Set(['/', '/dashboard', '/courses', '/programs']);
+    const processedItems = new Set(['/', '/dashboard', '/courses', '/programs', '/home/']);
 
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach((item) => {

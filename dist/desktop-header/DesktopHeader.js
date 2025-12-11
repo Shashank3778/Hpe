@@ -53,7 +53,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
 
   // -------------------------------------------------------------
-  // 🔥 FIXED DARK MODE SYNC: check cookie FIRST and APPLY theme
+  // 🔥 DARK MODE SYNC: check cookie FIRST and APPLY theme
   // -------------------------------------------------------------
   useEffect(function () {
     var getCookie = function getCookie(name) {
@@ -65,26 +65,31 @@ var DesktopHeader = function DesktopHeader(_ref) {
     var checkDarkMode = function checkDarkMode() {
       var html = document.documentElement;
       var body = document.body;
-      var cookieTheme = getCookie("indigo-toggle-dark");
-      var mfeTheme = localStorage.getItem("theme");
-      var paragonTheme = localStorage.getItem("paragon.theme.variant");
-      var legacyTheme = localStorage.getItem("hexis-theme");
+      var cookieTheme = getCookie('indigo-toggle-dark');
+      var mfeTheme = localStorage.getItem('theme');
+      var paragonTheme = localStorage.getItem('paragon.theme.variant');
+      var legacyTheme = localStorage.getItem('hexis-theme');
 
       // --------------------------
       // 1️⃣ COOKIE TAKES PRIORITY
       // --------------------------
-      if (cookieTheme === "dark" || cookieTheme === "light") {
-        var _isDark = cookieTheme === "dark";
+      if (cookieTheme === 'dark' || cookieTheme === 'light') {
+        var _isDark = cookieTheme === 'dark';
+        var currentTheme = html.getAttribute('data-theme');
+        if (_isDark && currentTheme === 'dark' || !_isDark && currentTheme === 'light') {
+          setDarkMode(_isDark);
+          return;
+        }
         if (_isDark) {
-          html.classList.add("pgn__dark-mode");
-          body.classList.add("pgn__dark-mode");
-          html.setAttribute("data-theme", "dark");
-          body.setAttribute("data-theme", "dark");
+          html.classList.add('pgn__dark-mode');
+          body.classList.add('pgn__dark-mode');
+          html.setAttribute('data-theme', 'dark');
+          body.setAttribute('data-theme', 'dark');
         } else {
-          html.classList.remove("pgn__dark-mode");
-          body.classList.remove("pgn__dark-mode");
-          html.setAttribute("data-theme", "light");
-          body.setAttribute("data-theme", "light");
+          html.classList.remove('pgn__dark-mode');
+          body.classList.remove('pgn__dark-mode');
+          html.setAttribute('data-theme', 'light');
+          body.setAttribute('data-theme', 'light');
         }
         setDarkMode(_isDark);
         return; // cookie decides theme completely
@@ -93,33 +98,25 @@ var DesktopHeader = function DesktopHeader(_ref) {
       // --------------------------
       // 2️⃣ FALLBACK: localStorage
       // --------------------------
-      var isDark = legacyTheme === "dark" || mfeTheme === "dark" || paragonTheme === "dark";
+      var isDark = legacyTheme === 'dark' || mfeTheme === 'dark' || paragonTheme === 'dark';
       if (isDark) {
-        html.classList.add("pgn__dark-mode");
-        body.classList.add("pgn__dark-mode");
-        html.setAttribute("data-theme", "dark");
-        body.setAttribute("data-theme", "dark");
+        html.classList.add('pgn__dark-mode');
+        body.classList.add('pgn__dark-mode');
+        html.setAttribute('data-theme', 'dark');
+        body.setAttribute('data-theme', 'dark');
       } else {
-        html.classList.remove("pgn__dark-mode");
-        body.classList.remove("pgn__dark-mode");
-        html.setAttribute("data-theme", "light");
-        body.setAttribute("data-theme", "light");
+        html.classList.remove('pgn__dark-mode');
+        body.classList.remove('pgn__dark-mode');
+        html.setAttribute('data-theme', 'light');
+        body.setAttribute('data-theme', 'light');
       }
       setDarkMode(isDark);
     };
+
+    // ✅ Run once on mount to apply theme based on cookie/localStorage
     checkDarkMode();
-    var observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class', 'data-theme']
-    });
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class', 'data-theme']
-    });
-    return function () {
-      return observer.disconnect();
-    };
+
+    // ❌ MutationObserver REMOVED – no more infinite loop / hanging
   }, []);
 
   // ------------------------------
@@ -140,27 +137,27 @@ var DesktopHeader = function DesktopHeader(_ref) {
     var html = document.documentElement;
     var body = document.body;
     var newDarkMode = !darkMode;
-    var themeValue = newDarkMode ? "dark" : "light";
+    var themeValue = newDarkMode ? 'dark' : 'light';
 
     // Cross-domain cookie
     document.cookie = "indigo-toggle-dark=".concat(themeValue, ";path=/;domain=.striverra.com;max-age=7776000;Secure;SameSite=None");
 
     // Update MFE storages
-    localStorage.setItem("theme", themeValue);
-    localStorage.setItem("paragon.theme.variant", themeValue);
+    localStorage.setItem('theme', themeValue);
+    localStorage.setItem('paragon.theme.variant', themeValue);
 
     // Update legacy localStorage (sync back)
-    localStorage.setItem("hexis-theme", themeValue);
+    localStorage.setItem('hexis-theme', themeValue);
     if (newDarkMode) {
-      html.classList.add("pgn__dark-mode");
-      body.classList.add("pgn__dark-mode");
-      html.setAttribute("data-theme", "dark");
-      body.setAttribute("data-theme", "dark");
+      html.classList.add('pgn__dark-mode');
+      body.classList.add('pgn__dark-mode');
+      html.setAttribute('data-theme', 'dark');
+      body.setAttribute('data-theme', 'dark');
     } else {
-      html.classList.remove("pgn__dark-mode");
-      body.classList.remove("pgn__dark-mode");
-      html.setAttribute("data-theme", "light");
-      body.setAttribute("data-theme", "light");
+      html.classList.remove('pgn__dark-mode');
+      body.classList.remove('pgn__dark-mode');
+      html.setAttribute('data-theme', 'light');
+      body.setAttribute('data-theme', 'light');
     }
     setDarkMode(newDarkMode);
   };
@@ -215,8 +212,10 @@ var DesktopHeader = function DesktopHeader(_ref) {
     var baseUrl = getConfig().LMS_BASE_URL;
     var discoveryEnabled = (_getConfig$FEATURES$E = (_getConfig$FEATURES = getConfig().FEATURES) === null || _getConfig$FEATURES === void 0 ? void 0 : _getConfig$FEATURES.ENABLE_DISCOVERY) !== null && _getConfig$FEATURES$E !== void 0 ? _getConfig$FEATURES$E : false;
     var menuItems = [];
+
+    // ✅ HOME → {LMS_BASE_URL}/home/
     menuItems.push({
-      href: logoDestination || "".concat(baseUrl, "/"),
+      href: "".concat(baseUrl, "/home/"),
       content: intl.formatMessage({
         id: 'header.links.home',
         defaultMessage: 'Home'
@@ -249,7 +248,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
         icon: 'route'
       });
     }
-    var processedItems = new Set(['/', '/dashboard', '/courses', '/programs']);
+    var processedItems = new Set(['/', '/dashboard', '/courses', '/programs', '/home/']);
     if (mainMenu && mainMenu.length > 0) {
       mainMenu.forEach(function (item) {
         var href = item.href || '';
