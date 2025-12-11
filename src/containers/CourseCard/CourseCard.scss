@@ -73,8 +73,8 @@
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background-color: #f3f4f6;
-    color: #6b7280;
+    background-color: var(--icon-bg-neutral);
+    color: var(--text-secondary);
     margin-bottom: 10px;
     font-family: Inter, sans-serif;
   }

@@ -13,6 +13,21 @@
     }
   }
 }
+.course-list-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  width: 100%;
+  padding: 40px 20px;
+  
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: var(#009900);
+    margin: 0 !important; // Override .mie-3 margin
+  }
+}
 
 @media (--pgn-size-breakpoint-max-width-lg) {
   .sidebar-column {
