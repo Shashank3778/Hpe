@@ -46,7 +46,7 @@
   text-decoration: none;
   font-size: 17px;
   transition: color 0.3s ease;
-
+  font-family: sans-serif;
   &:hover {
     color: #009900;
     text-decoration: none;
@@ -54,11 +54,12 @@
 }
 
 .footer-bottom {
-  color: var(--text-secondary, #666);
+  color: #6b7280;
   font-size: 14px;
   padding-top: 20px;
   border-top: 1px solid var(--border-color, #e0e0e0);
   margin: 0 auto;
+  font-family: sans-serif;
 }
 
 // Mobile responsive
