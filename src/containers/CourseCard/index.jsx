@@ -6,12 +6,12 @@ import CourseCardMenu from './components/CourseCardMenu';
 import CourseCardDetails from './components/CourseCardDetails';
 import CourseCardTitle from './components/CourseCardTitle';
 import useCardDates from './components/CourseCardDetails/useCardDates';
-import { initLucideIcons } from '../../utils/iconUtils'; // ✅ Import your utility
-
+import { initLucideIcons } from '../../utils/iconUtils'; 
 import './CourseCard.scss';
 
 export const CourseCard = ({ cardId }) => {
   const { startDate, endDate } = useCardDates({ cardId });
+   const iconStyle = { width: '14px', height: '14px', color: '#009900' };
 
   useEffect(() => {
     initLucideIcons();
@@ -35,7 +35,7 @@ export const CourseCard = ({ cardId }) => {
             <div className="course-dates-section">
               {startDate && (
                 <div className="date-item">
-                  <i data-lucide="calendar" className="date-icon"></i>
+                  <i data-lucide="calendar" className="date-icon" style={iconStyle}></i>
                   <span className="date-value">{startDate}</span>
                 </div>
               )}
