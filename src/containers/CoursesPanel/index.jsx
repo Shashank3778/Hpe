@@ -21,23 +21,23 @@ export const CoursesPanel = () => {
 
   const [activeTab, setActiveTab] = useState('enrolled');
 
-  // Categorize courses based on courseRun and certificate properties
+  // Categorize ALL courses (not just visibleList)
   const categorizedCourses = useMemo(() => {
     const enrolled = [];
     const completed = [];
     const cancelled = [];
 
-    if (!courseListData?.visibleList || !allCourseData) {
+    if (!allCourseData) {
       return { enrolled, completed, cancelled };
     }
 
-    courseListData.visibleList.forEach((item) => {
-      const { cardId } = item;
+    // Get all cardIds from allCourseData instead of visibleList
+    const allCardIds = Object.keys(allCourseData);
+
+    allCardIds.forEach((cardId) => {
       const course = allCourseData[cardId];
 
       if (!course) {
-        // If course data not found, default to enrolled
-        enrolled.push(item);
         return;
       }
 
@@ -50,32 +50,31 @@ export const CoursesPanel = () => {
       const isEarned = certificate.isEarned === true;
       const isDownloadable = certificate.isDownloadable === true;
 
+      // Create the item object with cardId
+      const item = { cardId };
+
       // Categorization logic with priority: Cancelled > Completed > Enrolled
       if (isArchived) {
-        // courseRun.isArchived: true → Cancelled tab
         cancelled.push(item);
       } else if (isEarned || isDownloadable) {
-        // certificate.isEarned OR certificate.isDownloadable → Completed tab
         completed.push(item);
       } else if (isStarted) {
-        // courseRun.isStarted: true → Enrolled tab
         enrolled.push(item);
       } else {
-        // Default: add to enrolled if no specific condition is met
         enrolled.push(item);
       }
     });
 
     return { enrolled, completed, cancelled };
-  }, [courseListData?.visibleList, allCourseData]);
+  }, [allCourseData]);
 
-  // Create filtered courseListData for the active tab with pagination disabled
+  // Create filtered courseListData for the active tab
   const filteredCourseListData = useMemo(() => {
     return {
       ...courseListData,
       visibleList: categorizedCourses[activeTab],
-      numPages: 1, // Force single page
-      showFilters: false, // Hide filters if you want
+      numPages: 1,
+      showFilters: false,
     };
   }, [courseListData, categorizedCourses, activeTab]);
 
