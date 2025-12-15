@@ -23,13 +23,13 @@ var Footer = function Footer() {
     setSidebarCollapsed = _useState2[1];
   var footerLinks = [{
     label: 'Support',
-    href: "".concat(baseUrl, "/support")
+    href: 'https://hexishiring.com/support.html'
   }, {
-    label: 'Privacy Policy',
+    label: 'Terms of Use and Privacy Policy',
     href: "".concat(baseUrl, "/privacy")
   }, {
-    label: 'Terms',
-    href: "".concat(baseUrl, "/tos")
+    label: 'Hexis Hiring',
+    href: 'https://hexishiring.com/'
   }];
 
   // Sync footer with sidebar state from header component

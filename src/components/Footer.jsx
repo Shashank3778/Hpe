@@ -16,9 +16,9 @@ const Footer = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const footerLinks = [
-    { label: 'Support', href: `${baseUrl}/support` },
-    { label: 'Privacy Policy', href: `${baseUrl}/privacy` },
-    { label: 'Terms', href: `${baseUrl}/tos` },
+    { label: 'Support', href: 'https://hexishiring.com/support.html' },
+    { label: 'Terms of Use and Privacy Policy', href: `${baseUrl}/privacy` },
+    { label: 'Hexis Hiring', href: 'https://hexishiring.com/' },
   ];
 
   // Sync footer with sidebar state from header component
