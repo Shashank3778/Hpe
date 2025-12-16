@@ -48,6 +48,10 @@ var DesktopHeader = function DesktopHeader(_ref) {
     height: '20px',
     flexShrink: 0
   };
+  var iconStyles = {
+    width: '24px',
+    height: '24px'
+  };
   useEffect(function () {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
@@ -408,7 +412,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
     "aria-label": "Toggle sidebar"
   }, /*#__PURE__*/React.createElement("i", {
     "data-lucide": "menu",
-    style: iconStyle
+    style: iconStyles
   })), /*#__PURE__*/React.createElement("h1", {
     className: "page-title"
   }, getPageTitle()), /*#__PURE__*/React.createElement("button", {

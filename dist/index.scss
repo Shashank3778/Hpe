@@ -86,7 +86,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   border-radius: 4px;
   transition: all 0.2s ease;
 
@@ -108,7 +108,7 @@ main {
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;

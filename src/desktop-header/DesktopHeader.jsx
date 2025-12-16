@@ -26,7 +26,7 @@ const DesktopHeader = ({
   const [darkMode, setDarkMode] = useState(false);
 
   const iconStyle = { width: '20px', height: '20px', flexShrink: 0 };
-
+  const iconStyles = { width: '24px', height: '24px' };
   useEffect(() => {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
@@ -404,7 +404,7 @@ const DesktopHeader = ({
         style={{ marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)' }}
       >
         <button className="header-toggle-btn" onClick={toggleSidebar} aria-label="Toggle sidebar">
-          <i data-lucide="menu" style={iconStyle} />
+          <i data-lucide="menu" style={iconStyles} />
         </button>
 
         <h1 className="page-title">{getPageTitle()}</h1>
