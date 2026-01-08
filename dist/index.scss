@@ -29,6 +29,7 @@ $rounded-pill: 50rem  !default;
 
   --primary-color: #009900;
   --icon-bg-neutral: #f3f4f6;
+  --icon-color:#4b5563;
 }
 
 [data-theme="dark"] {
@@ -42,8 +43,10 @@ $rounded-pill: 50rem  !default;
   --sidebar-text: #cbd5e1;
   --sidebar-text-hover: #ffffff;
 
-  --primary-color: #009900;
+  --primary-color: #5f6aff;
   --icon-bg-neutral:#1e293b;
+
+  --icon-color:#94a3b8:
 }
 
 /* ======================================

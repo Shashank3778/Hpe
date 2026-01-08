@@ -7,6 +7,8 @@ import { desktopLoggedOutItemsDataShape } from './DesktopLoggedOutItems';
 import { desktopHeaderMainOrSecondaryMenuDataShape } from './DesktopHeaderMainOrSecondaryMenu';
 import { desktopUserMenuDataShape } from './DesktopHeaderUserMenu';
 import messages from '../Header.messages';
+import logoDark from '../assets/logo-dark.png';
+
 
 const DesktopHeader = ({
   mainMenu,
@@ -201,8 +203,8 @@ const DesktopHeader = ({
     return (
       logo ||
       (darkMode
-        ? 'https://page.gensparksite.com/v1/base64_upload/ad05d62f61694c1b9e0c098a49605edd'
-        : 'https://page.gensparksite.com/v1/base64_upload/da846373020a3c31a9216cdb58c175b6')
+        ? logoDark
+        : logoDark)
     );
   };
 
