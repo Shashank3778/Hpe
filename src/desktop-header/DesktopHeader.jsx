@@ -26,12 +26,69 @@ const DesktopHeader = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [userFullName, setUserFullName] = useState('');
+  const [userInitials, setUserInitials] = useState('U');
 
   const iconStyle = { width: '20px', height: '20px', flexShrink: 0 };
   const iconStyles = { width: '24px', height: '24px' };
+  
   useEffect(() => {
     initLucideIcons();
   }, [sidebarCollapsed, userMenuOpen, darkMode]);
+
+  // ✅ Fetch user's full name from Open edX API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!loggedIn || !username) {
+        setUserFullName('User');
+        setUserInitials('U');
+        return;
+      }
+
+      try {
+        const baseUrl = getConfig().LMS_BASE_URL;
+        const accountApiUrl = `${baseUrl}/api/user/v1/accounts/${username}`;
+        
+        const response = await fetch(accountApiUrl, {
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          const fullName = userData.name || username;
+          setUserFullName(fullName);
+          
+          // Calculate initials from full name
+          const nameParts = fullName.trim().split(/\s+/).filter(part => part.length > 0);
+          let initials = 'U';
+          
+          if (nameParts.length === 0) {
+            initials = 'U';
+          } else if (nameParts.length === 1) {
+            // Only first name: take first letter
+            initials = nameParts[0][0].toUpperCase();
+          } else {
+            // First name + Last name: take first letter of each
+            initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
+          }
+          
+          setUserInitials(initials);
+        } else {
+          setUserFullName(username);
+          setUserInitials(username[0].toUpperCase());
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setUserFullName(username);
+        setUserInitials(username[0].toUpperCase());
+      }
+    };
+
+    fetchUserData();
+  }, [username, loggedIn]);
 
   // -------------------------------------------------------------
   // 🔥 DARK MODE SYNC: check cookie FIRST and APPLY theme
@@ -210,7 +267,6 @@ const DesktopHeader = ({
 
   const buildCorrectMenu = () => {
     const baseUrl = getConfig().LMS_BASE_URL;
-    const discoveryEnabled = getConfig().FEATURES?.ENABLE_DISCOVERY ?? false;
     const menuItems = [];
 
     // ✅ HOME → {LMS_BASE_URL}/home/
@@ -232,13 +288,12 @@ const DesktopHeader = ({
       icon: 'book-open',
     });
 
-    if (discoveryEnabled) {
-      menuItems.push({
-        href: `${baseUrl}/programs`,
-        content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
-        icon: 'route',
-      });
-    }
+    // ✅ ALWAYS SHOW LEARNING PATHS
+    menuItems.push({
+      href: `${baseUrl}/programs`,
+      content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
+      icon: 'route',
+    });
 
     const processedItems = new Set(['/', '/dashboard', '/courses', '/programs', '/home/']);
 
@@ -321,13 +376,13 @@ const DesktopHeader = ({
             >
               <div className="user-avatar">
                 {avatar ? (
-                  <img src={avatar} alt={username} />
+                  <img src={avatar} alt={userFullName || username} />
                 ) : (
-                  <span>{username ? username.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}</span>
+                  <span>{userInitials}</span>
                 )}
               </div>
               <div className="user-info">
-                <div className="user-name">{username || 'User'}</div>
+                <div className="user-name">{userFullName || username || 'User'}</div>
               </div>
               <i data-lucide={userMenuOpen ? 'chevron-up' : 'chevron-down'} style={iconStyle} />
             </div>

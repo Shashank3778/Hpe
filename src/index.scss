@@ -27,7 +27,7 @@ $rounded-pill: 50rem  !default;
   --sidebar-text: #4b5563;
   --sidebar-text-hover: #1f2937;
 
-  --primary-color: #009900;
+  --primary-color: #5f6aff;
   --icon-bg-neutral: #f3f4f6;
   --icon-color:#4b5563;
 }
@@ -278,7 +278,7 @@ main {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: var(--primary-color);
+  background-color: var(--icon-bg-neutral);
   color: white;
   display: flex;
   align-items: center;
