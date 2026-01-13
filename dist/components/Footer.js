@@ -22,14 +22,17 @@ var Footer = function Footer() {
     sidebarCollapsed = _useState2[0],
     setSidebarCollapsed = _useState2[1];
   var footerLinks = [{
-    label: 'Support',
-    href: 'https://hexishiring.com/support.html'
+    label: 'Home',
+    href: "".concat(baseUrl)
   }, {
-    label: 'Terms of Use and Privacy Policy',
+    label: 'About Us',
+    href: "".concat(baseUrl, "/about")
+  }, {
+    label: 'FAQ',
     href: "".concat(baseUrl, "/privacy")
   }, {
-    label: 'Hexis Hiring',
-    href: 'https://hexishiring.com/'
+    label: 'Contact Us',
+    href: "".concat(baseUrl, "/contact")
   }];
 
   // Sync footer with sidebar state from header component
@@ -86,7 +89,7 @@ var Footer = function Footer() {
     }, link.label);
   }))), /*#__PURE__*/React.createElement("div", {
     className: "footer-bottom"
-  }, "\xA9 ", currentYear, " Hexis Academy. All rights reserved."));
+  }, "Copyrights \xA9", currentYear, " . All Rights Reserved."));
 };
 export { EVENT_NAMES };
 export default Footer;
