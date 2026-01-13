@@ -16,9 +16,10 @@ const Footer = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const footerLinks = [
-    { label: 'Support', href: 'https://hexishiring.com/support.html' },
-    { label: 'Terms of Use and Privacy Policy', href: `${baseUrl}/privacy` },
-    { label: 'Hexis Hiring', href: 'https://hexishiring.com/' },
+    { label: 'Home', href: `${baseUrl}` },
+    { label: 'About Us', href: `${baseUrl}/about` },
+    { label: 'FAQ', href: `${baseUrl}/privacy` },
+    { label: 'Contact Us', href: `${baseUrl}/contact` },
   ];
 
   // Sync footer with sidebar state from header component
@@ -82,7 +83,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        © {currentYear} Hexis Academy. All rights reserved.
+       Copyrights ©{currentYear} . All Rights Reserved.
       </div>
     </footer>
   );
