@@ -271,7 +271,7 @@ const DesktopHeader = ({
 
     // ✅ HOME → {LMS_BASE_URL}/home/
     menuItems.push({
-      href: `${baseUrl}/home/`,
+      href: `${baseUrl}`,
       content: intl.formatMessage({ id: 'header.links.home', defaultMessage: 'Home' }),
       icon: 'home',
     });
@@ -290,7 +290,7 @@ const DesktopHeader = ({
 
     // ✅ ALWAYS SHOW LEARNING PATHS
     menuItems.push({
-      href: `${baseUrl}/programs`,
+      href: `${baseUrl}/ddashboard/programs/`,
       content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
       icon: 'route',
     });
