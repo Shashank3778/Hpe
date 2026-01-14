@@ -290,7 +290,7 @@ const DesktopHeader = ({
 
     // ✅ ALWAYS SHOW LEARNING PATHS
     menuItems.push({
-      href: `${baseUrl}/ddashboard/programs/`,
+      href: `${baseUrl}/dashboard/programs/`,
       content: intl.formatMessage({ id: 'header.links.programs', defaultMessage: 'Learning Paths' }),
       icon: 'route',
     });

@@ -336,7 +336,7 @@ var DesktopHeader = function DesktopHeader(_ref) {
 
     // ✅ ALWAYS SHOW LEARNING PATHS
     menuItems.push({
-      href: "".concat(baseUrl, "/ddashboard/programs/"),
+      href: "".concat(baseUrl, "/dashboard/programs/"),
       content: intl.formatMessage({
         id: 'header.links.programs',
         defaultMessage: 'Learning Paths'
