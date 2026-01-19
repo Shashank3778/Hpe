@@ -1,6 +1,5 @@
 .tx
 coverage
-dist
 node_modules
 public
 src
