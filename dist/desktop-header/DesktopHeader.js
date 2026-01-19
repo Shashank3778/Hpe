@@ -455,6 +455,14 @@ var DesktopHeader = function DesktopHeader(_ref) {
   }), /*#__PURE__*/React.createElement("span", null, "Dashboard"))), /*#__PURE__*/React.createElement("li", {
     className: "nav-item"
   }, /*#__PURE__*/React.createElement("a", {
+    href: "".concat(getConfig().LMS_BASE_URL, "/analytics"),
+    className: "nav-link"
+  }, /*#__PURE__*/React.createElement("i", {
+    "data-lucide": "bar-chart-3",
+    style: iconStyle
+  }), /*#__PURE__*/React.createElement("span", null, "Analytics"))), /*#__PURE__*/React.createElement("li", {
+    className: "nav-item"
+  }, /*#__PURE__*/React.createElement("a", {
     href: "".concat(getConfig().ACCOUNT_PROFILE_URL, "/u/").concat(username),
     className: "nav-link"
   }, /*#__PURE__*/React.createElement("i", {

@@ -412,6 +412,12 @@ const DesktopHeader = ({
                       </a>
                     </li>
                     <li className="nav-item">
+                      <a href={`${getConfig().LMS_BASE_URL}/analytics`} className="nav-link">
+                        <i data-lucide="bar-chart-3" style={iconStyle} />
+                        <span>Analytics</span>
+                      </a>
+                    </li>
+                    <li className="nav-item">
                       <a href={`${getConfig().ACCOUNT_PROFILE_URL}/u/${username}`} className="nav-link">
                         <i data-lucide="user" style={iconStyle} />
                         <span>Profile</span>
