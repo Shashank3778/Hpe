@@ -37,8 +37,9 @@ subscribe(APP_READY, async () => {
       <Header />
       <main id="main">
         <AppRoutes />
+        <FooterSlot />
       </main>
-      <FooterSlot />
+      
     </AppProvider>,
     document.getElementById('root'),
   );
