@@ -12,7 +12,8 @@ import { createRoot } from 'react-dom/client';
 import { Route, Routes, Outlet } from 'react-router-dom';
 
 import Header from '@edx/frontend-component-header';
-import { FooterSlot } from '@edx/frontend-component-footer';
+
+import Footer from '@edx/frontend-component-footer';
 
 import configureStore from './data/configureStore';
 import AccountSettingsPage, { NotFoundPage } from './account-settings';
@@ -34,7 +35,7 @@ subscribe(APP_READY, () => {
               <Header />
               <main className="flex-grow-1" id="main">
                 <Outlet />
-                 <FooterSlot />
+                 <Footer />
               </main>
              
             </div>
