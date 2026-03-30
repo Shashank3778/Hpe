@@ -44,6 +44,10 @@ const NextButton = ({
     onClickHandler();
   };
 
+  if (disabled) {
+    return null;
+  }
+
   if (isAtTop) {
     return (
       <IconButton
