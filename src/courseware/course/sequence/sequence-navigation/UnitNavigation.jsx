@@ -45,6 +45,10 @@ const UnitNavigation = ({
     const variant = 'outline-primary';
     const buttonStyle = `next-button ${isAtTop ? 'text-dark' : 'justify-content-center'}`;
 
+    if (disabled) {
+      return null;
+    }
+
     if (isAtTop) {
       return (
         <NextUnitTopNavTriggerSlot

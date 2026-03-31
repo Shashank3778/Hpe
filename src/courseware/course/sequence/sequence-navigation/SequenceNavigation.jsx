@@ -85,6 +85,9 @@ const SequenceNavigation = ({
     } else if (!shouldDisplayNotificationTriggerInSequence) {
       buttonText = intl.formatMessage(messages.nextButton);
     }
+    if (disabled) {
+      return null;
+    }
     return navigationDisabledNextSequence || (
       <NextUnitTopNavTriggerSlot
         {...{
