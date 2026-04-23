@@ -45,8 +45,26 @@ const UnitNavigation = ({
     const variant = 'outline-primary';
     const buttonStyle = `next-button ${isAtTop ? 'text-dark' : 'justify-content-center'}`;
 
-    if (disabled) {
+     if (isLastUnit && isAtTop) {
       return null;
+    }
+
+    // Show "End of Course" at bottom nav when on last unit
+    if (isLastUnit && !isAtTop) {
+      return (
+        <button
+          type="button"
+          className="justify-content-center btn btn-outline-primary"
+          style={{
+            pointerEvents: 'none',
+            cursor: 'default',
+            marginLeft: '8px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          End of Course
+        </button>
+      );
     }
 
     if (isAtTop) {
