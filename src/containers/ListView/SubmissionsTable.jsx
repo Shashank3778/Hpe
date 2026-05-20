@@ -41,8 +41,9 @@ export const SubmissionsTable = ({
 
   const userLabel = translate(isIndividual ? messages.username : messages.teamName);
 
+  // Show email instead of username for individual submissions
   const userAccessor = isIndividual
-    ? submissionFields.username
+    ? submissionFields.email
     : submissionFields.teamName;
 
   const dateSubmittedLabel = translate(isIndividual
@@ -131,6 +132,7 @@ SubmissionsTable.propTypes = {
   isIndividual: PropTypes.bool.isRequired,
   listData: PropTypes.arrayOf(PropTypes.shape({
     username: PropTypes.string,
+    email: PropTypes.string,
     dateSubmitted: PropTypes.string,
     gradingStatus: PropTypes.string,
     score: PropTypes.shape({
